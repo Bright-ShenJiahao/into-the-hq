@@ -121,7 +121,7 @@ const CARD_ICON = { note: 'pistol', s_beat: 'pistol', c_nambu: 'pistol', shoot: 
   barrage: 'smg', burst: 'smg', spread: 'smg', h_twin2: 'smg', c_ppsh: 'smg', h_sweep: 'casings', h_medkit: 'casings', c_type11: 'mg', h_drone: 'belt', expand: 'belt',
   overload: 'barrel', rapid: 'barrel', hs_quickmag: 'mag', hs_depot: 'mag', hs_medkit: 'medkit', hs_bayonet: 'bayonet', defend: 'cover' };
 const ICON_NAME = { pistol: '手枪', rifle: '步枪', apround: '穿甲弹', helmet: '钢盔', scope: '准星', binoc: '望远镜', round: '子弹', breath: '屏息', wind: '风向', smg: '冲锋枪', casings: '弹壳', mg: '机枪', belt: '弹带', barrel: '枪管', mag: '弹匣', medkit: '急救包', bayonet: '刺刀', cover: '掩体' };
-const ICONS_READY = new Set();
+const ICONS_READY = new Set(Object.keys(ICON_NAME)); /* 18 个图标都已出图 */
 function cardHTML(c, extra = '', attrs = '') {
   const d = CARDS[c.id], cost = d.cost[c.up ? 1 : 0], ic = CARD_ICON[c.id] || 'round';
   let badge = '', cls = '';
