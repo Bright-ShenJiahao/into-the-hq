@@ -1,5 +1,5 @@
 // 战斗规则引擎：纯逻辑，不碰 DOM。界面（game.js）和以后的机器人模拟共用这一份。
-import { CARDS, ENEMIES, WEAPONS, BAYONET } from './data.js';
+import { CARDS, ENEMIES, MAG, BAYONET, FEEL_MAX } from './data.js';
 
 export const mulberry = s => () => { s |= 0; s = s + 0x6D2B79F5 | 0; let t = Math.imul(s ^ s >>> 15, 1 | s); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
 export const shuffle = (a, r) => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
@@ -8,8 +8,6 @@ const addSt = (u, k, n) => { u.st[k] = (u.st[k] || 0) + n; if (u.st[k] <= 0) del
 export const HAND_MAX = 10, ENERGY = 3, DRAW = 5, MARK_MAX = 5;
 
 export const alive = B => B.en.filter(e => !e.dead);
-export const curW = B => B.w[B.wi];
-export const wDef = w => WEAPONS[w.id];
 
 function mkEnemy(B, key) {
   const d = ENEMIES[key], hp = ri(B.rng, d.hp[0], d.hp[1]);
@@ -20,8 +18,7 @@ function mkEnemy(B, key) {
 /* 开一场战斗。R 是这一局的存档（hp、牌组、武器、体温），kind = fight/elite/boss */
 export function startBattle(R, keys, kind, rng) {
   const B = { R, rng, kind, eid: 1, en: [], hand: [], draw: [], disc: [], exh: [], fx: [], msgs: [], turn: 0, over: null,
-    p: { energy: 0, block: 0, st: {}, pw: {} }, wi: 0, magBonus: 0 };
-  B.w = R.weapons.map(id => ({ id, cap: WEAPONS[id].mag, ammo: WEAPONS[id].mag }));
+    p: { energy: 0, block: 0, st: {}, pw: {}, feel: 0 }, cap: MAG, ammo: MAG };
   B.en = keys.map(k => mkEnemy(B, k));
   B.draw = shuffle(R.deck.map(c => ({ ...c })), rng);
   B.G = mkG(B);
@@ -31,7 +28,7 @@ export function startBattle(R, keys, kind, rng) {
 
 export function startTurn(B, first) {
   const p = B.p; B.turn++;
-  p.block = 0; p.energy = ENERGY; p.reloaded = 0; p.depotLeft = 0; p.firstSniper = 0; p.firstGun = 0; p.nextGun = 0; p.nextSn = 0; p.nextSnPM = 0;
+  p.block = 0; p.energy = ENERGY; p.reloaded = 0; p.depotLeft = 0; p.firstSniper = 0; p.nextSn = 0;
   let n = DRAW; if (first && B.R.temp < 3) { n--; B.msgs.push('体温太低，手脚发僵：第一回合少抽 1 张。'); }
   drawCards(B, n);
 }
@@ -47,14 +44,14 @@ export function drawCards(B, n) {
 export const cardCost = (B, c) => CARDS[c.id].cost[c.up ? 1 : 0];
 export const needTarget = c => CARDS[c.id].tgt === 'one';
 /* 这张牌现在打出去会是什么样：'shoot' 射击 / 'bayonet' 拼刺 / null 不是枪械牌 */
-export const gunMode = (B, c) => !CARDS[c.id].gun ? null : curW(B).ammo > 0 ? 'shoot' : 'bayonet';
+export const gunMode = (B, c) => !CARDS[c.id].gun ? null : B.ammo > 0 ? 'shoot' : 'bayonet';
 
 /* 不能打出的原因（能打返回 null） */
 export function cantPlay(B, c) {
   const d = CARDS[c.id];
   if (cardCost(B, c) > B.p.energy) return '能量不够';
   if (d.gun && B.p.reloaded && !B.p.depotLeft) return '装填后本回合不能开枪';
-  if (d.last && curW(B).ammo !== 1) return '弹仓要刚好剩 1 发';
+  if (d.last && B.ammo !== 1) return '弹仓要刚好剩 1 发';
   return null;
 }
 
@@ -91,8 +88,8 @@ export function playCard(B, i, tid) {
   if (d.gun) {
     if (B.p.reloaded) B.p.depotLeft--;
     const res = { pre: d.pre ? d.pre(B.G, u, t) : 0 };
-    if (curW(B).ammo > 0) Object.assign(res, fire(B, d, u, t));
-    else { res.bayonet = 1; fx(B, 'hero', '拼刺！', 'st'); const before = t.dead; hitEnemy(B, t, atkMod(B, t, BAYONET)); res.kill = !before && t.dead; }
+    if (B.ammo > 0) Object.assign(res, fire(B, d, u, t));
+    else { res.bayonet = 1; fx(B, 'hero', '拼刺！', 'st'); if (!t) t = alive(B)[0]; const before = t.dead; hitEnemy(B, t, atkMod(B, t, BAYONET)); res.kill = !before && t.dead; }
     if (d.extra) d.extra(B.G, u, t, res);
   } else if (d.play) d.play(B.G, u, t);
   if (d.type === 'power') { /* 能力牌打出后移出牌组 */ }
@@ -100,65 +97,84 @@ export function playCard(B, i, tid) {
   return true;
 }
 
-/* 枪械牌射击：计算一次性加成，然后按「发数 × 连射」逐颗打 */
+/* 当前加成（不含目标身上的标尺），界面用它把牌面伤害显示成实际数值 */
+export function bonusOf(B, d) {
+  const p = B.p; let flat = 0;
+  if (d.sch === '狙') { flat += p.nextSn; if (p.pw.scope && !p.firstSniper) flat += p.pw.scope[0]; }
+  if (d.sch === '冲' || d.sch === '手') flat += Math.floor(p.feel / 2);
+  return flat;
+}
+export const previewDmg = (B, d, x) => { let v = x + bonusOf(B, d); if (B.p.st.weak) v = Math.floor(v * .75); return Math.max(0, v); };
+
+/* 枪械牌射击：每发扣 1 颗子弹，打空就停 */
 function fire(B, d, u, t) {
-  const p = B.p, sh = d.sh(u), w = curW(B), wd = wDef(w), sniper = d.sch === '狙';
-  let flat = sh.bonus || 0, pm = sh.pm || 0;
-  flat += p.nextGun; p.nextGun = 0;
-  if (sniper) { flat += p.nextSn; pm += p.nextSnPM; p.nextSn = 0; p.nextSnPM = 0; }
+  const p = B.p, sh = d.sh(u), sniper = d.sch === '狙';
+  const flat = bonusOf(B, d), pm = sh.pm || 0;
   let scopeMark = 0;
-  if (sniper && p.pw.scope && !p.firstSniper) { p.firstSniper = 1; flat += p.pw.scope[0]; scopeMark = p.pw.scope[1]; }
-  if (p.pw.prep && !p.firstGun) { p.firstGun = 1; flat += p.pw.prep; }
-  p.firstGun = 1; if (sniper) p.firstSniper = 1;
-  const marks = t.marks, base = sh.base != null ? sh.base : wd.dmg;
-  const rounds = (sh.n || 1) * (sh.base != null ? 1 : wd.burst);
+  if (sniper) { if (p.pw.scope && !p.firstSniper) scopeMark = p.pw.scope[1]; p.firstSniper = 1; p.nextSn = 0; }
+  const marks0 = t ? t.marks : 0;
+  /* 排好每一发打谁 */
+  const plan = [];
+  if (sh.mag) for (let k = 0; k < B.ammo; k++) plan.push('rand');
+  else if (sh.all) for (const e of alive(B)) for (let k = 0; k < sh.n; k++) plan.push(e);
+  else for (let k = 0; k < sh.n; k++) plan.push(sh.rand ? 'rand' : t);
   let kill = 0, shots = 0;
-  for (let k = 0; k < rounds; k++) {
-    if (w.ammo <= 0) break;
-    let tg = t; if (tg.dead) { const a = alive(B); if (!a.length) break; tg = a[0]; } /* 目标死了，后面的子弹打下一个 */
-    w.ammo--; shots++;
-    let dmg = base + flat + (tg === t ? marks : tg.marks) * (1 + pm);
+  for (const x of plan) {
+    if (B.ammo <= 0) break;
+    const a = alive(B); if (!a.length) break;
+    let tg = x === 'rand' ? a[Math.floor(B.rng() * a.length)] : x;
+    if (!tg || tg.dead) { if (sh.all) continue; tg = a[0]; } /* 目标死了，剩下的子弹打下一个 */
+    B.ammo--; shots++;
+    const mk = tg === t ? marks0 : tg.marks;
+    let dmg = sh.d + flat + (sniper ? mk * (1 + pm) : 0);
     if (sh.exe && tg.hp < tg.max * sh.exe) dmg *= 2;
     const was = tg.dead; fx(B, tg.id, '', 'bul'); hitEnemy(B, tg, atkMod(B, tg, dmg, sh), sh.pierce);
     if (!was && tg.dead && tg === t) kill = 1;
   }
-  if (sh.use && !t.dead) t.marks = sh.use === 'all' ? 0 : Math.max(0, t.marks - sh.use);
-  if (scopeMark && !t.dead) G_mark(B, t, scopeMark);
-  if (!w.ammo) fx(B, 'hero', '空仓', 'st');
+  if (sh.use && t && !t.dead) t.marks = sh.use === 'all' ? 0 : Math.max(0, t.marks - sh.use);
+  if (scopeMark && t && !t.dead) G_mark(B, t, scopeMark);
+  addFeel(B, 1 + (d.sch === '冲' && p.pw.rapid ? 1 : 0));
+  if (!B.ammo) fx(B, 'hero', '空仓', 'st');
   return { kill, shots };
 }
+function addFeel(B, n) { const k = Math.max(0, Math.min(FEEL_MAX, B.p.feel + n)); if (k > B.p.feel) fx(B, 'hero', `枪感+${k - B.p.feel}`, 'st'); B.p.feel = k; }
 function G_mark(B, e, n) { if (!e || e.dead) return; const k = Math.min(MARK_MAX, e.marks + n); if (k !== e.marks) fx(B, e.id, `标尺+${k - e.marks}`, 'st'); e.marks = k; }
 
 /* 卡牌效果用到的接口 */
 function mkG(B) {
   const G = {
-    alive: () => alive(B), marks: e => (e ? e.marks : 0), ammo: () => curW(B).ammo,
+    alive: () => alive(B), marks: e => (e ? e.marks : 0), ammo: () => B.ammo,
     block: n => { B.p.block += n; fx(B, 'hero', '+' + n, 'blk'); },
     draw: n => drawCards(B, n),
     heal: n => { const k = Math.min(n, B.R.maxHp - B.R.hp); if (k > 0) { B.R.hp += k; fx(B, 'hero', '+' + k, 'heal'); } },
     mark: (e, n) => G_mark(B, e, n),
     melee: (t, n) => { if (t) hitEnemy(B, t, atkMod(B, t, n)); },
-    switchW: () => { if (B.w.length < 2) return; B.wi = 1 - B.wi; fx(B, 'hero', '换' + wDef(curW(B)).name, 'st'); },
-    addAmmo: n => { const w = curW(B); w.ammo = Math.min(w.cap, w.ammo + n); fx(B, 'hero', `子弹+${n}`, 'st'); },
-    nextGun: n => { B.p.nextGun += n; }, nextSniper: (n, pm) => { B.p.nextSn += n; B.p.nextSnPM += pm; },
+    addAmmo: n => { B.ammo = Math.min(B.cap, B.ammo + n); fx(B, 'hero', `子弹+${n}`, 'st'); },
+    nextSniper: n => { B.p.nextSn += n; },
+    feel: n => addFeel(B, n),
+    weak: (e, n) => { if (e && !e.dead) { addSt(e, 'weak', n); fx(B, e.id, `虚弱+${n}`, 'st'); } },
+    loseHp: n => { B.R.hp = Math.max(1, B.R.hp - n); fx(B, 'hero', '-' + n, 'dmg'); },
     power: (k, v) => { B.p.pw[k] = v; fx(B, 'hero', '能力', 'st'); },
-    magUp: n => { B.w.forEach(w => { w.cap += n; w.ammo = Math.min(w.cap, w.ammo + n); }); fx(B, 'hero', `弹仓+${n}`, 'st'); },
+    magUp: n => { B.cap += n; B.ammo = Math.min(B.cap, B.ammo + n); fx(B, 'hero', `弹仓+${n}`, 'st'); },
     say: t => B.msgs.push(t), fx: (who, text, cls) => fx(B, who, text, cls),
   };
   return G;
 }
 
-/* 装填按钮：0 费，装满当前武器；之后本回合不能开枪（弹药库例外） */
+/* 装填按钮：0 费，装满弹仓；之后本回合不能打枪械牌（备用弹匣例外） */
 export function reload(B) {
-  const w = curW(B); if (w.ammo >= w.cap || B.p.reloaded) return false;
-  w.ammo = w.cap; B.p.reloaded = 1; B.p.depotLeft = B.p.pw.depot ? 1 : 0;
-  fx(B, 'hero', '装填', 'st'); return true;
+  if (B.ammo >= B.cap || B.p.reloaded) return false;
+  B.ammo = B.cap; B.p.reloaded = 1; B.p.depotLeft = B.p.pw.depot ? 1 : 0;
+  fx(B, 'hero', '装填', 'st');
+  if (B.p.pw.quick) { drawCards(B, B.p.pw.quick); addFeel(B, 1); }
+  return true;
 }
 
 /* 结束你的回合：弃手牌，你的状态减 1 */
 export function endPlayerTurn(B) {
   B.disc.push(...B.hand); B.hand = [];
   for (const k of ['weak', 'vuln']) if (B.p.st[k]) addSt(B.p, k, -1);
+  B.p.feel = Math.max(0, B.p.feel - 1);
 }
 
 /* 敌人意图：用于显示 */

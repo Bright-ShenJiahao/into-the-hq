@@ -22,7 +22,7 @@ button{font-family:inherit;cursor:pointer}
 .tbg{position:absolute;inset:0;background:linear-gradient(160deg,#1a2430,#3a4650 60%,#c8d0d6)}.tbg.dark{background:linear-gradient(#0e1216,#1e262c)}
 /* 顶栏 */
 #top{position:absolute;left:0;right:0;top:0;height:48px;background:rgba(8,10,12,.86);border-bottom:2px solid #5a4a30;display:flex;align-items:center;gap:20px;padding:0 16px;font-size:18px;z-index:20;white-space:nowrap}
-#top .hp{color:#ff7a6a}#top .tmp{color:#9fd4ff;cursor:help}#top .food{color:#ffd38a;cursor:help}#top .fl{color:#c8d0b0}#top .wp{color:#d8d0c0;font-size:15px;cursor:help;overflow:hidden;text-overflow:ellipsis;min-width:0}
+#top .hp{color:#ff7a6a}#top .tmp{color:#9fd4ff;cursor:help}#top .food{color:#ffd38a;cursor:help}#top .fl{color:#c8d0b0}
 #top .warn{color:#ff5a4a!important;animation:blink 1.2s infinite}
 #top .sp{flex:1}
 #top .tb{background:#2e2618;border:1px solid #a88a50;color:#ffe9b8;border-radius:6px;padding:4px 12px;font-size:15px;flex:none}
@@ -41,6 +41,8 @@ button{font-family:inherit;cursor:pointer}
 .card .cbadge.bayo{background:#a8321e;color:#fff}
 .card.bayo{border-color:#ff6a3a;box-shadow:0 0 12px #ff6a3a88}
 .kw{color:#ffd35a;border-bottom:1px dotted #ffd35a}
+.card b.dup{color:#7dff7d}.card b.ddn{color:#ff7a6a}
+.card .sch{font-style:normal;font-weight:bold;padding:0 4px;border-radius:3px;color:#111}.sch.s-狙{background:#9fc8ff}.sch.s-冲{background:#ffaa66}.sch.s-手{background:#d8d0a0}
 /* 战斗 */
 .unit{position:relative;display:flex;flex-direction:column;align-items:center}
 .unit .sprw{position:relative}
@@ -63,15 +65,17 @@ button{font-family:inherit;cursor:pointer}
 .inc{font-size:13px;margin-top:4px;padding:1px 8px;border-radius:4px;background:rgba(0,0,0,.6)}.inc.low{color:#ff8a7a}.inc.ok{color:#8aff9a}
 .sprw.lunge{animation:lunge .35s}@keyframes lunge{50%{translate:-40px 0}}
 .unit.dead{animation:die .6s forwards}@keyframes die{to{opacity:0;filter:grayscale(1)}}
-/* 武器面板 */
-#wpn{position:absolute;left:14px;bottom:262px;width:270px;background:rgba(10,12,14,.85);border:2px solid #6a5a3a;border-radius:10px;padding:8px 10px;z-index:12;display:flex;flex-direction:column;gap:6px}
-.wrow{display:grid;grid-template-columns:1fr auto;gap:2px 8px;opacity:.55;font-size:14px}
-.wrow.on{opacity:1}.wrow b{color:#ffe9b8;font-size:15px}.wrow.on b{color:#ffd35a}
-.wrow .pips{grid-column:1/2;display:flex;gap:3px;align-items:center}
-.wrow .pips i{width:11px;height:22px;border-radius:3px 3px 1px 1px;background:#333;border:1px solid #666}.wrow .pips i.f{background:linear-gradient(#ffe08a,#c8901e);border-color:#ffd35a}
-.wrow .mbar{width:150px;height:14px;background:#333;border-radius:4px;overflow:hidden;display:block}.wrow .mbar u{display:block;height:100%;background:linear-gradient(#ffe08a,#c8901e)}
-.wrow .cnt{font-style:normal;font-weight:bold;color:#fff;font-size:17px;grid-row:1/3;grid-column:2;align-self:center}.wrow .cnt.zero{color:#ff5a4a}
-.wrow small{color:#a89a7a;font-size:11px}
+/* 弹仓面板 */
+#wpn{position:absolute;left:14px;bottom:262px;width:270px;background:rgba(10,12,14,.85);border:2px solid #6a5a3a;border-radius:10px;padding:8px 10px;z-index:12;display:flex;flex-direction:column;gap:7px}
+.wrow{display:grid;grid-template-columns:1fr auto;gap:4px 8px;font-size:14px}
+.wrow b{color:#ffd35a;font-size:16px}
+.wrow .pips{grid-column:1/3;display:flex;gap:3px;align-items:center;flex-wrap:wrap}
+.wrow .pips i{width:13px;height:26px;border-radius:4px 4px 1px 1px;background:#333;border:1px solid #666}.wrow .pips i.f{background:linear-gradient(#ffe08a,#c8901e);border-color:#ffd35a}
+.wrow .mbar{width:240px;height:14px;background:#333;border-radius:4px;overflow:hidden;display:block}.wrow .mbar u{display:block;height:100%;background:linear-gradient(#ffe08a,#c8901e)}
+.wrow .cnt{font-style:normal;font-weight:bold;color:#fff;font-size:20px}.wrow .cnt.zero{color:#ff5a4a}
+.feel{display:grid;grid-template-columns:auto 1fr;gap:2px 8px;align-items:center;cursor:help}.feel b{color:#ff9a5a;font-size:15px}
+.feel .fpips{display:flex;gap:3px}.feel .fpips i{width:14px;height:10px;border-radius:2px;background:#333}.feel .fpips i.f{background:#ff8a3a}
+.feel small{grid-column:1/3;color:#a89a7a;font-size:12px}
 .btn.reload{font-size:16px;padding:8px 6px;width:100%}.btn.reload.hot{background:linear-gradient(#8a6a2a,#5a4218);border-color:#ffd35a}
 #energy{position:absolute;left:24px;bottom:150px;width:100px;height:100px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#ffcf6a,#c8641a 65%,#5a2a08);border:4px solid #2a1a08;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:bold;color:#fff;text-shadow:0 2px 3px #000;z-index:10}
 #energy.empty{background:radial-gradient(circle at 40% 35%,#777,#333 70%)}
@@ -147,7 +151,7 @@ button{font-family:inherit;cursor:pointer}
 @keyframes rot{0%,20%{transform:rotate(0)}60%,100%{transform:rotate(90deg)}}
 @media (orientation:portrait) and (max-width:900px){#rot{display:flex}}
 /* ===== 手机（触屏）：按钮和字放大 ===== */
-.touch #top{height:58px;font-size:23px;gap:16px}.touch #top .tb{font-size:20px;min-height:44px;padding:4px 14px}.touch #top .wp{display:none}
+.touch #top{height:58px;font-size:23px;gap:16px}.touch #top .tb{font-size:20px;min-height:44px;padding:4px 14px}
 .touch #map{top:58px}
 .touch #hand{zoom:1.25;height:240px}.touch #hand .card{bottom:-16px}
 .touch #wpn{zoom:1.2;bottom:250px;left:8px}

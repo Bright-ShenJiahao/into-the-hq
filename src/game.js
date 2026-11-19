@@ -1,5 +1,5 @@
 // 《深入日军总部》界面和流程（最小可玩版：韩松 · 第一章 林海雪原）。规则在 engine.js，数据在 data.js。
-import { CARDS, ENEMIES, WEAPONS, ENC, EVENTS, STARTER, KW, TYPE, RAR, BAYONET } from './data.js';
+import { CARDS, ENEMIES, ENC, EVENTS, STARTER, KW, TYPE, RAR, SCH, BAYONET, MAG, FEEL_MAX } from './data.js';
 import * as E from './engine.js';
 
 const $ = s => document.querySelector(s);
@@ -33,13 +33,13 @@ const save = () => { try { localStorage.setItem(SAVE, JSON.stringify(R)); } catc
 const clearSave = () => { try { localStorage.removeItem(SAVE); } catch (e) {} };
 function load() {
   try { const s = JSON.parse(localStorage.getItem(SAVE)); if (!s || !Array.isArray(s.deck) || !Array.isArray(s.map)) return null;
-    s.deck = s.deck.filter(c => CARDS[c.id]); s.weapons = (s.weapons || []).filter(w => WEAPONS[w]); if (s.weapons.length < 2) s.weapons = ['type38', 'mauser'];
+    s.deck = s.deck.filter(c => CARDS[c.id]); if (s.pending && s.pending.list) s.pending.list = s.pending.list.filter(id => CARDS[id]);
     uidN = 1 + Math.max(0, ...s.deck.map(c => c.uid || 0)); return s; } catch (e) { return null; }
 }
 const ROWS = 9, COLS = 5, TEMP_MAX = 10;
 function newRun() {
   uidN = 1;
-  R = { hp: 72, maxHp: 72, deck: STARTER.map(id => mk(id)), weapons: ['type38', 'mauser'], temp: TEMP_MAX, food: 6, map: genMap(), pos: null, path: [], floor: 0, fights: 0, kills: 0 };
+  R = { hp: 72, maxHp: 72, deck: STARTER.map(id => mk(id)), temp: TEMP_MAX, food: 6, map: genMap(), pos: null, path: [], floor: 0, fights: 0, kills: 0 };
   save();
 }
 
@@ -80,11 +80,10 @@ function available() {
 
 // ---------- 顶栏 ----------
 function topBar() {
-  const w = R.weapons.map(id => WEAPONS[id].name).join(' / ');
   return `<div id="top"><span class="hp">❤ ${R.hp}/${R.maxHp}</span>
    <span class="tmp ${R.temp < 3 ? 'warn' : ''}" data-tip="体温：每走一格 -1，到密营回满。低于 3 时，战斗第一回合少抽 1 张；降到 0 后每走一格再失去 2 生命。">🌡 体温 ${R.temp}/${TEMP_MAX}</span>
    <span class="food ${R.food <= 0 ? 'warn' : ''}" data-tip="口粮：每走一格 -1，打赢战斗能缴获。口粮为 0 时，每走一格失去 3 生命。">🍞 口粮 ${R.food}</span>
-   <span class="fl">第 ${Math.max(1, R.floor)} 层 · 林海雪原</span><span class="wp" data-tip="主武器 / 副武器">🔫 ${w}</span>
+   <span class="fl">第 ${Math.max(1, R.floor)} 层 · 林海雪原</span>
    <i class="sp"></i><button class="tb" id="tbdeck">牌组 ${R.deck.length}</button><button class="tb" id="tbrule">规则</button><button class="tb" id="tbmenu">菜单</button></div>`;
 }
 function bindTop() {
@@ -104,7 +103,8 @@ function tipBox(t) { const o = overlay(`<div class="panel small"><p>${t}</p><but
 function banner(t) { const b = document.createElement('div'); b.id = 'banner'; b.textContent = t; stage.appendChild(b); setTimeout(() => b.remove(), 1200); }
 const kwRe = new RegExp(Object.keys(KW).sort((a, b) => b.length - a.length).join('|'), 'g');
 const kwify = s => s.replace(kwRe, m => `<span class="kw">${m}</span>`);
-const kwOf = c => { const d = CARDS[c.id], s = d.desc(c.up) + (d.ex ? '消耗' : '') + (d.type === 'power' ? '能力' : '') + (d.gun ? '拼刺' : ''); return Object.keys(KW).filter(k => s.includes(k)); };
+const dsc = (c, f = x => x) => CARDS[c.id].desc(c.up, f);
+const kwOf = c => { const d = CARDS[c.id], s = dsc(c) + (d.sch === '狙' && d.gun ? '狙击牌' : '') + (d.sch === '冲' ? '冲锋枪牌' : '') + (d.sch === '冲' || d.sch === '手' ? '枪感' : '') + (d.ex ? '消耗' : '') + (d.type === 'power' ? '能力' : '') + (d.gun ? '拼刺' : ''); return Object.keys(KW).filter(k => s.includes(k)); };
 
 function cardHTML(c, extra = '', attrs = '') {
   const d = CARDS[c.id], cost = d.cost[c.up ? 1 : 0];
@@ -114,10 +114,14 @@ function cardHTML(c, extra = '', attrs = '') {
     if (m === 'bayonet') { badge = `<div class="cbadge bayo">空仓 · 拼刺 ${BAYONET}</div>`; cls = ' bayo'; }
     else if (d.gun && B.p.reloaded && !B.p.depotLeft) badge = '<div class="cbadge">已装填 · 不能开枪</div>';
   }
+  /* 战斗中把伤害数字换成实际值：变大绿色，变小红色 */
+  const live = B && !B.over && extra.includes('inhand') && d.gun && E.gunMode(B, c) === 'shoot';
+  const f = x => { if (!live) return x; const v = E.previewDmg(B, d, x); return v === x ? x : `<b class="${v > x ? 'dup' : 'ddn'}">${v}</b>`; };
+  const text = dsc(c, f);
   return `<div class="card t-${d.type}${c.up ? ' up' : ''}${d.gun ? ' gun' : ''}${cls} ${extra}" data-cid="${c.id}" ${attrs}>
     <div class="cost">${cost}</div><div class="cname">${d.name}${c.up ? '+' : ''}</div>
-    <div class="ctype">${TYPE[d.type]}${d.gun ? ' · 枪械' : ''} · ${RAR[d.rar]}</div>
-    <div class="cdesc"><span>${kwify(d.desc(c.up))}${d.ex && !d.desc(c.up).includes('消耗') ? '<br>消耗。' : ''}</span></div>${badge}</div>`;
+    <div class="ctype">${d.sch !== '通' ? `<i class="sch s-${d.sch}">${SCH[d.sch]}</i> · ` : ''}${TYPE[d.type]} · ${RAR[d.rar]}</div>
+    <div class="cdesc"><span>${kwify(text)}${d.ex && !text.includes('消耗') ? '<br>消耗。' : ''}</span></div>${badge}</div>`;
 }
 function showPile(t, cards, onPick, sub = '') {
   const o = overlay(`<h2>${t}</h2>${sub ? `<p class="sub">${sub}</p>` : ''}<div class="grid">${cards.length ? cards.map((c, i) => cardHTML(c, '', `data-k="${i}"`)).join('') : '<p class="sub">（空）</p>'}</div><button class="btn" id="ov_close">${onPick ? '取消' : '关闭'}</button>`);
@@ -128,16 +132,17 @@ function showPile(t, cards, onPick, sub = '') {
 function rules() {
   overlay(`<div class="panel rules"><h2>规则</h2>
   <p>· 每回合 3 能量，抽 5 张。打出卡牌要花能量。</p>
-  <p>· <b>弹仓</b>：每把枪有自己的弹仓（三八式 5 发，驳壳枪 10 发）。枪械牌每「射击 1 发」用掉 1 颗子弹。</p>
-  <p>· <b>装填</b>：武器面板上的按钮，0 费，把当前武器装满；装填后本回合不能再开枪。</p>
+  <p>· <b>弹仓</b>：韩松只有一个弹仓（${MAG} 发），所有枪械牌都从这里扣子弹，每「射击 1 发」用掉 1 颗。</p>
+  <p>· <b>装填</b>：弹仓旁边的按钮，0 费，把弹仓装满；装填后本回合不能再打枪械牌。</p>
   <p>· <b>空仓拼刺</b>：弹仓空了，枪械牌自动变成拼刺，造成 ${BAYONET} 伤害，牌上其他效果照常。</p>
-  <p>· <b>换枪</b>：用「换枪」「战术撤退」切换主/副武器，两把枪各自记子弹。</p>
-  <p>· <b>标尺</b>：叠在敌人身上，最多 5 层，每层让枪械伤害 +1。</p>
+  <p>· <b>三种枪</b>：狙击牌 1 发高伤、省子弹；冲锋枪牌一次打好几发、耗弹快；手枪牌是便宜的小牌。</p>
+  <p>· <b>标尺</b>：叠在敌人身上，最多 5 层，每层让狙击牌每发 +1 伤害。</p>
+  <p>· <b>枪感</b>：每打一张枪械牌 +1（最多 ${FEEL_MAX}），回合结束 -1；冲锋枪牌和手枪牌每发伤害 + 枪感的一半。</p>
   <p>· <b>装甲</b>：每次受到的伤害减去装甲值。穿甲弹、反器材无视装甲。</p>
   <p>· <b>体温</b>：每走一格 -1，到密营回满；低于 3 时战斗第一回合少抽 1 张；为 0 时每走一格再失去 2 生命。</p>
   <p>· <b>口粮</b>：每走一格 -1，打赢战斗能缴获；为 0 时每走一格失去 3 生命。</p>
-  <p>· <b>缴获</b>：打赢后可能缴获敌人的枪，可以换掉主武器或副武器。</p>
-  <p class="sub">电脑快捷键：数字键选牌，R 装填，E 结束回合，Esc 取消。</p>
+  <p>· <b>缴获</b>：打赢后可能缴获敌人的枪，以卡牌的形式加入牌组（比如「歪把子扫射」「九七式狙击」）。</p>
+  <p class="sub">电脑快捷键：数字键出牌，R 装填，E 结束回合，Esc 取消。</p>
   <button class="btn" id="ov_close">关闭</button></div>`).querySelector('#ov_close').onclick = e => e.target.closest('.overlay').remove();
 }
 
@@ -234,13 +239,13 @@ function barHTML(hp, max, blk) {
 }
 const STN = { weak: ['虚弱', '#c8a0ff'], vuln: ['易伤', '#ff9a6a'], str: ['力量', '#ff6a5a'] };
 const stsHTML = st => Object.entries(st).filter(([k]) => STN[k]).map(([k, n]) => `<b class="st" style="color:${STN[k][1]};border-color:${STN[k][1]}" data-k="${STN[k][0]}">${STN[k][0]} ${n}</b>`).join('');
-function weaponHTML() {
-  const rows = B.w.map((w, i) => { const d = E.wDef(w), on = i === B.wi;
-    const pips = w.cap <= 12 ? Array.from({ length: w.cap }, (_, k) => `<i class="${k < w.ammo ? 'f' : ''}"></i>`).join('') : `<em class="mbar"><u style="width:${w.ammo / w.cap * 100}%"></u></em>`;
-    return `<div class="wrow ${on ? 'on' : ''}"><b>${on ? '▶ ' : ''}${d.name}</b><span class="pips">${pips}</span><em class="cnt ${w.ammo ? '' : 'zero'}">${w.ammo}/${w.cap}</em><small>${d.burst > 1 ? `每发 ${d.burst}×${d.dmg}` : `每发 ${d.dmg}`}</small></div>`; }).join('');
-  const w = E.curW(B), full = w.ammo >= w.cap;
-  const lab = B.p.reloaded ? (B.p.depotLeft ? '已装填（弹药库：还能开 1 枪）' : '已装填 · 本回合不能开枪') : full ? '弹仓已满' : '装填（0 费）';
-  return `<div id="wpn">${rows}<button class="btn reload ${!full && !B.p.reloaded ? 'hot' : ''}" id="reload" ${full || B.p.reloaded || B.busy ? 'disabled' : ''}>${lab}</button></div>`;
+function magHTML() {
+  const pips = B.cap <= 16 ? Array.from({ length: B.cap }, (_, k) => `<i class="${k < B.ammo ? 'f' : ''}"></i>`).join('') : `<em class="mbar"><u style="width:${B.ammo / B.cap * 100}%"></u></em>`;
+  const full = B.ammo >= B.cap, fb = Math.floor(B.p.feel / 2);
+  const lab = B.p.reloaded ? (B.p.depotLeft ? '已装填（还能打 1 张枪械牌）' : '已装填 · 本回合不能开枪') : full ? '弹仓已满' : '装填（0 费）';
+  return `<div id="wpn"><div class="wrow on"><b>弹仓</b><em class="cnt ${B.ammo ? '' : 'zero'}">${B.ammo}/${B.cap}</em><span class="pips">${pips}</span></div>
+   <div class="feel" data-k="枪感"><b>枪感 ${B.p.feel}</b><span class="fpips">${Array.from({ length: FEEL_MAX }, (_, k) => `<i class="${k < B.p.feel ? 'f' : ''}"></i>`).join('')}</span><small>${fb ? `冲锋枪/手枪每发 +${fb}` : '每 2 点 +1 伤害'}</small></div>
+   <button class="btn reload ${!full && !B.p.reloaded ? 'hot' : ''}" id="reload" ${full || B.p.reloaded || B.busy ? 'disabled' : ''}>${lab}</button></div>`;
 }
 function render() {
   if (!B) return;
@@ -254,10 +259,10 @@ function render() {
   const inc = E.incoming(B), selC = B.sel >= 0 ? B.hand[B.sel] : null;
   view.innerHTML = `<div class="bg"></div>${topBar()}
    <div id="hero" class="unit" data-eid="hero"><div class="intent"></div><div class="sprw"><div class="spr blk" style="width:110px;height:170px;background:#56603a">韩松</div><i class="shd"></i></div>
-    ${barHTML(R.hp, R.maxHp, B.p.block)}<div class="badges">${stsHTML(B.p.st)}${Object.keys(B.p.pw).map(k => `<b class="pw">${({ scope: '瞄准镜', depot: '弹药库', prep: '火力准备' })[k]}</b>`).join('')}</div>
+    ${barHTML(R.hp, R.maxHp, B.p.block)}<div class="badges">${stsHTML(B.p.st)}${Object.keys(B.p.pw).map(k => `<b class="pw">${({ scope: '瞄准镜', depot: '备用弹匣', rapid: '枪感训练', quick: '快换弹匣' })[k]}</b>`).join('')}</div>
     ${inc ? `<div class="inc ${inc > B.p.block ? 'low' : 'ok'}">将受到 ${Math.max(0, inc - B.p.block)} 伤害</div>` : ''}</div>
    <div id="enemies">${B.en.filter(e => !(e.dead && Date.now() - e.deadAt > 1200)).map(enemyHTML).join('')}</div>
-   ${weaponHTML()}
+   ${magHTML()}
    <div id="energy" class="${B.p.energy ? '' : 'empty'}">${B.p.energy}/${E.ENERGY}</div>
    <button class="btn" id="endturn" ${B.busy ? 'disabled' : ''}>${B.busy ? '敌人回合' : '结束回合'}</button>
    <div class="pile" id="drawp">抽牌堆<b>${B.draw.length}</b></div><div class="pile" id="discp">弃牌堆<b>${B.disc.length}</b></div><div class="pile" id="exhp">消耗<b>${B.exh.length}</b></div>
@@ -271,7 +276,7 @@ function render() {
   $('#exhp').onclick = () => showPile('消耗', B.exh);
   view.querySelectorAll('#hand .card').forEach(el => el.onclick = ev => { ev.stopPropagation(); clickCard(+el.dataset.i); });
   view.querySelectorAll('.enemy').forEach(el => el.onclick = ev => { ev.stopPropagation(); clickEnemy(el.dataset.eid); });
-  view.querySelectorAll('.badges b[data-k]').forEach(el => el.onclick = ev => { ev.stopPropagation(); const k = el.dataset.k; tipBox(`<b>${k}</b>：${KW[k] || ({ 力量: '每次攻击伤害增加等同层数。' })[k] || ''}`); });
+  view.querySelectorAll('.badges b[data-k], #wpn [data-k]').forEach(el => el.onclick = ev => { ev.stopPropagation(); const k = el.dataset.k; tipBox(`<b>${k}</b>：${KW[k] || ({ 力量: '每次攻击伤害增加等同层数。' })[k] || ''}`); });
   view.querySelector('.bg').onclick = () => { if (B.sel >= 0) { B.sel = -1; render(); } };
   flushFx(); dbgPanel();
 }
@@ -296,7 +301,7 @@ function clickEnemy(id) {
   play(B.sel, E.needTarget(c) ? id : undefined);
 }
 async function play(i, tid) {
-  const c = B.hand[i], wasEmpty = E.curW(B).ammo === 0 && CARDS[c.id].gun;
+  const c = B.hand[i], wasEmpty = B.ammo === 0 && CARDS[c.id].gun;
   if (!E.playCard(B, i, tid)) return;
   B.sel = -1; render(); flushMsgs();
   if (wasEmpty) say('弹仓空了，端起刺刀！', 1600);
@@ -346,7 +351,7 @@ function flushFx() {
 
 // ---------- 战后 ----------
 function rollCards(n, elite) {
-  const pool = Object.values(CARDS).filter(d => d.rar !== 'basic'), out = [];
+  const pool = Object.values(CARDS).filter(d => d.rar !== 'basic' && d.rar !== 'loot'), out = [];
   while (out.length < n) {
     const x = Math.random(), rar = x < (elite ? .2 : .08) ? 'r' : x < (elite ? .6 : .42) ? 'u' : 'c';
     const cand = pool.filter(d => d.rar === rar && !out.includes(d.id)); if (!cand.length) continue; out.push(pickOne(cand).id);
@@ -356,7 +361,7 @@ function rollCards(n, elite) {
 function winRewards(kind, en) {
   const food = kind === 'elite' ? 2 : 1; R.food += food;
   const list = [];
-  for (const e of en) if (!e.fled && e.d.loot && Math.random() < e.d.lootP && !list.includes(e.d.loot) && !R.weapons.includes(e.d.loot)) list.push(e.d.loot);
+  for (const e of en) if (!e.fled && e.d.loot && Math.random() < e.d.lootP && !list.includes(e.d.loot)) list.push(e.d.loot);
   B = null; R.pending = { t: 'loot', list, kind, food, cards: rollCards(3, kind === 'elite') }; save();
   lootScreen();
 }
@@ -373,15 +378,15 @@ function lootScreen() {
     view.querySelectorAll('.loot .card').forEach(el => el.onclick = () => { const c = P.cards[+el.dataset.k]; R.deck.push(c); tip('加入牌组：' + CARDS[c.id].name); next(); });
     $('#l_skip').onclick = next; return;
   }
-  if (P.list && P.list.length) return offerWeapon(P.list[0], () => { P.list.shift(); save(); lootScreen(); });
+  if (P.list && P.list.length) return offerLoot(P.list[0], () => { P.list.shift(); save(); lootScreen(); });
   mapScreen();
 }
-function weaponCard(id) { const w = WEAPONS[id]; return `<div class="wcard"><b>${w.name}</b><small>${w.kind}</small><p>${w.desc}</p></div>`; }
-function offerWeapon(id, done) {
-  if (R.weapons.includes(id)) { tip('已经有' + WEAPONS[id].name + '了'); return done(); }
-  const o = overlay(`<div class="panel"><h2>缴获武器</h2>${weaponCard(id)}<p class="sub">要换掉哪一把？</p>
-    <div class="row">${R.weapons.map((w, i) => `<button class="btn" data-w="${i}">换下${i ? '副' : '主'}武器：${WEAPONS[w].name}</button>`).join('')}</div><button class="btn ghost" id="w_no">不要</button></div>`);
-  o.querySelectorAll('[data-w]').forEach(b => b.onclick = () => { R.weapons[+b.dataset.w] = id; o.remove(); tip('换上了' + WEAPONS[id].name); save(); done(); });
+/* 缴获：敌人的枪以卡牌形式加入牌组 */
+function offerLoot(id, done) {
+  const c = mk(id);
+  const o = overlay(`<div class="panel"><h2>缴获</h2><p class="sub">从敌人身上缴获了一支枪：</p><div class="row">${cardHTML(c)}</div>
+    <div class="row"><button class="btn" id="w_yes">加入牌组</button><button class="btn ghost" id="w_no">不要</button></div></div>`);
+  o.querySelector('#w_yes').onclick = () => { R.deck.push(c); o.remove(); tip('加入牌组：' + CARDS[id].name); save(); done(); };
   o.querySelector('#w_no').onclick = () => { o.remove(); done(); };
 }
 
@@ -409,10 +414,10 @@ function eventScreen() {
     let fightEnc = null, wait = null;
     const G = { rng: Math.random, food: n => { R.food = Math.max(0, R.food + n); }, temp: n => { R.temp = Math.max(0, Math.min(TEMP_MAX, R.temp + n)); },
       hp: n => { R.hp = Math.min(R.maxHp, R.hp + n); }, heal: n => { R.hp = Math.min(R.maxHp, R.hp + n); }, maxHp: n => { R.maxHp += n; R.hp += n; },
-      upgrade: () => { wait = 'up'; }, addCard: id => R.deck.push(mk(id)), weapon: id => { wait = id; }, fight: enc => { fightEnc = enc; } };
+      upgrade: () => { wait = 'up'; }, addCard: id => R.deck.push(mk(id)), fight: enc => { fightEnc = enc; } };
     const msg = ev.opts[+b.dataset.o].f(G); save();
     const after = () => { if (R.hp <= 0) { R.hp = 0; return endScreen(false, '倒在了林海雪原里'); } if (fightEnc) { R.pending = { t: 'fight', enc: fightEnc }; save(); return battle(fightEnc, 'fight'); } mapScreen(); };
-    const cont = () => { if (wait === 'up') return upgradePick(() => after()); if (wait) return offerWeapon(wait, after); after(); };
+    const cont = () => { if (wait === 'up') return upgradePick(() => after()); after(); };
     if (msg) { view.querySelector('.evp').innerHTML = `<h2>${ev.title}</h2><p>${msg}</p><button class="btn" id="ev_ok">继续</button>`; bindTop(); $('#ev_ok').onclick = cont; } else cont();
   });
 }
@@ -422,7 +427,7 @@ function endScreen(win, how = '') {
   B = null; if (!win) clearSave(); else clearSave();
   view.innerHTML = `<div class="tbg dark"></div><div class="endw"><div class="ribbon ${win ? 'win' : ''}">${win ? '第一章 完' : '阵亡'}</div>
    <p class="endsub">${win ? '村濑的装甲车歪在雪沟里冒着黑烟。小分队没有停留，连夜向南——前面是新京城。' : `韩松${how}。`}</p>
-   <table class="score"><tr><td>到达层数</td><td>${Math.max(1, R.floor)}</td></tr><tr><td>击倒敌人</td><td>${R.kills || 0}</td></tr><tr><td>牌组</td><td>${R.deck.length} 张</td></tr><tr><td>武器</td><td>${R.weapons.map(w => WEAPONS[w].name).join(' / ')}</td></tr></table>
+   <table class="score"><tr><td>到达层数</td><td>${Math.max(1, R.floor)}</td></tr><tr><td>击倒敌人</td><td>${R.kills || 0}</td></tr><tr><td>牌组</td><td>${R.deck.length} 张</td></tr></table>
    ${win ? '<p class="endsub small">最小可玩版到此结束。谢谢试玩！</p>' : ''}<button class="btn big" id="e_t">回到标题</button></div>`;
   $('#e_t').onclick = () => { R = null; title(); };
 }
@@ -440,9 +445,9 @@ addEventListener('keydown', e => {
 // ---------- 调试面板（?debug） ----------
 function dbgPanel() {
   if (!DEBUG) return; $('#dbg')?.remove(); const d = document.createElement('div'); d.id = 'dbg';
-  const btns = B && !B.over ? [['胜利', () => { E.alive(B).forEach(e => { e.hp = 0; e.dead = 1; e.deadAt = Date.now(); }); render(); checkEnd(); }], ['满弹', () => { B.w.forEach(w => w.ammo = w.cap); render(); }], ['清空弹仓', () => { E.curW(B).ammo = 0; render(); }],
+  const btns = B && !B.over ? [['胜利', () => { E.alive(B).forEach(e => { e.hp = 0; e.dead = 1; e.deadAt = Date.now(); }); render(); checkEnd(); }], ['满弹', () => { B.ammo = B.cap; render(); }], ['清空弹仓', () => { B.ammo = 0; render(); }], ['枪感满', () => { B.p.feel = FEEL_MAX; render(); }],
     ['+能量', () => { B.p.energy += 3; render(); }], ['抽牌', () => { E.drawCards(B, 3); render(); }], ['给牌', () => showPile('给一张牌（加入手牌）', Object.keys(CARDS).map(id => ({ id, up: 0, uid: uidN++ })), c => { B.hand.push(c); render(); })], ['满血', () => { R.hp = R.maxHp; render(); }]]
-    : R ? [['去Boss', () => { R.pos = { r: ROWS - 1, c: R.map[ROWS - 1].findIndex(Boolean) }; mapScreen(); }], ['满血', () => { R.hp = R.maxHp; mapScreen(); }], ['口粮+5', () => { R.food += 5; mapScreen(); }], ['体温0', () => { R.temp = 0; mapScreen(); }], ['精英战', () => { R.pending = { t: 'elite', enc: ENC.elite[0] }; battle(ENC.elite[0], 'elite'); }], ['缴获波波沙', () => offerWeapon('ppsh', mapScreen)]] : [];
+    : R ? [['去Boss', () => { R.pos = { r: ROWS - 1, c: R.map[ROWS - 1].findIndex(Boolean) }; mapScreen(); }], ['满血', () => { R.hp = R.maxHp; mapScreen(); }], ['口粮+5', () => { R.food += 5; mapScreen(); }], ['体温0', () => { R.temp = 0; mapScreen(); }], ['精英战', () => { R.pending = { t: 'elite', enc: ENC.elite[0] }; battle(ENC.elite[0], 'elite'); }], ['缴获波波沙', () => offerLoot('c_ppsh', mapScreen)]] : [];
   btns.forEach(([t, f]) => { const b = document.createElement('button'); b.textContent = t; b.onclick = ev => { ev.stopPropagation(); f(); }; d.appendChild(b); });
   if (btns.length) stage.appendChild(d);
 }
