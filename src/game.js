@@ -296,18 +296,27 @@ function rules() {
 
 // ---------- 标题 ----------
 function title() {
-  B = null; const s = load();
-  /* 主界面（参考三国终章：整幅主视觉 + 书法标题 + 标题下一排按钮）。人物在左，标题和按钮在右 */
+  B = null; const s = load(); $('#dbg')?.remove();
+  /* 主界面（照三国终章：留白，只有书法标题 + 一排按钮；图鉴、规则、设置收到右上角） */
   view.innerHTML = `<div class="tbg key"></div><div class="tshade"></div>
-   <div class="tright"><img class="tcal" src="assets/ui/title_cal.png" alt="長夜將盡"><div class="tsub"><i></i><img src="assets/ui/title_sub.png" alt="深入關東軍司令部"><i></i></div><p class="ten">BEFORE THE DAWN · INTO THE KWANTUNG HQ</p>
-   <div class="trow">${s ? `<button class="btn tb1" id="t_cont">继续<small>第 ${Math.max(1, s.floor)} 层 · 生命 ${s.hp}/${s.maxHp}</small></button>` : ''}<button class="btn tb1" id="t_new">新的一局<small>${CHARS.hansong.title} · ${CHARS.hansong.name}</small></button></div>
-   <div class="trow sm"><button class="btn tb2s" id="t_codex">图鉴</button><button class="btn tb2s" id="t_rule">规则</button><button class="btn tb2s" id="t_tut">教程：${SET.tut ? '开' : '关'}</button></div>
-   <p class="tver">最小可玩版 · 第一章 林海雪原</p></div>
-   <p class="tnote">本作为虚构故事，除「英烈录」所记真实英烈外，人物均为虚构。</p>`;
+   <div class="tcorner"><button id="t_codex">图鉴</button><button id="t_rule">规则</button><button id="t_set">设置</button></div>
+   <div class="tright"><img class="tcal" src="assets/ui/title_cal.png" alt="長夜將盡"><div class="tsub"><i></i><img src="assets/ui/title_sub.png" alt="深入關東軍司令部"><i></i></div>
+   <p class="ten">BEFORE THE DAWN · INTO THE KWANTUNG HQ</p>
+   <div class="trow"><button class="tbtn" id="t_new">新的一局</button>${s ? '<button class="tbtn" id="t_cont">继 续</button>' : ''}</div></div>
+   <p class="tnote">最小可玩版 · 本作为虚构故事，除「英烈录」所记真实英烈外，人物均为虚构。</p>`;
   if (s) $('#t_cont').onclick = () => { R = s; resume(); };
   $('#t_new').onclick = () => { if (s && !confirm('开始新的一局会覆盖当前进度，确定吗？')) return; newRun(); story(INTRO, () => campaign(0, mapScreen)); };
-  $('#t_rule').onclick = rules; $('#t_codex').onclick = () => codex();
-  $('#t_tut').onclick = () => { if (SET.tut) { SET.tut = 0; saveSet(); } else { resetTut(); tip('教程已打开，老沈会从头讲起'); } title(); };
+  $('#t_rule').onclick = rules; $('#t_codex').onclick = () => codex(); $('#t_set').onclick = settings;
+}
+/* 设置：音效、画面震动、教程 */
+function settings() {
+  const o = overlay(`<div class="panel small"><h2>设置</h2><div class="col"><button class="btn" id="s_snd">音效：${audio.isOn() ? '开' : '关'}</button><button class="btn" id="s_shk">画面震动：${SET.shake ? '开' : '关'}</button>
+    <button class="btn" id="s_tut">教程：${SET.tut ? '开' : '关'}</button><button class="btn" id="s_tutr">教程从头再讲一遍</button><button class="btn ghost" id="s_x">关闭</button></div></div>`);
+  o.querySelector('#s_snd').onclick = e => { e.target.textContent = `音效：${audio.toggle() ? '开' : '关'}`; };
+  o.querySelector('#s_shk').onclick = e => { SET.shake = SET.shake ? 0 : 1; saveSet(); e.target.textContent = `画面震动：${SET.shake ? '开' : '关'}`; };
+  o.querySelector('#s_tut').onclick = e => { SET.tut = SET.tut ? 0 : 1; saveSet(); e.target.textContent = `教程：${SET.tut ? '开' : '关'}`; };
+  o.querySelector('#s_tutr').onclick = () => { resetTut(); tip('教程已重置，老沈会从头讲起'); };
+  o.querySelector('#s_x').onclick = () => o.remove();
 }
 const INTRO = ['1944 年冬。东北抗日联军的一支小分队，在苏联境内整训一年后，奉命潜回东北。',
   '他们的最终目标，是长春——伪满洲国所谓的「新京」，关东军司令部就在那里。',
