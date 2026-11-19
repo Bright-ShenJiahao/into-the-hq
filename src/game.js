@@ -149,6 +149,7 @@ function rules() {
   <p>· <b>三种枪</b>：狙击牌 1 发高伤、省子弹；冲锋枪牌一次打好几发、耗弹快；手枪牌是便宜的小牌。</p>
   <p>· <b>标尺</b>：叠在敌人身上，最多 5 层，每层让狙击牌每发 +1 伤害。</p>
   <p>· <b>枪感</b>：每打一张枪械牌 +1（最多 ${FEEL_MAX}），回合结束 -1；冲锋枪牌和手枪牌每发伤害 + 枪感的一半。</p>
+  <p>· <b>敌人装弹</b>：会开枪的敌人脚下也有弹仓，打空了下回合要装弹，那回合不攻击。</p>
   <p>· <b>装甲</b>：每次受到的伤害减去装甲值。穿甲弹、反器材无视装甲。</p>
   <p>· <b>体温</b>：每走一格 -1，到密营回满；低于 3 时战斗第一回合少抽 1 张；为 0 时每走一格再失去 2 生命。</p>
   <p>· <b>口粮</b>：每走一格 -1，打赢战斗能缴获；为 0 时每走一格失去 3 生命。</p>
@@ -274,7 +275,7 @@ function battle(enc, kind) {
   flushMsgs();
 }
 function flushMsgs() { if (B && B.msgs.length) { say(B.msgs.join('\n'), 3600); B.msgs = []; } }
-const ICON = { atk: '⚔', def: '🛡', buff: '⬆', debuff: '⬇', charge: '⏳', flee: '🏃', unk: '？' };
+const ICON = { atk: '⚔', def: '🛡', buff: '⬆', debuff: '⬇', charge: '⏳', flee: '🏃', reload: '🔄', unk: '？' };
 const ESIZE = { dog: [130, 80], sergeant: [120, 185], captain: [250, 170], mg: [150, 110], mortar: [110, 130] };
 function enemyHTML(e) {
   const d = e.d, [w, h] = e.key === 'captain' && e.phase === 2 ? [120, 190] : (ESIZE[e.key] || [100, 160]), it = e.dead ? null : E.intentOf(B, e);
@@ -283,7 +284,7 @@ function enemyHTML(e) {
   return `<div class="unit enemy ${tg ? 'tg' : ''} ${e.dead ? 'dead' : ''} ${d.frames ? '' : 'noanim'}" data-eid="${e.id}">
     <div class="intent">${it ? `<i class="ii ii-${it.i}">${ICON[it.i]}</i>${it.text}<small>${it.name}</small>` : ''}</div>
     ${d.frames ? frameBox(efr(e)[0], efr(e)[1], enemySrc(e), '', d.name) : `<div class="sprw">${d.art ? `<img class="spr art still" src="${enemySrc(e)}" style="height:${d.artH}px" alt="${d.name}" draggable="false">` : `<div class="spr blk ${d.boss ? 'bossb' : ''}" style="width:${w}px;height:${h}px;background:${d.col}">${label}</div>`}<i class="shd"></i></div>`}
-    <div class="uinfo">${barHTML(e.hp, e.max, e.block)}<div class="badges">${e.armor ? `<b class="arm" data-k="装甲">🛡 装甲 ${e.armor}</b>` : ''}${e.marks ? `<b class="mark" data-k="标尺">🎯 标尺 ${e.marks}</b>` : ''}${stsHTML(e.st)}</div></div></div>`;
+    <div class="uinfo">${barHTML(e.hp, e.max, e.block)}${e.ammo != null && !e.dead ? `<div class="eammo ${e.ammo ? '' : 'zero'}" data-k="敌人弹仓">${Array.from({ length: e.d.ammo }, (_, k) => `<i class="${k < e.ammo ? 'f' : ''}"></i>`).join('')}${e.ammo ? '' : '<b>空</b>'}</div>` : ''}<div class="badges">${e.armor ? `<b class="arm" data-k="装甲">🛡 装甲 ${e.armor}</b>` : ''}${e.marks ? `<b class="mark" data-k="标尺">🎯 标尺 ${e.marks}</b>` : ''}${stsHTML(e.st)}</div></div></div>`;
 }
 /* 血条：格挡是左边的蓝色圆圈（同旧游戏） */
 function barHTML(hp, max, blk) {
@@ -334,7 +335,7 @@ function render() {
     if (!TOUCH) { el.onmouseenter = () => kwShow(el); el.onmouseleave = kwHide; }
   });
   view.querySelectorAll('.enemy').forEach(el => el.onclick = ev => { ev.stopPropagation(); clickEnemy(el.dataset.eid); });
-  view.querySelectorAll('.badges b[data-k], .ammo[data-k]').forEach(el => el.onclick = ev => { ev.stopPropagation(); const k = el.dataset.k; tipBox(`<b>${k}</b>：${KW[k] || ({ 力量: '每次攻击伤害增加等同层数。' })[k] || ''}`); });
+  view.querySelectorAll('.badges b[data-k], .ammo[data-k], .eammo[data-k]').forEach(el => el.onclick = ev => { ev.stopPropagation(); const k = el.dataset.k; tipBox(`<b>${k}</b>：${KW[k] || ({ 力量: '每次攻击伤害增加等同层数。', 敌人弹仓: '会开枪的敌人也有弹仓，每开一轮枪少一格；打空了下回合要「装弹」，那回合不会攻击。' })[k] || ''}`); });
   view.querySelector('.bg').onclick = () => { kwHide(); if (B.sel >= 0) { B.sel = -1; render(); } };
   fitEnemies(); flushFx(); dbgPanel();
 }
@@ -405,6 +406,7 @@ async function endTurn() {
     if (B.over) break;
     const m = e.d.moves[e.move];
     if (m && m.d) { epose(e, 'atk'); motion(e.id, 'lunge'); const melee = /刺|刀|咬|扑|撞/.test(m.t); setTimeout(() => melee ? audio.stab() : audio.shot(e.key === 'mg' || (e.key === 'captain' && e.move === 'mgun') ? 'smg' : e.key === 'sergeant' || e.move === 'pistol' ? 'pistol' : 'rifle'), 120); await sleep(180); }
+    if (m && m.i === 'reload') audio.reload();
     E.enemyAct(B, e); render(); flushMsgs(); await sleep(m && m.d ? 560 : 380);
   }
   if (await checkEnd()) return;

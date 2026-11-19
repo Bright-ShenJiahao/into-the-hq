@@ -77,7 +77,9 @@ button{font-family:inherit;cursor:pointer}
 .ammo{display:flex;align-items:center;gap:6px;margin-top:5px;padding:3px 8px;background:rgba(10,10,10,.7);border:1px solid #8a7040;border-radius:6px;cursor:help}
 .ammo .pips{display:flex;gap:2px}.ammo .pips i{width:8px;height:17px;border-radius:3px 3px 1px 1px;background:#333;border:1px solid #555}.ammo .pips i.f{background:linear-gradient(#ffe08a,#c8901e);border-color:#ffd35a}
 .ammo .mbar{width:120px;height:10px;background:#333;border-radius:4px;overflow:hidden;display:block}.ammo .mbar u{display:block;height:100%;background:#d8a030}
-.ammo b{font-size:14px;color:#fff}.ammo.zero{border-color:#ff5a4a;animation:blink 1s infinite}.ammo.zero b{color:#ff6a5a}
+.ammo b{font-size:14px;color:#fff}
+.eammo{display:flex;align-items:center;gap:3px;margin-top:4px;cursor:help}.eammo i{width:7px;height:15px;border-radius:3px 3px 1px 1px;background:#333;border:1px solid #555}.eammo i.f{background:linear-gradient(#e8d08a,#a8801e);border-color:#c8a040}.eammo b{font-size:12px;color:#ff8a7a;margin-left:3px}
+.touch .eammo i{width:10px;height:20px}.touch .eammo b{font-size:16px}.ammo.zero{border-color:#ff5a4a;animation:blink 1s infinite}.ammo.zero b{color:#ff6a5a}
 .uname{display:none}
 .intent{height:34px;font-size:22px;font-weight:bold;color:#fff;text-shadow:0 0 3px #000,0 0 3px #000;white-space:nowrap;margin-bottom:6px}
 .intent .ii{font-style:normal;margin-right:3px}.intent small{font-size:13px;color:#ffe9b8;margin-left:4px}
@@ -189,6 +191,7 @@ button{font-family:inherit;cursor:pointer}
 .touch #endturn{bottom:175px;width:250px;height:84px;font-size:26px}
 .touch .btn.reload{bottom:268px;width:250px;height:64px;font-size:24px}
 .touch .pile{zoom:1.15}
+.touch .enemy .uinfo{flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:center;gap:0 6px;width:260px}.touch .enemy .hpw{flex-basis:100%;display:flex;justify-content:center}.touch .enemy .badges{min-height:0}
 .touch #hero .uinfo{flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:center;gap:0 6px;width:440px}.touch #hero .hpw{flex-basis:100%;display:flex;justify-content:center}.touch #hero .uinfo .badges,.touch #hero .uinfo .ammo,.touch #hero .uinfo .inc{margin-top:4px;min-height:0}
 .touch #hero{bottom:330px}.touch #enemies{bottom:330px;gap:0}.touch .bg.battle{background-position:center 88%}
 .touch .intent{font-size:30px;height:42px;margin-bottom:-4px}.touch .intent small{font-size:18px}

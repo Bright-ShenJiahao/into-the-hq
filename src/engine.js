@@ -11,7 +11,7 @@ export const alive = B => B.en.filter(e => !e.dead);
 
 function mkEnemy(B, key) {
   const d = ENEMIES[key], hp = ri(B.rng, d.hp[0], d.hp[1]);
-  const e = { id: 'e' + (B.eid++), key, d, hp, max: hp, block: 0, st: {}, armor: d.armor || 0, marks: 0, t: 0, phase: 1 };
+  const e = { id: 'e' + (B.eid++), key, d, hp, max: hp, block: 0, st: {}, armor: d.armor || 0, marks: 0, t: 0, phase: 1, ammo: d.ammo || null };
   e.move = d.ai(e, B, B.rng); return e;
 }
 
@@ -182,6 +182,7 @@ export function intentOf(B, e) {
   const m = e.d.moves[e.move]; if (!m) return { i: 'unk', text: '?' };
   if (m.i === 'atk') { const n = enemyDmg(B, e, m.d); return { i: 'atk', text: m.x ? `${n}×${m.x}` : `${n}`, name: m.t, dmg: n * (m.x || 1) }; }
   if (m.i === 'charge') return { i: 'charge', text: `下回合 ${m.next}`, name: m.t };
+  if (m.i === 'reload') return { i: 'reload', text: '', name: m.t };
   return { i: m.i, text: '', name: m.t };
 }
 export function enemyDmg(B, e, d) {
@@ -200,6 +201,8 @@ export function enemyAct(B, e) {
   if (e.dead || B.over) return;
   e.block = 0;
   const m = e.d.moves[e.move];
+  if (m.i === 'reload') { e.ammo = e.d.ammo; fx(B, e.id, '装弹', 'st'); }
+  if (m.shot && e.ammo != null) e.ammo = Math.max(0, e.ammo - 1);
   if (m.i === 'flee') { e.dead = 1; e.fled = 1; e.deadAt = Date.now(); fx(B, e.id, '逃跑了', 'st'); return; }
   if (m.d) for (let k = 0; k < (m.x || 1) && !B.over; k++) hitPlayer(B, enemyDmg(B, e, m.d));
   if (m.blk) { e.block += m.blk; fx(B, e.id, '+' + m.blk, 'blk'); }
@@ -208,7 +211,7 @@ export function enemyAct(B, e) {
   if (m.weak) { addSt(B.p, 'weak', m.weak); fx(B, 'hero', `虚弱+${m.weak}`, 'st'); }
   if (m.vuln) { addSt(B.p, 'vuln', m.vuln); fx(B, 'hero', `易伤+${m.vuln}`, 'st'); }
   for (const k of ['weak', 'vuln']) if (e.st[k]) addSt(e, k, -1);
-  if (!e.dead) { e.last = e.move; e.t++; e.move = e.d.ai(e, B, B.rng); }
+  if (!e.dead) { e.last = e.move; e.t++; e.move = e.ammo === 0 ? 'reload' : e.d.ai(e, B, B.rng); }
 }
 
 export function result(B) {

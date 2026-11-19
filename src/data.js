@@ -117,15 +117,16 @@ export const RAR = { basic: '基础', c: '普通', u: '罕见', r: '稀有', loo
 export const SCH = { 狙: '狙击', 冲: '冲锋枪', 手: '手枪', 通: '通用' };
 
 // ---------- 敌人 ----------
-// 招式：i 意图类型 atk/def/buff/debuff/charge/flee；d 伤害，x 次数，blk 格挡，str 力量（给自己），all 力量给全体友军，weak/vuln 给你
+// 招式：i 意图类型 atk/def/buff/debuff/charge/flee/reload；d 伤害，x 次数，blk 格挡，str 力量（给自己），all 力量给全体友军，weak/vuln 给你
+// 敌人装弹：ammo 是弹仓（几轮射击），shot 招式每次用掉 1 轮；打空后下回合自动「装弹」（moves.reload）
 const pick = (r, a) => a[Math.floor(r() * a.length)];
 export const ENEMIES = {
   inf: { name: '日军步兵', hp: [22, 26], col: '#6d6a3c', art: 'inf', frames: 'inf', artH: 240, 
-    moves: { shoot: { t: '射击', i: 'atk', d: 8 }, stab: { t: '刺杀', i: 'atk', d: 6, blk: 5 } },
-    ai: (e, B, r) => e.last === 'stab' ? 'shoot' : r() < .55 ? 'shoot' : 'stab' },
+    ammo: 2, moves: { shoot: { t: '射击', i: 'atk', d: 8, shot: 1 }, stab: { t: '刺杀', i: 'atk', d: 6, blk: 5 }, reload: { t: '装弹', i: 'reload', blk: 4 } },
+    ai: (e, B, r) => e.last === 'stab' ? 'shoot' : r() < .7 ? 'shoot' : 'stab' },
   puppet: { name: '伪满军', hp: [14, 18], col: '#7a5a3a', frames: 'puppet', artH: 235, 
-    moves: { shoot: { t: '射击', i: 'atk', d: 6 }, hide: { t: '缩在掩体后', i: 'def', blk: 6 }, flee: { t: '逃跑', i: 'flee' } },
-    ai: (e, B, r) => (e.t >= 2 && e.hp < e.max / 2) ? 'flee' : e.last === 'hide' ? 'shoot' : r() < .7 ? 'shoot' : 'hide' },
+    ammo: 2, moves: { shoot: { t: '射击', i: 'atk', d: 6, shot: 1 }, reload: { t: '装弹', i: 'reload', blk: 6 }, flee: { t: '逃跑', i: 'flee' } },
+    ai: e => (e.t >= 2 && e.hp < e.max / 2) ? 'flee' : 'shoot' },
   dog: { name: '军犬', hp: [12, 15], col: '#5a4a3a', frames: 'dog', artH: 90,
     moves: { bite: { t: '撕咬', i: 'atk', d: 4, x: 2 }, pounce: { t: '扑倒', i: 'atk', d: 6, weak: 1 } },
     ai: (e, B, r) => e.last === 'pounce' ? 'bite' : r() < .6 ? 'bite' : 'pounce' },
@@ -133,21 +134,21 @@ export const ENEMIES = {
     moves: { load: { t: '装弹', i: 'charge', next: 14 }, fire: { t: '炮击', i: 'atk', d: 14 }, dig: { t: '挖掩体', i: 'def', blk: 8 } },
     ai: e => ['load', 'fire', 'dig'][e.t % 3] },
   mg: { name: '机枪组', hp: [30, 34], col: '#4a5040', armor: 2, frames: 'mg', artH: 123, loot: 'c_type11', lootP: .5,
-    moves: { spray: { t: '扫射', i: 'atk', d: 3, x: 4 }, set: { t: '架枪', i: 'def', blk: 10 } },
-    ai: e => e.t % 2 === 0 ? 'spray' : 'set' },
+    ammo: 2, moves: { spray: { t: '扫射', i: 'atk', d: 3, x: 3, shot: 1 }, reload: { t: '换弹斗', i: 'reload', blk: 10 } },
+    ai: () => 'spray' },
   sniper: { name: '日军狙击手', hp: [18, 20], col: '#4e5a3a', frames: 'sniper', artH: 179, loot: 'c_type97', lootP: .5,
-    moves: { aim: { t: '瞄准', i: 'charge', next: 18 }, snipe: { t: '狙击', i: 'atk', d: 18 }, move: { t: '转移阵地', i: 'def', blk: 8 } },
-    ai: e => ['aim', 'snipe', 'move'][e.t % 3] },
+    ammo: 1, moves: { aim: { t: '瞄准', i: 'charge', next: 18 }, snipe: { t: '狙击', i: 'atk', d: 18, shot: 1 }, reload: { t: '拉栓装弹', i: 'reload', blk: 8 } },
+    ai: e => e.last === 'aim' ? 'snipe' : 'aim' },
   sergeant: { name: '讨伐队军曹', hp: [50, 54], col: '#7a3a2a', elite: 1, frames: 'sergeant', artH: 250, loot: 'c_nambu', lootP: 1,
     moves: { rally: { t: '冲锋号令', i: 'buff', all: 2 }, saber: { t: '军刀劈砍', i: 'atk', d: 13 }, pistol: { t: '手枪射击', i: 'atk', d: 7, weak: 1 } },
     ai: e => e.t === 0 ? 'rally' : e.t % 2 ? 'saber' : 'pistol' },
   captain: { name: '讨伐队长 · 村濑', hp: [150, 150], col: '#5a2a2a', boss: 1, armor: 2, frames: 'captain_car', artH: 280, frames2: 'captain_foot', artH2: 265,
     moves: {
-      mgun: { t: '车载机枪', i: 'atk', d: 4, x: 4 }, ram: { t: '冲撞', i: 'atk', d: 16 }, hull: { t: '关上舱盖', i: 'def', blk: 15 },
+      mgun: { t: '车载机枪', i: 'atk', d: 4, x: 4, shot: 1 }, ram: { t: '冲撞', i: 'atk', d: 16 }, reload: { t: '关上舱盖换弹', i: 'reload', blk: 15 },
       saber: { t: '军刀', i: 'atk', d: 14 }, pistol: { t: '手枪连射', i: 'atk', d: 6, x: 2 }, roar: { t: '怒吼', i: 'buff', str: 3 },
     },
-    ai: (e, B, r) => e.phase === 2 ? (e.last === 'roar' ? 'saber' : e.t % 3 === 0 ? 'roar' : pick(r, ['saber', 'pistol'])) : ['mgun', 'ram', 'hull'][e.t % 3],
-    onHurt: (e, G) => { if (e.phase !== 2 && e.hp <= e.max / 2) { e.phase = 2; e.armor = 0; e.block = 0; e.t = 0; e.move = 'roar'; e.anim = null; G.say('装甲车被打瘫了！村濑跳下车，拔出军刀。'); G.fx(e.id, '装甲车瘫痪', 'st'); } } },
+    ammo: 2, ai: (e, B, r) => e.phase === 2 ? (e.last === 'roar' ? 'saber' : e.t % 3 === 0 ? 'roar' : pick(r, ['saber', 'pistol'])) : e.last === 'mgun' ? 'ram' : 'mgun',
+    onHurt: (e, G) => { if (e.phase !== 2 && e.hp <= e.max / 2) { e.phase = 2; e.armor = 0; e.block = 0; e.t = 0; e.move = 'roar'; e.anim = null; e.ammo = null; /* 下车后只用军刀和手枪，不再显示弹仓 */ G.say('装甲车被打瘫了！村濑跳下车，拔出军刀。'); G.fx(e.id, '装甲车瘫痪', 'st'); } } },
 };
 Object.entries(ENEMIES).forEach(([k, d]) => { d.key = k; });
 
