@@ -158,13 +158,17 @@ button{font-family:inherit;cursor:pointer}
 .wcard b{font-size:24px;color:#ffd35a;display:block}.wcard small{color:#a89a7a}.wcard p{font-size:16px!important;margin:8px 0 0!important}
 /* 地图 */
 #map{position:absolute;left:0;right:0;top:48px;bottom:0;overflow-y:auto;background:#1e252c}
-#mapin{position:relative;width:1000px;margin:0 auto;background:linear-gradient(#d8dee2,#b8c2ca);border-left:6px solid #8a96a0;border-right:6px solid #8a96a0}
+#mapin{position:relative;width:1000px;margin:0 auto;background:linear-gradient(#e8dcc0,#d4c49c);border-left:6px solid #6a5030;border-right:6px solid #6a5030}
+#mapin.art{background:#d8c8a0 url(assets/bg/map_ch1.jpg) top center/100% 100% no-repeat}
+.maplab{position:absolute;left:500px;transform:translateX(-50%);font-size:20px;font-weight:bold;color:#6a1a10;white-space:nowrap;text-shadow:0 0 4px #f6ecd0,0 0 4px #f6ecd0}.maplab.start{color:#3a2a10}
+.node.pic{background:none!important;border:none;width:76px;height:76px;margin:-38px 0 0 -38px}.node.pic img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 1px 1px rgba(60,30,0,.5))}.node.boss.pic{width:160px;height:120px;margin:-60px 0 0 -80px}
+#legend .lgt{font-weight:bold;color:#ffe9b8;border-bottom:1px solid #8a7040;margin-bottom:4px}#legend b.pic{background:none;border:none}#legend b.pic img{width:26px;height:26px;object-fit:contain}#legend .redl{display:inline-block;width:26px;height:5px;background:#b8241a;vertical-align:middle;margin-right:8px;border-radius:2px}
 #map svg{position:absolute;left:0;top:0}
 .node{position:absolute;width:60px;height:60px;margin:-30px 0 0 -30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:bold;color:#fff;border:3px solid #1a1a1a;text-shadow:0 1px 2px #000}
 .node.done{opacity:.4}.node.cur{box-shadow:0 0 0 4px #ffd35a}
 .node.av{cursor:pointer;animation:pulse 1s infinite}
 @keyframes pulse{50%{transform:scale(1.15);box-shadow:0 0 14px #ffd35a}}
-.node.boss{width:150px;height:110px;margin:-55px 0 0 -75px;border-radius:16px;background:#4a1414;font-size:24px}
+.node.boss{width:150px;height:110px;margin:-55px 0 0 -75px;border-radius:16px;background:#4a1414;font-size:24px;line-height:1.2;text-align:center}
 #legend{position:absolute;right:20px;top:70px;background:rgba(0,0,0,.65);padding:10px 14px;border-radius:8px;font-size:15px;line-height:2.1}
 #legend b{display:inline-block;width:26px;height:26px;border-radius:50%;text-align:center;line-height:24px;margin-right:8px;color:#fff;border:2px solid #111;font-size:14px}#legend .lg2{font-size:13px;color:#c8d0b0;line-height:1.5;margin-top:4px}
 /* 标题/剧情/结局 */

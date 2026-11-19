@@ -81,6 +81,11 @@ function genMap() {
   return g;
 }
 const NODE = { fight: ['战', '战斗', '#8a4a32'], elite: ['精', '精英', '#7a1a1a'], event: ['?', '未知', '#3a5a7a'], rest: ['营', '密营', '#2f6a3a'] };
+/* 章节地图：上北下南，从上（江边）往下（讨伐队据点）走。画布 1000×1500（2:3），出图后把对应开关改成 true */
+const MAP_W = 1000, MAP_H = 1500, MAP_ART = false, NODE_ART = false;
+const mapY = nd => 190 + nd.r * 125 + ((nd.c * 37 + nd.r * 11) % 21 - 10); /* 不用存档里的旧 y，老存档也会翻成新方向 */
+const BOSS_Y = 1330;
+const nodeIcon = t => NODE_ART ? `<img src="assets/ui/node_${t}.png" alt="" draggable="false">` : NODE[t][0];
 function available() {
   if (!R.pos) return R.map[0].filter(Boolean);
   if (R.pos.r === ROWS - 1) return ['boss'];
@@ -195,19 +200,23 @@ function resume() {
 // ---------- 地图 ----------
 function mapScreen() {
   B = null; delete R.pending; save();
-  const av = available(), H = ROWS * 100 + 300, LC = '#4a5a6a';
+  const av = available(), H = MAP_H, LC = '#6a4a2a';
   let lines = '', nodes = '';
-  for (const row of R.map) for (const nd of row) if (nd) for (const c of nd.next) { const t = R.map[nd.r + 1][c]; lines += `<line x1="${nd.x}" y1="${nd.y}" x2="${t.x}" y2="${t.y}" stroke="${LC}" stroke-width="3" stroke-dasharray="4 8" stroke-linecap="round"/>`; }
-  for (const nd of R.map[ROWS - 1]) if (nd) lines += `<line x1="${nd.x}" y1="${nd.y}" x2="500" y2="110" stroke="${LC}" stroke-width="3" stroke-dasharray="4 8" stroke-linecap="round"/>`;
+  /* 走过的路画成红色实线（抗联路线），没走的是灰色虚线 */
+  const walked = (a, b) => R.path.some((p, i) => p.r === a.r && p.c === a.c && R.path[i + 1] && R.path[i + 1].r === b.r && R.path[i + 1].c === b.c);
+  const ln = (x1, y1, x2, y2, red) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${red ? '#b8241a' : LC}" stroke-width="${red ? 6 : 3}" ${red ? '' : 'stroke-dasharray="4 8" opacity=".75"'} stroke-linecap="round"/>`;
+  for (const row of R.map) for (const nd of row) if (nd) for (const c of nd.next) { const t = R.map[nd.r + 1][c]; lines += ln(nd.x, mapY(nd), t.x, mapY(t), walked(nd, t)); }
+  for (const nd of R.map[ROWS - 1]) if (nd) lines += ln(nd.x, mapY(nd), 500, BOSS_Y, false);
   for (const row of R.map) for (const nd of row) if (nd) {
     const isAv = av.includes(nd), done = R.path.some(p => p.r === nd.r && p.c === nd.c), cur = R.pos && R.pos.r === nd.r && R.pos.c === nd.c, [ch, , col] = NODE[nd.type];
-    nodes += `<div class="node ${isAv ? 'av' : ''} ${done ? 'done' : ''} ${cur ? 'cur' : ''}" style="left:${nd.x}px;top:${nd.y}px;background:${col}" data-r="${nd.r}" data-c="${nd.c}">${ch}</div>`;
+    nodes += `<div class="node ${NODE_ART ? 'pic' : ''} ${isAv ? 'av' : ''} ${done ? 'done' : ''} ${cur ? 'cur' : ''}" style="left:${nd.x}px;top:${mapY(nd)}px;${NODE_ART ? '' : 'background:' + col}" data-r="${nd.r}" data-c="${nd.c}">${nodeIcon(nd.type)}</div>`;
   }
-  nodes += `<div class="node boss ${av[0] === 'boss' ? 'av' : ''}" style="left:500px;top:110px">讨伐队长</div>`;
-  view.innerHTML = `${topBar()}<div id="map"><div id="mapin" style="height:${H}px"><svg width="1000" height="${H}">${lines}</svg>${nodes}</div></div>
-   <div id="legend">${Object.values(NODE).map(([ch, n, col]) => `<div><b style="background:${col}">${ch}</b>${n}</div>`).join('')}<div class="lg2">每走一格：体温 -1，口粮 -1</div></div>`;
+  nodes += `<div class="node boss ${NODE_ART ? 'pic' : ''} ${av[0] === 'boss' ? 'av' : ''}" style="left:500px;top:${BOSS_Y}px">${NODE_ART ? nodeIcon('boss') : '讨伐队<br>据点'}</div><div class="maplab" style="top:${BOSS_Y + 78}px">讨伐队长 · 村濑</div>
+   <div class="maplab start" style="top:70px">▼ 越过冰封的江面，出发</div>`;
+  view.innerHTML = `${topBar()}<div id="map"><div id="mapin" class="${MAP_ART ? 'art' : ''}" style="height:${H}px"><svg width="${MAP_W}" height="${H}">${lines}</svg>${nodes}</div></div>
+   <div id="legend"><div class="lgt">图例</div>${Object.keys(NODE).map(k => `<div><b class="${NODE_ART ? 'pic' : ''}" style="${NODE_ART ? '' : 'background:' + NODE[k][2]}">${nodeIcon(k)}</b>${NODE[k][1]}</div>`).join('')}<div><b class="${NODE_ART ? 'pic' : ''}" style="${NODE_ART ? '' : 'background:#4a1414'}">${NODE_ART ? nodeIcon('boss') : '首'}</b>讨伐队据点</div><div class="lg2"><i class="redl"></i>走过的路线<br>每走一格：体温 -1，口粮 -1</div></div>`;
   bindTop();
-  const m = $('#map'), y = R.pos ? R.map[R.pos.r][R.pos.c].y : H; m.scrollTop = Math.max(0, y - 460);
+  const m = $('#map'), y = R.pos ? mapY(R.map[R.pos.r][R.pos.c]) : 0; m.scrollTop = Math.max(0, y - 220);
   view.querySelectorAll('.node.av').forEach(el => el.onclick = () => {
     if (el.classList.contains('boss')) { if (!walk()) return; R.floor++; return enterNode('boss'); }
     const nd = R.map[+el.dataset.r][+el.dataset.c]; if (!walk()) return;
