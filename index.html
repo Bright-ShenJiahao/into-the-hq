@@ -31,6 +31,49 @@ button{font-family:inherit;cursor:pointer}
 #top .warn{color:#ff5a4a!important;animation:blink 1.2s infinite}
 #top .sp{flex:1}
 img.ico{width:1.3em;height:1.3em;object-fit:contain;vertical-align:middle}#top .itm img.ico{width:30px;height:30px}#top .rel img.ico{width:30px;height:30px}.big img.ico{width:72px;height:72px}.gain img.ico{width:32px;height:32px}.panel h2 img.ico{width:44px;height:44px}.touch #top .itm img.ico,.touch #top .rel img.ico{width:38px;height:38px}
+.mmenu .mrow{display:flex;gap:8px}.mmenu .mrow .btn{flex:1}
+/* 教程对话框：左下老沈立绘，下方对话条 */
+.overlay.tutov{background:rgba(0,0,0,.35);justify-content:flex-end;align-items:stretch;z-index:150;cursor:pointer}
+.tutov .tutl{position:absolute;left:40px;bottom:0;height:430px;width:330px;display:flex;align-items:flex-end;justify-content:center;pointer-events:none}
+.tutov .tutl img{max-height:430px;max-width:330px;object-fit:contain;filter:drop-shadow(0 0 10px rgba(0,0,0,.6))}
+.tutov .tutph{width:250px;height:380px;border-radius:120px 120px 8px 8px;background:linear-gradient(#5d6358,#3a3e36);border:3px solid #a88a50;display:flex;align-items:center;justify-content:center;font-size:40px;color:#e8d8b0;letter-spacing:6px}
+.tutov .tutbox{position:relative;margin:0 40px 30px 330px;min-height:150px;background:rgba(14,12,8,.95);border:3px solid #a88a50;border-radius:12px;padding:18px 26px 34px;text-align:left}
+.tutov .tutn{position:absolute;top:-22px;left:22px;background:#5a1a10;border:2px solid #a88a50;border-radius:6px;padding:2px 16px;font-size:20px;color:#ffe9b8}.tutov .tutn small{font-size:13px;margin-left:8px;opacity:.8}
+.tutov .tutt{font-size:21px;line-height:1.75;color:#f0e6cc;margin:8px 0 0}
+.tutov .tutc{position:absolute;right:20px;bottom:8px;font-size:14px;color:#c8b88a;animation:blink 1.4s infinite}
+.tutov .tutskip{position:absolute;left:20px;bottom:6px;background:none;border:0;color:#8a7a62;font-size:13px;text-decoration:underline;cursor:pointer}
+.touch .tutov .tutl{height:400px;width:280px;left:20px}.touch .tutov .tutl img{max-height:400px;max-width:280px}
+.touch .tutov .tutbox{margin:0 30px 24px 290px;padding:20px 28px 44px}.touch .tutov .tutt{font-size:30px}.touch .tutov .tutn{font-size:26px}.touch .tutov .tutc,.touch .tutov .tutskip{font-size:20px}
+/* 图鉴 */
+.overlay.codex{background:rgba(6,6,4,.88);z-index:120}
+.codex .cx{width:calc(100% - 60px);height:680px;background:rgba(16,14,10,.97);border:3px solid #a88a50;border-radius:14px;display:flex;flex-direction:column;overflow:hidden}
+.codex .hd{display:flex;align-items:center;gap:8px;padding:10px 16px;border-bottom:1px solid rgba(168,138,80,.5)}
+.codex .hd h2{font-size:26px;margin:0 14px 0 0;color:#ffe9b8;letter-spacing:4px}
+.codex .tb2{background:#2e2618;border:1px solid #8a7040;color:#d8c8a0;border-radius:6px;padding:5px 14px;font-size:16px;cursor:pointer}.codex .tb2.on{background:#6a2a14;color:#ffe9b8;border-color:#e0c080}
+.codex .ct{margin-left:auto;color:#a89870;font-size:15px}.codex .x{background:none;border:0;color:#e8d8b0;font-size:26px;cursor:pointer;margin-left:10px}
+.codex .bd{flex:1;display:flex;min-height:0}
+.codex .gr{flex:1;overflow-y:auto;padding:14px;display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;align-content:start}
+.codex .gr.g-card{grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}.codex .gr.g-term,.codex .gr.g-hero{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+.codex .cd{position:relative;background:#211c13;border:1px solid #5a4a30;border-radius:8px;padding:8px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:6px;min-height:150px;cursor:pointer;font-size:15px;color:#e8d8b0;text-align:center}
+.codex .cd:hover{border-color:#e0c080}.codex .cd>img{max-width:120px;object-fit:contain}
+.codex .cd.lk>img{filter:brightness(0) opacity(.5)}.codex .cd.lk .big{filter:brightness(0) opacity(.5)}.codex .cd.lk span{color:#7a6a52}
+.codex .cd .tg{position:absolute;top:6px;left:6px;font-style:normal;font-size:12px;background:#7a1a1a;color:#ffe;padding:1px 6px;border-radius:4px}
+.codex .cd.ic{min-height:120px}.codex .cd .big{font-size:42px}.codex .cd .big img.ico{width:64px;height:64px}
+.codex .cd.cc{min-height:220px;background:none;border:0;padding:0}.codex .cd.cc .card{position:relative;left:auto;top:auto;transform:scale(.95);transform-origin:center bottom;margin:0}
+.codex .cback{width:150px;height:210px;border-radius:10px;background:repeating-linear-gradient(45deg,#2a2418,#2a2418 8px,#231e14 8px,#231e14 16px);border:2px solid #5a4a30;display:flex;align-items:center;justify-content:center;font-size:40px;color:#6a5a42}
+.codex .cd.tm{min-height:70px;justify-content:center}.codex .cd.tm i{font-style:normal;font-size:12px;color:#a89870}.codex .cd.tm b{font-size:18px}
+.codex .cd.hero b{color:#ffd8a0}
+.codex .dt{width:400px;border-left:1px solid rgba(168,138,80,.4);padding:16px 20px;overflow-y:auto;text-align:left;color:#e8d8b0}
+.codex .dt .pic{height:230px;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:8px}.codex .dt .pic img{max-height:230px;max-width:100%;object-fit:contain}
+.codex .dt .pic.lk img,.codex .dt .pic.lk .big{filter:brightness(0) opacity(.5)}
+.codex .dt .pic.cards .card{position:relative;left:auto;top:auto;transform:none;margin:0}
+.codex .dt .huge{font-size:90px}.codex .dt .huge img.ico{width:150px;height:150px}
+.codex .dt h3{font-size:24px;margin:4px 0;color:#ffe9b8}.codex .dt h4{font-size:15px;margin:14px 0 4px;color:#c8a870;letter-spacing:4px}
+.codex .dt .tg2{display:inline-block;font-size:14px;color:#c8b88a;margin-bottom:6px}.codex .dt .sub2{color:#d8b880;font-size:15px}
+.codex .dt p{font-size:16px;line-height:1.7;margin:6px 0}.codex .dt ul{margin:0;padding-left:20px;font-size:15px;line-height:1.7}
+.codex .dt .hist{color:#cfc2a0;font-size:15px;border-left:3px solid #8a3a2a;padding-left:10px}.codex .dt .no{color:#8a7a62;font-size:15px}
+.touch .codex .cx{height:700px;width:calc(100% - 30px)}.touch .codex .hd h2{font-size:30px}.touch .codex .tb2{font-size:21px;padding:8px 14px}.touch .codex .ct{font-size:18px}.touch .codex .x{font-size:36px}
+.touch .codex .cd{font-size:19px}.touch .codex .dt{width:460px}.touch .codex .dt p,.touch .codex .dt ul,.touch .codex .dt .hist{font-size:21px}.touch .codex .dt h3{font-size:30px}.touch .codex .dt .tg2{font-size:18px}
 #top .intel{color:#e8d8a8;cursor:help}
 #top .items{display:flex;gap:4px;flex:none}#top .itm{width:34px;height:34px;border:2px solid #8a7040;border-radius:6px;background:#241e14;display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer}#top .itm.empty{opacity:.35;cursor:default}
 #top .relics{display:flex;gap:2px;flex:0 1 auto;min-width:0;overflow-x:auto;scrollbar-width:none}#top .relics::-webkit-scrollbar{display:none}#top .rel{font-size:22px;cursor:pointer;flex:none;filter:drop-shadow(0 1px 1px #000)}

@@ -209,10 +209,24 @@ export const MECH_HS = {
   dbg: [['满弹', B => { B.ammo = B.cap; }], ['清空弹仓', B => { B.ammo = 0; }], ['枪感满', B => { B.p.feel = FEEL_MAX; }]],
 };
 
+/* 韩松专属教程（老沈说）：on 是触发时机——play 打出牌时、render 战斗画面刷新时；when 返回 true 才触发，每条只出现一次 */
+export const TUT_HS = [
+  { id: 'shot', on: 'play', when: (B, d, mode) => mode === 'shoot',
+    lines: ['韩松，你那杆枪弹仓里一共 8 发。打一发少一发，脚底下那排小格就是剩下的子弹。',
+      '牌上标着是啥枪：狙击一发打得狠还省子弹，冲锋枪一张牌打好几发、子弹也费得快，手枪是便宜的小牌。'] },
+  { id: 'empty', on: 'render', when: B => B.ammo === 0,
+    lines: ['子弹打光了！点右边的「装填」把弹仓装满，平常要 1 点能量；你那条枪背带，每场头一回装填不要能量。',
+      '来不及装也不怕：弹仓空着时打枪牌，就是端起刺刀拼，固定 5 点伤害，牌上别的效果照样有。'] },
+  { id: 'feel', on: 'render', when: B => B.p.feel >= 2,
+    lines: ['枪感上来了。每打一张枪牌，枪感 +1；冲锋枪和手枪每发子弹多打枪感一半的伤害。回合结束会掉 1 点，手别停。'] },
+  { id: 'mark', on: 'render', when: B => B.en.some(e => !e.dead && e.marks > 0),
+    lines: ['敌人身上挂上「标尺」了——距离测准了。每层标尺，让狙击牌每发多打 1 点，最多 5 层。'] },
+];
+
 export const HANSONG = {
   id: 'hansong', name: '韩松', title: '神枪手', code: '雪貂', hp: 72,
   starter: ['note', 'note', 'note', 'note', 'defend', 'defend', 'defend', 'defend', 'shoot', 'barrage'],
-  startRelic: 'strap', mech: MECH_HS, kw: KW_HS,
+  startRelic: 'strap', mech: MECH_HS, kw: KW_HS, tut: TUT_HS,
   /* 美术：逐帧动画目录、画布信息（切图脚本算出）、枪口位置 */
   art: { dir: 'hansong', frames: true, still: 'hansong', fr: { cw: 389, ch: 291, ax: 205, sw: 182, sh: 287 }, muzzle: [128, 62], h: 250, hTouch: 235 },
 };
