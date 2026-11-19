@@ -297,9 +297,12 @@ function rules() {
 // ---------- 标题 ----------
 function title() {
   B = null; const s = load();
-  view.innerHTML = `<div class="tbg pic"></div><div class="tlogo"><h1>长夜将尽</h1><p class="sub">— 深入关东军司令部 —</p><p class="en">BEFORE THE DAWN · INTO THE KWANTUNG HQ</p><p class="en2">最小可玩版 · 第一章 林海雪原</p></div>
-   <div class="mmenu">${s ? `<button class="btn mm" id="t_cont">继续<small>第 ${Math.max(1, s.floor)} 层 · 生命 ${s.hp}/${s.maxHp}</small></button>` : ''}
-   <button class="btn mm" id="t_new">新的一局<small>${CHARS.hansong.title} · ${CHARS.hansong.name}（${CHARS.hansong.code}）</small></button><div class="mrow"><button class="btn mm sm2" id="t_codex">图鉴</button><button class="btn mm sm2" id="t_rule">规则</button><button class="btn mm sm2" id="t_tut">教程：${SET.tut ? '开' : '关'}</button></div></div>
+  /* 主界面（参考三国终章：整幅主视觉 + 书法标题 + 标题下一排按钮）。人物在左，标题和按钮在右 */
+  view.innerHTML = `<div class="tbg key"></div><div class="tshade"></div>
+   <div class="tright"><img class="tcal" src="assets/ui/title_cal.png" alt="長夜將盡"><p class="tsub">— 深入關東軍司令部 —</p><p class="ten">BEFORE THE DAWN · INTO THE KWANTUNG HQ</p>
+   <div class="trow">${s ? `<button class="btn tb1" id="t_cont">继续<small>第 ${Math.max(1, s.floor)} 层 · 生命 ${s.hp}/${s.maxHp}</small></button>` : ''}<button class="btn tb1" id="t_new">新的一局<small>${CHARS.hansong.title} · ${CHARS.hansong.name}</small></button></div>
+   <div class="trow sm"><button class="btn tb2s" id="t_codex">图鉴</button><button class="btn tb2s" id="t_rule">规则</button><button class="btn tb2s" id="t_tut">教程：${SET.tut ? '开' : '关'}</button></div>
+   <p class="tver">最小可玩版 · 第一章 林海雪原</p></div>
    <p class="tnote">本作为虚构故事，除「英烈录」所记真实英烈外，人物均为虚构。</p>`;
   if (s) $('#t_cont').onclick = () => { R = s; resume(); };
   $('#t_new').onclick = () => { if (s && !confirm('开始新的一局会覆盖当前进度，确定吗？')) return; newRun(); story(INTRO, () => campaign(0, mapScreen)); };
