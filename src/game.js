@@ -45,7 +45,15 @@ function load() {
     s.deck = s.deck.filter(c => CARDS[c.id]); if (s.pending && s.pending.list) s.pending.list = s.pending.list.filter(id => CARDS[id]);
     uidN = 1 + Math.max(0, ...s.deck.map(c => c.uid || 0)); return s; } catch (e) { return null; }
 }
-const ROWS = 9, COLS = 5, TEMP_MAX = 10;
+const TEMP_MAX = 10;
+/* 章节表（地图部分）：层数、列数、底图，以及底图上各区域的位置（按比例，换图不用改代码）。
+   startY/endY：第一层和最后一层节点的高度；bossX/bossY：据点；xMin/xMax：节点能放的横向通道 */
+const CHAPTERS = [
+  { id: 1, name: '林海雪原', rows: 15, cols: 5, map: { img: 'assets/bg/map_ch1.jpg', w: 1000, h: 1779, startY: .865, endY: .175, bossX: .5, bossY: .092, xMin: .27, xMax: .73, startLabel: '▲ 越过冰封的江面，出发' } },
+];
+const CH = () => CHAPTERS[((R && R.act) || 1) - 1];
+const ROWSOF = () => (R && R.map && R.map.length) || CH().rows; /* 老存档是 9 层，按存档里的层数来 */
+const COLS = 5;
 function newRun() {
   uidN = 1;
   R = { hp: 72, maxHp: 72, deck: STARTER.map(id => mk(id)), temp: TEMP_MAX, food: 6, map: genMap(), pos: null, path: [], floor: 0, fights: 0, kills: 0 };
@@ -54,8 +62,9 @@ function newRun() {
 
 // ---------- 地图（沿用旧游戏的生成方式，9 层 + Boss） ----------
 function genMap() {
+  const ROWS = CH().rows;
   const g = Array.from({ length: ROWS }, () => Array(COLS).fill(null));
-  const node = (r, c) => g[r][c] || (g[r][c] = { r, c, next: [], type: null, x: 150 + c * 175 + rnd(-18, 18), y: 0 });
+  const node = (r, c) => g[r][c] || (g[r][c] = { r, c, next: [], type: null, jx: rnd(-14, 14), jy: rnd(-8, 8) });
   const crosses = (r, c, n) => g[r].some(o => o && o.c !== c && o.next.some(n2 => (o.c < c && n2 > n) || (o.c > c && n2 < n)));
   let first = -1;
   for (let p = 0; p < 5; p++) {
@@ -68,10 +77,10 @@ function genMap() {
   }
   const W = { fight: 50, event: 24, elite: 12, rest: 12 };
   for (let r = 0; r < ROWS; r++) for (const nd of g[r]) {
-    if (!nd) continue; nd.y = (ROWS - 1 - r) * 100 + 250 + rnd(-10, 10);
+    if (!nd) continue;
     if (r === 0) { nd.type = 'fight'; continue; } if (r === ROWS - 1) { nd.type = 'rest'; continue; }
     const parents = g[r - 1].filter(o => o && o.next.includes(nd.c)).map(o => o.type);
-    const ok = Object.entries(W).filter(([t]) => !((t === 'elite' || t === 'rest') && r < 3) && !(t === 'rest' && r === ROWS - 2) && !(['elite', 'rest'].includes(t) && parents.includes(t)));
+    const ok = Object.entries(W).filter(([t]) => !((t === 'elite' || t === 'rest') && r < Math.round(ROWS / 3)) && !(t === 'rest' && r === ROWS - 2) && !(['elite', 'rest'].includes(t) && parents.includes(t)));
     let tot = 0, x; ok.forEach(([, w]) => tot += w); x = Math.random() * tot;
     for (const [t, w] of ok) { x -= w; if (x <= 0) { nd.type = t; break; } }
     nd.type = nd.type || 'fight';
@@ -81,15 +90,15 @@ function genMap() {
   return g;
 }
 const NODE = { fight: ['战', '战斗', '#8a4a32'], elite: ['精', '精英', '#7a1a1a'], event: ['?', '未知', '#3a5a7a'], rest: ['营', '密营', '#2f6a3a'] };
-/* 章节地图：从下（江边起点）往上（讨伐队据点）走，同杀戮尖塔。画布 1000×1500（2:3），出图后把对应开关改成 true */
-const MAP_W = 1000, MAP_H = 1500, MAP_ART = true, NODE_ART = true;
-const MAP_FLIP = true; /* 现在的底图是按上北下南画的，先上下翻转顶着用；重画的底图到了改成 false */
-const mapY = nd => MAP_H - 190 - nd.r * 125 + ((nd.c * 37 + nd.r * 11) % 21 - 10); /* 不用存档里的旧 y，老存档也会翻成新方向 */
-const BOSS_Y = 182, BOSS_X = 470; /* 底图上讨伐队据点的位置 */
+/* 章节地图：从下（江边起点）往上（讨伐队据点）走，同杀戮尖塔。位置全部按章节表里的比例算 */
+const NODE_ART = true;
+const MAPD = () => CH().map;
+const nodeX = nd => { const m = MAPD(), cols = COLS; return Math.round(m.w * (m.xMin + (m.xMax - m.xMin) * nd.c / (cols - 1))) + (nd.jx || 0); };
+const mapY = nd => { const m = MAPD(), n = ROWSOF(); return Math.round(m.h * (m.startY - (m.startY - m.endY) * nd.r / Math.max(1, n - 1))) + (nd.jy || 0); };
 const nodeIcon = t => NODE_ART ? `<img src="assets/ui/node_${t}.png" alt="" draggable="false">` : NODE[t][0];
 function available() {
   if (!R.pos) return R.map[0].filter(Boolean);
-  if (R.pos.r === ROWS - 1) return ['boss'];
+  if (R.pos.r === ROWSOF() - 1) return ['boss'];
   const cur = R.map[R.pos.r][R.pos.c]; return cur.next.map(c => R.map[R.pos.r + 1][c]);
 }
 
@@ -212,23 +221,23 @@ function resume() {
 // ---------- 地图 ----------
 function mapScreen() {
   B = null; delete R.pending; save();
-  const av = available(), H = MAP_H, LC = '#6a4a2a';
+  const av = available(), M = MAPD(), H = M.h, LC = '#6a4a2a', BOSS_X = Math.round(M.w * M.bossX), BOSS_Y = Math.round(M.h * M.bossY), ROWS = ROWSOF();
   let lines = '', nodes = '';
   /* 走过的路画成红色实线（抗联路线），没走的是灰色虚线 */
   const walked = (a, b) => R.path.some((p, i) => p.r === a.r && p.c === a.c && R.path[i + 1] && R.path[i + 1].r === b.r && R.path[i + 1].c === b.c);
   const ln = (x1, y1, x2, y2, red) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${red ? '#b8241a' : LC}" stroke-width="${red ? 6 : 3}" ${red ? '' : 'stroke-dasharray="4 8" opacity=".75"'} stroke-linecap="round"/>`;
-  for (const row of R.map) for (const nd of row) if (nd) for (const c of nd.next) { const t = R.map[nd.r + 1][c]; lines += ln(nd.x, mapY(nd), t.x, mapY(t), walked(nd, t)); }
-  for (const nd of R.map[ROWS - 1]) if (nd) lines += ln(nd.x, mapY(nd), BOSS_X, BOSS_Y, false);
+  for (const row of R.map) for (const nd of row) if (nd) for (const c of nd.next) { const t = R.map[nd.r + 1][c]; lines += ln(nodeX(nd), mapY(nd), nodeX(t), mapY(t), walked(nd, t)); }
+  for (const nd of R.map[ROWS - 1]) if (nd) lines += ln(nodeX(nd), mapY(nd), BOSS_X, BOSS_Y, false);
   for (const row of R.map) for (const nd of row) if (nd) {
     const isAv = av.includes(nd), done = R.path.some(p => p.r === nd.r && p.c === nd.c), cur = R.pos && R.pos.r === nd.r && R.pos.c === nd.c, [ch, , col] = NODE[nd.type];
-    nodes += `<div class="node ${NODE_ART ? 'pic' : ''} ${isAv ? 'av' : ''} ${done ? 'done' : ''} ${cur ? 'cur' : ''}" style="left:${nd.x}px;top:${mapY(nd)}px;${NODE_ART ? '' : 'background:' + col}" data-r="${nd.r}" data-c="${nd.c}">${nodeIcon(nd.type)}${cur && NODE_ART ? '<img class="curflag" src="assets/ui/node_cur.png" alt="">' : ''}</div>`;
+    nodes += `<div class="node ${NODE_ART ? 'pic' : ''} ${isAv ? 'av' : ''} ${done ? 'done' : ''} ${cur ? 'cur' : ''}" style="left:${nodeX(nd)}px;top:${mapY(nd)}px;${NODE_ART ? '' : 'background:' + col}" data-r="${nd.r}" data-c="${nd.c}">${nodeIcon(nd.type)}${cur && NODE_ART ? '<img class="curflag" src="assets/ui/node_cur.png" alt="">' : ''}</div>`;
   }
   nodes += `<div class="node boss ${NODE_ART ? 'pic' : ''} ${av[0] === 'boss' ? 'av' : ''}" style="left:${BOSS_X}px;top:${BOSS_Y}px">${NODE_ART ? nodeIcon('boss') : '讨伐队<br>据点'}</div><div class="maplab" style="left:${BOSS_X}px;top:${BOSS_Y - 82}px">讨伐队长 · 村濑</div>
-   <div class="maplab start" style="top:${MAP_H - 110}px">▲ 越过冰封的江面，出发</div>`;
-  view.innerHTML = `${topBar()}<div id="map"><div id="mapin" class="${MAP_ART ? 'art' : ''} ${MAP_FLIP ? 'flip' : ''}" style="height:${H}px"><svg width="${MAP_W}" height="${H}">${lines}</svg>${nodes}</div></div>
+   <div class="maplab start" style="left:${M.w / 2}px;top:${Math.round(M.h * .93)}px">${M.startLabel}</div>`;
+  view.innerHTML = `${topBar()}<div id="map"><div id="mapin" style="width:${M.w}px;height:${H}px;background-image:url(${M.img})"><svg width="${M.w}" height="${H}">${lines}</svg>${nodes}</div></div>
    <div id="legend"><div class="lgt">图例</div>${Object.keys(NODE).map(k => `<div><b class="${NODE_ART ? 'pic' : ''}" style="${NODE_ART ? '' : 'background:' + NODE[k][2]}">${nodeIcon(k)}</b>${NODE[k][1]}</div>`).join('')}<div><b class="${NODE_ART ? 'pic' : ''}" style="${NODE_ART ? '' : 'background:#4a1414'}">${NODE_ART ? nodeIcon('boss') : '首'}</b>讨伐队据点</div><div class="lg2"><i class="redl"></i>走过的路线<br>每走一格：体温 -1，口粮 -1</div></div>`;
   bindTop();
-  const m = $('#map'), y = R.pos ? mapY(R.map[R.pos.r][R.pos.c]) : MAP_H; m.scrollTop = Math.max(0, y - m.clientHeight + 200);
+  const m = $('#map'), y = R.pos ? mapY(R.map[R.pos.r][R.pos.c]) : H; m.scrollTop = Math.max(0, y - m.clientHeight + 200);
   view.querySelectorAll('.node.av').forEach(el => el.onclick = () => {
     if (el.classList.contains('boss')) { if (!walk()) return; R.floor++; return enterNode('boss'); }
     const nd = R.map[+el.dataset.r][+el.dataset.c]; if (!walk()) return;
@@ -632,7 +641,7 @@ function dbgPanel() {
   if (!DEBUG) return; $('#dbg')?.remove(); const d = document.createElement('div'); d.id = 'dbg';
   const btns = B && !B.over ? [['胜利', () => { E.alive(B).forEach(e => { e.hp = 0; e.dead = 1; e.deadAt = Date.now(); }); render(); checkEnd(); }], ['满弹', () => { B.ammo = B.cap; render(); }], ['清空弹仓', () => { B.ammo = 0; render(); }], ['枪感满', () => { B.p.feel = FEEL_MAX; render(); }],
     ['+能量', () => { B.p.energy += 3; render(); }], ['抽牌', () => { E.drawCards(B, 3); render(); }], ['给牌', () => showPile('给一张牌（加入手牌）', Object.keys(CARDS).map(id => ({ id, up: 0, uid: uidN++ })), c => { B.hand.push(c); render(); })], ['满血', () => { R.hp = R.maxHp; render(); }]]
-    : R ? [['去Boss', () => { R.pos = { r: ROWS - 1, c: R.map[ROWS - 1].findIndex(Boolean) }; mapScreen(); }], ['满血', () => { R.hp = R.maxHp; mapScreen(); }], ['口粮+5', () => { R.food += 5; mapScreen(); }], ['体温0', () => { R.temp = 0; mapScreen(); }], ['精英战', () => { R.pending = { t: 'elite', enc: ENC.elite[0] }; battle(ENC.elite[0], 'elite'); }], ['犬机狙', () => battle(['dog', 'mg', 'sniper'], 'fight')], ['伪掷步', () => battle(['puppet', 'mortar', 'puppet'], 'fight')], ['Boss战', () => { R.pending = { t: 'boss', enc: ENC.boss[0] }; battle(ENC.boss[0], 'boss'); }], ['缴获波波沙', () => offerLoot('c_ppsh', mapScreen)]] : [];
+    : R ? [['去Boss', () => { R.pos = { r: ROWSOF() - 1, c: R.map[ROWSOF() - 1].findIndex(Boolean) }; mapScreen(); }], ['满血', () => { R.hp = R.maxHp; mapScreen(); }], ['口粮+5', () => { R.food += 5; mapScreen(); }], ['体温0', () => { R.temp = 0; mapScreen(); }], ['精英战', () => { R.pending = { t: 'elite', enc: ENC.elite[0] }; battle(ENC.elite[0], 'elite'); }], ['犬机狙', () => battle(['dog', 'mg', 'sniper'], 'fight')], ['伪掷步', () => battle(['puppet', 'mortar', 'puppet'], 'fight')], ['Boss战', () => { R.pending = { t: 'boss', enc: ENC.boss[0] }; battle(ENC.boss[0], 'boss'); }], ['缴获波波沙', () => offerLoot('c_ppsh', mapScreen)]] : [];
   btns.forEach(([t, f]) => { const b = document.createElement('button'); b.textContent = t; b.onclick = ev => { ev.stopPropagation(); f(); }; d.appendChild(b); });
   if (btns.length) stage.appendChild(d);
 }
