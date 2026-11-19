@@ -160,14 +160,15 @@ button{font-family:inherit;cursor:pointer}
 #map{position:absolute;left:0;right:0;top:48px;bottom:0;overflow-y:auto;background:#1e252c}
 #mapin{position:relative;width:1000px;margin:0 auto;background:linear-gradient(#e8dcc0,#d4c49c);border-left:6px solid #6a5030;border-right:6px solid #6a5030}
 #mapin.art{background:#d8c8a0 url(assets/bg/map_ch1.jpg) top center/100% 100% no-repeat}
+#mapin.art.flip{background-image:url(assets/bg/map_ch1_flip.jpg)}
 .maplab{position:absolute;left:500px;transform:translateX(-50%);font-size:20px;font-weight:bold;color:#6a1a10;white-space:nowrap;text-shadow:0 0 4px #f6ecd0,0 0 4px #f6ecd0}.maplab.start{color:#3a2a10}
-.node.pic{background:radial-gradient(circle,rgba(244,232,204,.9) 45%,rgba(244,232,204,0) 70%)!important;border:none;width:84px;height:84px;margin:-42px 0 0 -42px;box-shadow:none}.node.pic.cur{box-shadow:none}.node.pic.done img{filter:grayscale(.7)}
-.node .curflag{position:absolute;width:40px!important;height:auto!important;left:46px;top:-40px;filter:drop-shadow(0 2px 2px rgba(0,0,0,.4))}
+.node.pic{background:radial-gradient(circle,rgba(244,232,204,.85) 45%,rgba(244,232,204,0) 70%)!important;border:none;width:58px;height:58px;margin:-29px 0 0 -29px;box-shadow:none}.node.pic.cur{box-shadow:none}.node.pic.done img{filter:grayscale(.7)}
+.node .curflag{position:absolute;width:30px!important;height:auto!important;left:34px;top:-30px;filter:drop-shadow(0 2px 2px rgba(0,0,0,.4))}
 .campw{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px}.campmap{position:relative;height:600px;aspect-ratio:1672/941;max-width:96%;box-shadow:0 8px 30px #000}.campmap img{width:100%;height:100%;display:block}
 .clab{position:absolute;transform:translate(-50%,-50%);font-size:20px;font-weight:bold;color:#3a2a14;white-space:nowrap;text-shadow:0 0 3px #f2e4c0,0 0 6px #f2e4c0;letter-spacing:2px}.clab.dim{color:#5a4a30;font-size:18px}.clab.river{color:#2a5a8a;font-size:16px;font-style:italic}.clab.red{color:#9a1a10}.clab.now{color:#fff;background:#a8201a;padding:2px 10px;border-radius:4px;text-shadow:none;animation:blink 1.6s infinite}
 .cring{position:absolute;width:76px;height:76px;margin:-38px 0 0 -38px;border-radius:50%;pointer-events:none}.cring.now{box-shadow:0 0 0 4px #ffd35a,0 0 24px 8px rgba(255,211,90,.7);animation:pulse 1.2s infinite}.cring.done{background:rgba(160,30,20,.25)}.cring.todo{background:rgba(240,228,200,.55)}
 .camptxt{display:flex;align-items:center;gap:24px}.camptxt p{font-size:22px;color:#f0e6d0}
-.touch .campmap{height:520px}.touch .camptxt{zoom:1.3}.node.pic img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 1px 1px rgba(60,30,0,.5))}.node.boss.pic{width:160px;height:120px;margin:-60px 0 0 -80px}
+.touch .campmap{height:520px}.touch .camptxt{zoom:1.3}.node.pic img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 1px 1px rgba(60,30,0,.5))}.node.boss.pic{width:118px;height:90px;margin:-45px 0 0 -59px}
 #legend .lgt{font-weight:bold;color:#ffe9b8;border-bottom:1px solid #8a7040;margin-bottom:4px}#legend b.pic{background:radial-gradient(circle,#f0e4c8 55%,#d8c8a0);border:1px solid #8a7040;width:30px;height:30px;line-height:28px}#legend b.pic img{width:26px;height:26px;object-fit:contain}#legend .redl{display:inline-block;width:26px;height:5px;background:#b8241a;vertical-align:middle;margin-right:8px;border-radius:2px}
 #map svg{position:absolute;left:0;top:0}
 .node{position:absolute;width:60px;height:60px;margin:-30px 0 0 -30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:bold;color:#fff;border:3px solid #1a1a1a;text-shadow:0 1px 2px #000}
@@ -216,7 +217,7 @@ button{font-family:inherit;cursor:pointer}
 .touch #kwbox p{font-size:19px}
 .touch .btn{min-height:54px;font-size:21px}.touch .btn.opt{min-height:62px}
 .touch .panel{zoom:1.25}.touch .overlay .grid{zoom:1.2}
-.touch .node{transform:scale(1.25)}.touch #legend{zoom:1.35}
+.touch .node{transform:scale(1.15)}.touch #legend{zoom:1.35}
 .touch .mmenu{zoom:1.3;right:40px}.touch .tlogo{zoom:1.2;left:50px}
 .touch .storybox{font-size:34px}.touch .endw{zoom:1.2}
 .touch #dbg{top:62px;left:420px}.touch #dbg button{font-size:16px;padding:6px 10px}

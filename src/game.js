@@ -81,10 +81,11 @@ function genMap() {
   return g;
 }
 const NODE = { fight: ['战', '战斗', '#8a4a32'], elite: ['精', '精英', '#7a1a1a'], event: ['?', '未知', '#3a5a7a'], rest: ['营', '密营', '#2f6a3a'] };
-/* 章节地图：上北下南，从上（江边）往下（讨伐队据点）走。画布 1000×1500（2:3），出图后把对应开关改成 true */
+/* 章节地图：从下（江边起点）往上（讨伐队据点）走，同杀戮尖塔。画布 1000×1500（2:3），出图后把对应开关改成 true */
 const MAP_W = 1000, MAP_H = 1500, MAP_ART = true, NODE_ART = true;
-const mapY = nd => 190 + nd.r * 125 + ((nd.c * 37 + nd.r * 11) % 21 - 10); /* 不用存档里的旧 y，老存档也会翻成新方向 */
-const BOSS_Y = 1318, BOSS_X = 470; /* 底图上讨伐队据点的位置 */
+const MAP_FLIP = true; /* 现在的底图是按上北下南画的，先上下翻转顶着用；重画的底图到了改成 false */
+const mapY = nd => MAP_H - 190 - nd.r * 125 + ((nd.c * 37 + nd.r * 11) % 21 - 10); /* 不用存档里的旧 y，老存档也会翻成新方向 */
+const BOSS_Y = 182, BOSS_X = 470; /* 底图上讨伐队据点的位置 */
 const nodeIcon = t => NODE_ART ? `<img src="assets/ui/node_${t}.png" alt="" draggable="false">` : NODE[t][0];
 function available() {
   if (!R.pos) return R.map[0].filter(Boolean);
@@ -222,12 +223,12 @@ function mapScreen() {
     const isAv = av.includes(nd), done = R.path.some(p => p.r === nd.r && p.c === nd.c), cur = R.pos && R.pos.r === nd.r && R.pos.c === nd.c, [ch, , col] = NODE[nd.type];
     nodes += `<div class="node ${NODE_ART ? 'pic' : ''} ${isAv ? 'av' : ''} ${done ? 'done' : ''} ${cur ? 'cur' : ''}" style="left:${nd.x}px;top:${mapY(nd)}px;${NODE_ART ? '' : 'background:' + col}" data-r="${nd.r}" data-c="${nd.c}">${nodeIcon(nd.type)}${cur && NODE_ART ? '<img class="curflag" src="assets/ui/node_cur.png" alt="">' : ''}</div>`;
   }
-  nodes += `<div class="node boss ${NODE_ART ? 'pic' : ''} ${av[0] === 'boss' ? 'av' : ''}" style="left:${BOSS_X}px;top:${BOSS_Y}px">${NODE_ART ? nodeIcon('boss') : '讨伐队<br>据点'}</div><div class="maplab" style="left:${BOSS_X}px;top:${BOSS_Y + 72}px">讨伐队长 · 村濑</div>
-   <div class="maplab start" style="top:96px">▼ 越过冰封的江面，出发</div>`;
-  view.innerHTML = `${topBar()}<div id="map"><div id="mapin" class="${MAP_ART ? 'art' : ''}" style="height:${H}px"><svg width="${MAP_W}" height="${H}">${lines}</svg>${nodes}</div></div>
+  nodes += `<div class="node boss ${NODE_ART ? 'pic' : ''} ${av[0] === 'boss' ? 'av' : ''}" style="left:${BOSS_X}px;top:${BOSS_Y}px">${NODE_ART ? nodeIcon('boss') : '讨伐队<br>据点'}</div><div class="maplab" style="left:${BOSS_X}px;top:${BOSS_Y - 82}px">讨伐队长 · 村濑</div>
+   <div class="maplab start" style="top:${MAP_H - 110}px">▲ 越过冰封的江面，出发</div>`;
+  view.innerHTML = `${topBar()}<div id="map"><div id="mapin" class="${MAP_ART ? 'art' : ''} ${MAP_FLIP ? 'flip' : ''}" style="height:${H}px"><svg width="${MAP_W}" height="${H}">${lines}</svg>${nodes}</div></div>
    <div id="legend"><div class="lgt">图例</div>${Object.keys(NODE).map(k => `<div><b class="${NODE_ART ? 'pic' : ''}" style="${NODE_ART ? '' : 'background:' + NODE[k][2]}">${nodeIcon(k)}</b>${NODE[k][1]}</div>`).join('')}<div><b class="${NODE_ART ? 'pic' : ''}" style="${NODE_ART ? '' : 'background:#4a1414'}">${NODE_ART ? nodeIcon('boss') : '首'}</b>讨伐队据点</div><div class="lg2"><i class="redl"></i>走过的路线<br>每走一格：体温 -1，口粮 -1</div></div>`;
   bindTop();
-  const m = $('#map'), y = R.pos ? mapY(R.map[R.pos.r][R.pos.c]) : 0; m.scrollTop = Math.max(0, y - 220);
+  const m = $('#map'), y = R.pos ? mapY(R.map[R.pos.r][R.pos.c]) : MAP_H; m.scrollTop = Math.max(0, y - m.clientHeight + 200);
   view.querySelectorAll('.node.av').forEach(el => el.onclick = () => {
     if (el.classList.contains('boss')) { if (!walk()) return; R.floor++; return enterNode('boss'); }
     const nd = R.map[+el.dataset.r][+el.dataset.c]; if (!walk()) return;
