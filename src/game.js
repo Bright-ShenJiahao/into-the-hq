@@ -276,8 +276,7 @@ function enemyHTML(e) {
   return `<div class="unit enemy ${tg ? 'tg' : ''} ${e.dead ? 'dead' : ''} ${d.frames ? '' : 'noanim'}" data-eid="${e.id}">
     <div class="intent">${it ? `<i class="ii ii-${it.i}">${ICON[it.i]}</i>${it.text}<small>${it.name}</small>` : ''}</div>
     ${d.frames ? frameBox(d.frames, d.artH, enemySrc(e), '', d.name) : `<div class="sprw">${d.art ? `<img class="spr art still" src="${enemySrc(e)}" style="height:${d.artH}px" alt="${d.name}" draggable="false">` : `<div class="spr blk ${d.boss ? 'bossb' : ''}" style="width:${w}px;height:${h}px;background:${d.col}">${label}</div>`}<i class="shd"></i></div>`}
-    ${barHTML(e.hp, e.max, e.block)}<div class="badges">${e.armor ? `<b class="arm" data-k="装甲">🛡 装甲 ${e.armor}</b>` : ''}${e.marks ? `<b class="mark" data-k="标尺">🎯 标尺 ${e.marks}</b>` : ''}${stsHTML(e.st)}</div>
-    <div class="uname">${d.name}</div></div>`;
+    <div class="uinfo">${barHTML(e.hp, e.max, e.block)}<div class="badges">${e.armor ? `<b class="arm" data-k="装甲">🛡 装甲 ${e.armor}</b>` : ''}${e.marks ? `<b class="mark" data-k="标尺">🎯 标尺 ${e.marks}</b>` : ''}${stsHTML(e.st)}</div></div></div>`;
 }
 /* 血条：格挡是左边的蓝色圆圈（同旧游戏） */
 function barHTML(hp, max, blk) {
@@ -312,7 +311,7 @@ function render() {
   const inc = E.incoming(B);
   view.innerHTML = `<div class="bg battle"></div>${topBar()}
    <div id="hero" class="unit" data-eid="hero"><div class="intent"></div>${HERO.frames ? frameBox('hansong', TOUCH ? 235 : 250, heroSrc(), '', '韩松') : `<div class="sprw"><img class="spr art still" src="${heroSrc()}" style="height:${TOUCH ? 235 : 250}px" alt="韩松" draggable="false"><i class="shd"></i></div>`}
-    ${barHTML(R.hp, R.maxHp, B.p.block)}${ammoHTML()}${inc ? `<div class="inc ${inc > B.p.block ? 'low' : 'ok'}">受到 ${Math.max(0, inc - B.p.block)}</div>` : ''}</div>
+    <div class="uinfo">${barHTML(R.hp, R.maxHp, B.p.block)}${ammoHTML()}${inc ? `<div class="inc ${inc > B.p.block ? 'low' : 'ok'}">受到 ${Math.max(0, inc - B.p.block)}</div>` : ''}</div></div>
    <div id="enemies">${B.en.filter(e => !(e.dead && Date.now() - e.deadAt > 1400)).map(enemyHTML).join('')}</div>
    <div id="energy" class="${B.p.energy ? '' : 'empty'}">${B.p.energy}/${E.ENERGY}</div>
    ${reloadBtn()}<button class="btn" id="endturn" ${B.busy ? 'disabled' : ''}>${B.busy ? '敌人回合' : `结束回合${TOUCH ? '' : ' <small>E</small>'}`}</button>
