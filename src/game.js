@@ -236,7 +236,12 @@ const HA = { idle: [4, 200, 1], shoot: [4, 75, 0], hurt: [2, 130, 0], down: [3, 
 const EA = { idle: [2, 480, 1], atk: [2, 210, 0], hurt: [1, 320, 0], down: [2, 260, 2] };
 const HERO = { dir: 'hansong', frames: true, still: 'hansong' }; /* 帧图到位后把 frames 改成 true */
 /* 每套帧图切好后的画布信息：cw/ch 画布宽高，ax 脚底锚点 x，sw/sh 站立时人物宽高（切图脚本自动算出） */
-const FR = { hansong: { cw: 389, ch: 291, ax: 205, sw: 182, sh: 287 }, inf: { cw: 462, ch: 404, ax: 195, sw: 359, sh: 402 } };
+const FR = { hansong: { cw: 389, ch: 291, ax: 205, sw: 182, sh: 287 }, inf: { cw: 462, ch: 404, ax: 195, sw: 359, sh: 402 },
+  puppet: { cw: 555, ch: 396, ax: 278, sw: 274, sh: 394 }, dog: { cw: 635, ch: 211, ax: 360, sw: 384, sh: 153 }, mortar: { cw: 498, ch: 317, ax: 215, sw: 309, sh: 315 },
+  mg: { cw: 521, ch: 216, ax: 271, sw: 393, sh: 206 }, sniper: { cw: 504, ch: 341, ax: 232, sw: 368, sh: 299 }, sergeant: { cw: 440, ch: 382, ax: 154, sw: 240, sh: 380 },
+  captain_car: { cw: 312, ch: 222, ax: 149, sw: 281, sh: 208 }, captain_foot: { cw: 426, ch: 264, ax: 147, sw: 185, sh: 249 } };
+/* 当前用哪套帧（村濑下车后换第二套） */
+const efr = e => (e.phase === 2 && e.d.frames2) ? [e.d.frames2, e.d.artH2] : [e.d.frames, e.d.artH];
 /* 帧图放进固定大小的框：框按站立姿势定大小，脚底锚点对准框的中线；倒地、前冲等超出部分露在框外 */
 function frameBox(key, dispH, src, cls, alt) {
   const m = FR[key], k = dispH / m.sh;
@@ -248,11 +253,13 @@ let hst = { n: 'idle', t: 0 };
 function heroAct(n) { if (hst.n === 'down') return; hst = { n, t: performance.now() }; }
 function frameOf(tab, st, reset) { const [c, ms, mode] = tab[st.n] || tab.idle; let k = Math.floor((performance.now() - st.t) / ms); if (k >= c) { if (mode === 1) k %= c; else if (mode === 2) k = c - 1; else { reset(); return [ 'idle', Math.floor(performance.now() / tab.idle[1]) % tab.idle[0] ]; } } return [st.n in tab ? st.n : 'idle', k]; }
 function heroSrc() { if (!HERO.frames) return `assets/units/${HERO.still}.png`; const [n, k] = frameOf(HA, hst, () => { hst = { n: 'idle', t: performance.now() }; }); return `assets/${HERO.dir}/${n}${k}.png`; }
-function enemySrc(e) { if (!e.d.frames) return `assets/units/${e.d.art}.png`; const st = e.anim || { n: e.dead ? 'down' : 'idle', t: 0 }; if (e.dead && st.n !== 'down') { e.anim = { n: 'down', t: performance.now() }; } const [n, k] = frameOf(EA, e.anim || st, () => { e.anim = null; }); return `assets/enemies/${e.d.frames}/${n}${k}.png`; }
+function enemySrc(e) { if (!e.d.frames) return `assets/units/${e.d.art}.png`; const fk = efr(e)[0]; const st = e.anim || { n: e.dead ? 'down' : 'idle', t: 0 }; if (e.dead && st.n !== 'down') { e.anim = { n: 'down', t: performance.now() }; } const [n, k] = frameOf(EA, e.anim || st, () => { e.anim = null; }); return `assets/enemies/${fk}/${n}${k}.png`; }
 function epose(e, n) { e.anim = { n, t: performance.now() }; }
 const pose = (n) => heroAct(n);
 /* 预加载所有帧，第一次播放时不闪 */
-const PRE = []; [['hansong', HA], ['enemies/inf', EA]].forEach(([dir, tab]) => Object.entries(tab).forEach(([n, [c]]) => { for (let k = 0; k < c; k++) { const im = new Image(); im.src = `assets/${dir}/${n}${k}.png`; PRE.push(im); } }));
+const PRE = [], PREDONE = new Set();
+function preload(dir, tab) { if (PREDONE.has(dir)) return; PREDONE.add(dir); Object.entries(tab).forEach(([n, [c]]) => { for (let k = 0; k < c; k++) { const im = new Image(); im.src = `assets/${dir}/${n}${k}.png`; PRE.push(im); } }); }
+preload('hansong', HA); /* 敌人的帧在进战斗时才加载，手机上不用一开始就下载全部 */
 /* 和旧游戏一样，每 80 毫秒刷新一次帧 */
 let lastT = 0;
 (function loop(t) { requestAnimationFrame(loop); if (!B || t - lastT < 80) return; lastT = t;
@@ -262,6 +269,7 @@ let lastT = 0;
 function motion(who, cls) { const el = view.querySelector(`[data-eid="${who}"] .sprw`); if (el) { el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); } }
 
 function battle(enc, kind) {
+  enc.forEach(k => { const d = ENEMIES[k]; if (d.frames) preload('enemies/' + d.frames, EA); if (d.frames2) preload('enemies/' + d.frames2, EA); });
   B = E.startBattle(R, enc, kind, E.mulberry((Math.random() * 2 ** 31) | 0)); B.sel = -1; B.busy = 0;
   render(); if (kind === 'boss') banner('讨伐队长 · 村濑'); else if (kind === 'elite') banner('精英：讨伐队军曹');
   flushMsgs();
@@ -275,7 +283,7 @@ function enemyHTML(e) {
   const label = e.key === 'captain' ? (e.phase === 2 ? '村濑' : '装甲车') : d.name;
   return `<div class="unit enemy ${tg ? 'tg' : ''} ${e.dead ? 'dead' : ''} ${d.frames ? '' : 'noanim'}" data-eid="${e.id}">
     <div class="intent">${it ? `<i class="ii ii-${it.i}">${ICON[it.i]}</i>${it.text}<small>${it.name}</small>` : ''}</div>
-    ${d.frames ? frameBox(d.frames, d.artH, enemySrc(e), '', d.name) : `<div class="sprw">${d.art ? `<img class="spr art still" src="${enemySrc(e)}" style="height:${d.artH}px" alt="${d.name}" draggable="false">` : `<div class="spr blk ${d.boss ? 'bossb' : ''}" style="width:${w}px;height:${h}px;background:${d.col}">${label}</div>`}<i class="shd"></i></div>`}
+    ${d.frames ? frameBox(efr(e)[0], efr(e)[1], enemySrc(e), '', d.name) : `<div class="sprw">${d.art ? `<img class="spr art still" src="${enemySrc(e)}" style="height:${d.artH}px" alt="${d.name}" draggable="false">` : `<div class="spr blk ${d.boss ? 'bossb' : ''}" style="width:${w}px;height:${h}px;background:${d.col}">${label}</div>`}<i class="shd"></i></div>`}
     <div class="uinfo">${barHTML(e.hp, e.max, e.block)}<div class="badges">${e.armor ? `<b class="arm" data-k="装甲">🛡 装甲 ${e.armor}</b>` : ''}${e.marks ? `<b class="mark" data-k="标尺">🎯 标尺 ${e.marks}</b>` : ''}${stsHTML(e.st)}</div></div></div>`;
 }
 /* 血条：格挡是左边的蓝色圆圈（同旧游戏） */
@@ -594,7 +602,7 @@ function dbgPanel() {
   if (!DEBUG) return; $('#dbg')?.remove(); const d = document.createElement('div'); d.id = 'dbg';
   const btns = B && !B.over ? [['胜利', () => { E.alive(B).forEach(e => { e.hp = 0; e.dead = 1; e.deadAt = Date.now(); }); render(); checkEnd(); }], ['满弹', () => { B.ammo = B.cap; render(); }], ['清空弹仓', () => { B.ammo = 0; render(); }], ['枪感满', () => { B.p.feel = FEEL_MAX; render(); }],
     ['+能量', () => { B.p.energy += 3; render(); }], ['抽牌', () => { E.drawCards(B, 3); render(); }], ['给牌', () => showPile('给一张牌（加入手牌）', Object.keys(CARDS).map(id => ({ id, up: 0, uid: uidN++ })), c => { B.hand.push(c); render(); })], ['满血', () => { R.hp = R.maxHp; render(); }]]
-    : R ? [['去Boss', () => { R.pos = { r: ROWS - 1, c: R.map[ROWS - 1].findIndex(Boolean) }; mapScreen(); }], ['满血', () => { R.hp = R.maxHp; mapScreen(); }], ['口粮+5', () => { R.food += 5; mapScreen(); }], ['体温0', () => { R.temp = 0; mapScreen(); }], ['精英战', () => { R.pending = { t: 'elite', enc: ENC.elite[0] }; battle(ENC.elite[0], 'elite'); }], ['缴获波波沙', () => offerLoot('c_ppsh', mapScreen)]] : [];
+    : R ? [['去Boss', () => { R.pos = { r: ROWS - 1, c: R.map[ROWS - 1].findIndex(Boolean) }; mapScreen(); }], ['满血', () => { R.hp = R.maxHp; mapScreen(); }], ['口粮+5', () => { R.food += 5; mapScreen(); }], ['体温0', () => { R.temp = 0; mapScreen(); }], ['精英战', () => { R.pending = { t: 'elite', enc: ENC.elite[0] }; battle(ENC.elite[0], 'elite'); }], ['犬机狙', () => battle(['dog', 'mg', 'sniper'], 'fight')], ['伪掷步', () => battle(['puppet', 'mortar', 'puppet'], 'fight')], ['Boss战', () => { R.pending = { t: 'boss', enc: ENC.boss[0] }; battle(ENC.boss[0], 'boss'); }], ['缴获波波沙', () => offerLoot('c_ppsh', mapScreen)]] : [];
   btns.forEach(([t, f]) => { const b = document.createElement('button'); b.textContent = t; b.onclick = ev => { ev.stopPropagation(); f(); }; d.appendChild(b); });
   if (btns.length) stage.appendChild(d);
 }
