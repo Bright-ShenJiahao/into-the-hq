@@ -1,5 +1,5 @@
-// 《深入日军总部》界面和流程（最小可玩版：韩松 · 第一章 林海雪原）。规则在 engine.js，数据在 data.js。
-import { CARDS, ENEMIES, ENC, EVENTS, STARTER, KW, TYPE, RAR, SCH, BAYONET, MAG, FEEL_MAX } from './data.js';
+// 《深入日军总部》界面和流程。规则在 engine.js；内容（角色、章节、物品）在 content/，由 data.js 汇总。
+import { CARDS, ENEMIES, CHARS, CHAPTERS, RELICS, ITEMS, ITEM_SLOTS, FRAMES, BLOCK_SIZE, KW, TYPE, RAR, SCH, BAYONET, SAVE_VERSION } from './data.js';
 import * as E from './engine.js';
 import { createAudio } from './audio.js';
 const audio = createAudio();
@@ -35,39 +35,45 @@ function fit() {
 stage.addEventListener('scroll', () => { stage.scrollTop = 0; stage.scrollLeft = 0; });
 addEventListener('resize', fit); addEventListener('orientationchange', () => setTimeout(fit, 250)); fit();
 
-// ---------- 存档 ----------
+// ---------- 存档（带版本号；老存档自动升级，不会读坏） ----------
 const SAVE = 'ithq_run_v1';
 const mk = (id, up = 0) => ({ id, up, uid: uidN++ });
 const save = () => { try { localStorage.setItem(SAVE, JSON.stringify(R)); } catch (e) {} };
 const clearSave = () => { try { localStorage.removeItem(SAVE); } catch (e) {} };
+function migrate(s) {
+  if ((s.v || 1) < 2) { s.char = s.char || 'hansong'; s.relics = s.relics || [CHARS.hansong.startRelic]; s.items = s.items || []; s.act = s.act || 1; s.intel = s.intel || 0; s.steps = s.steps || 0; }
+  s.v = SAVE_VERSION; return s;
+}
 function load() {
-  try { const s = JSON.parse(localStorage.getItem(SAVE)); if (!s || !Array.isArray(s.deck) || !Array.isArray(s.map)) return null;
-    s.deck = s.deck.filter(c => CARDS[c.id]); if (s.pending && s.pending.list) s.pending.list = s.pending.list.filter(id => CARDS[id]);
+  try { let s = JSON.parse(localStorage.getItem(SAVE)); if (!s || !Array.isArray(s.deck) || !Array.isArray(s.map)) return null;
+    s = migrate(s); if (!CHARS[s.char]) return null;
+    s.deck = s.deck.filter(c => CARDS[c.id]); s.relics = s.relics.filter(id => RELICS[id]); s.items = s.items.filter(id => ITEMS[id]);
+    if (s.pending && s.pending.list) s.pending.list = s.pending.list.filter(id => CARDS[id]);
     uidN = 1 + Math.max(0, ...s.deck.map(c => c.uid || 0)); return s; } catch (e) { return null; }
 }
 const TEMP_MAX = 10;
-/* 章节表（地图部分）：层数、列数、底图，以及底图上各区域的位置（按比例，换图不用改代码）。
-   startY/endY：第一层和最后一层节点的高度；bossX/bossY：据点；xMin/xMax：节点能放的横向通道 */
-const CHAPTERS = [
-  { id: 1, name: '林海雪原', rows: 15, cols: 5, map: { img: 'assets/bg/map_ch1.jpg', w: 1000, h: 1779, startY: .865, endY: .175, bossX: .5, bossY: .092, xMin: .27, xMax: .73, startLabel: '▲ 越过冰封的江面，出发' } },
-];
-const CH = () => CHAPTERS[((R && R.act) || 1) - 1];
+const CH = () => CHAPTERS[Math.min(CHAPTERS.length, (R && R.act) || 1) - 1];
+const CHR = () => CHARS[(R && R.char) || 'hansong'];
 const ROWSOF = () => (R && R.map && R.map.length) || CH().rows; /* 老存档是 9 层，按存档里的层数来 */
+const has = id => !!(R && R.relics && R.relics.includes(id));
+const rflag = k => !!(R && R.relics && R.relics.some(id => RELICS[id] && RELICS[id][k]));
+const rsum = (k, ...a) => (R && R.relics || []).reduce((s, id) => s + (RELICS[id] && typeof RELICS[id][k] === 'function' ? (RELICS[id][k](R, ...a) || 0) : 0), 0);
 const COLS = 5;
-function newRun() {
-  uidN = 1;
-  R = { hp: 72, maxHp: 72, deck: STARTER.map(id => mk(id)), temp: TEMP_MAX, food: 6, map: genMap(), pos: null, path: [], floor: 0, fights: 0, kills: 0 };
-  save();
+function newRun(char = 'hansong') {
+  uidN = 1; const C = CHARS[char];
+  R = { v: SAVE_VERSION, char, act: 1, hp: C.hp, maxHp: C.hp, deck: C.starter.map(id => mk(id)), relics: [C.startRelic], items: [], intel: 0,
+    temp: TEMP_MAX, food: 6, pos: null, path: [], floor: 0, steps: 0, fights: 0, kills: 0 };
+  R.map = genMap(); save();
 }
 
-// ---------- 地图（沿用旧游戏的生成方式，9 层 + Boss） ----------
+// ---------- 地图（照通往顶端 / 杀戮尖塔的规则，参数在章节表里） ----------
 function genMap() {
-  const ROWS = CH().rows;
+  const C = CH(), ROWS = C.rows;
   const g = Array.from({ length: ROWS }, () => Array(COLS).fill(null));
   const node = (r, c) => g[r][c] || (g[r][c] = { r, c, next: [], type: null, jx: rnd(-14, 14), jy: rnd(-8, 8) });
   const crosses = (r, c, n) => g[r].some(o => o && o.c !== c && o.next.some(n2 => (o.c < c && n2 > n) || (o.c > c && n2 < n)));
   let first = -1;
-  for (let p = 0; p < 5; p++) {
+  for (let p = 0; p < 6; p++) {
     let c = rnd(0, COLS - 1); if (p === 1) while (c === first) c = rnd(0, COLS - 1); if (p === 0) first = c;
     for (let r = 0; r < ROWS; r++) {
       const nd = node(r, c); if (r === ROWS - 1) break;
@@ -75,39 +81,47 @@ function genMap() {
       const n = cand.length ? cand[0] : c; if (!nd.next.includes(n)) nd.next.push(n); c = n;
     }
   }
-  const W = { fight: 50, event: 24, elite: 12, rest: 12 };
+  const W = C.nodes, FIX = C.fixed, SPECIAL = ['elite', 'rest', 'shop', 'treasure'];
   for (let r = 0; r < ROWS; r++) for (const nd of g[r]) {
     if (!nd) continue;
-    if (r === 0) { nd.type = 'fight'; continue; } if (r === ROWS - 1) { nd.type = 'rest'; continue; }
+    if (FIX[r]) { nd.type = FIX[r]; continue; }
     const parents = g[r - 1].filter(o => o && o.next.includes(nd.c)).map(o => o.type);
-    const ok = Object.entries(W).filter(([t]) => !((t === 'elite' || t === 'rest') && r < Math.round(ROWS / 3)) && !(t === 'rest' && r === ROWS - 2) && !(['elite', 'rest'].includes(t) && parents.includes(t)));
+    const nextFixed = FIX[r + 1];
+    const ok = Object.entries(W).filter(([t]) => !((t === 'elite' || t === 'rest') && r < C.earliest) && !(t === nextFixed) && !(SPECIAL.includes(t) && parents.includes(t)));
     let tot = 0, x; ok.forEach(([, w]) => tot += w); x = Math.random() * tot;
     for (const [t, w] of ok) { x -= w; if (x <= 0) { nd.type = t; break; } }
     nd.type = nd.type || 'fight';
   }
   const all = g.flat().filter(Boolean);
-  if (!all.some(n => n.type === 'elite')) { const f = all.filter(n => n.type === 'fight' && n.r >= 4 && n.r < ROWS - 1); if (f.length) pickOne(f).type = 'elite'; }
+  if (!all.some(n => n.type === 'elite')) { const f = all.filter(n => n.type === 'fight' && n.r >= C.earliest && !FIX[n.r]); if (f.length) pickOne(f).type = 'elite'; }
+  /* 加强精英：更难，打赢得到一份情报（真结局要集齐三份，同通往顶端的钥匙） */
+  const el = all.filter(n => n.type === 'elite'); if (el.length) pickOne(el).strong = 1;
   return g;
 }
-const NODE = { fight: ['战', '战斗', '#8a4a32'], elite: ['精', '精英', '#7a1a1a'], event: ['?', '未知', '#3a5a7a'], rest: ['营', '密营', '#2f6a3a'] };
+const NODE = { fight: ['战', '战斗', '#8a4a32'], elite: ['精', '精英', '#7a1a1a'], event: ['?', '未知', '#3a5a7a'], rest: ['营', '密营', '#2f6a3a'], shop: ['乡', '老乡', '#8a6a2a'], treasure: ['藏', '物资埋藏点', '#5a4a3a'] };
+const NODE_ICONS = new Set(['fight', 'elite', 'event', 'rest', 'cur', 'boss']); /* 已经出图的节点图标；老乡、埋藏点出图后加进来 */
 /* 章节地图：从下（江边起点）往上（讨伐队据点）走，同杀戮尖塔。位置全部按章节表里的比例算 */
 const NODE_ART = true;
 const MAPD = () => CH().map;
 const nodeX = nd => { const m = MAPD(), cols = COLS; return Math.round(m.w * (m.xMin + (m.xMax - m.xMin) * nd.c / (cols - 1))) + (nd.jx || 0); };
 const mapY = nd => { const m = MAPD(), n = ROWSOF(); return Math.round(m.h * (m.startY - (m.startY - m.endY) * nd.r / Math.max(1, n - 1))) + (nd.jy || 0); };
-const nodeIcon = t => NODE_ART ? `<img src="assets/ui/node_${t}.png" alt="" draggable="false">` : NODE[t][0];
+const nodeIcon = t => NODE_ART && NODE_ICONS.has(t) ? `<img src="assets/ui/node_${t}.png" alt="" draggable="false">` : `<span class="ntxt" style="background:${(NODE[t] || ['', '', '#4a1414'])[2]}">${(NODE[t] || ['首'])[0]}</span>`;
 function available() {
   if (!R.pos) return R.map[0].filter(Boolean);
   if (R.pos.r === ROWSOF() - 1) return ['boss'];
   const cur = R.map[R.pos.r][R.pos.c]; return cur.next.map(c => R.map[R.pos.r + 1][c]);
 }
 
-// ---------- 顶栏 ----------
+// ---------- 顶栏：生命、体温、口粮、层数、情报、背包、随身物品 ----------
 function topBar() {
+  const items = Array.from({ length: ITEM_SLOTS }, (_, i) => { const id = R.items[i]; return id ? `<b class="itm" data-item="${i}" title="${esc(ITEMS[id].name)}">${ITEMS[id].icon}</b>` : '<b class="itm empty"></b>'; }).join('');
   return `<div id="top"><span class="hp">❤ ${R.hp}/${R.maxHp}</span>
-   <span class="tmp ${R.temp < 3 ? 'warn' : ''}" data-tip="体温：每走一格 -1，到密营回满。低于 3 时，战斗第一回合少抽 1 张；降到 0 后每走一格再失去 2 生命。">🌡 体温 ${R.temp}/${TEMP_MAX}</span>
-   <span class="food ${R.food <= 0 ? 'warn' : ''}" data-tip="口粮：每走一格 -1，打赢战斗能缴获。口粮为 0 时，每走一格失去 3 生命。">🍞 口粮 ${R.food}</span>
-   <span class="fl">第 ${Math.max(1, R.floor)} 层 · 林海雪原</span>
+   <span class="tmp ${R.temp < 3 ? 'warn' : ''}" data-tip="体温：每走一格 -1，到密营回满。低于 3 时，战斗第一回合少抽 1 张；降到 0 后每走一格再失去 2 生命。">🌡 ${R.temp}/${TEMP_MAX}</span>
+   <span class="food ${R.food <= 0 ? 'warn' : ''}" data-tip="口粮：每走一格 -1，打赢战斗能缴获，也能拿去跟老乡换东西。口粮为 0 时，每走一格失去 3 生命。">🍞 ${R.food}</span>
+   <span class="fl">第 ${Math.max(1, R.floor)} 层</span>
+   <span class="intel" data-tip="情报：打赢地图上带「📜」的加强精英得到。集齐三份情报，才能走到真结局。">📜 ${R.intel || 0}/3</span>
+   <span class="items" title="背包">${items}</span>
+   <span class="relics">${R.relics.map(id => `<b class="rel" data-rel="${id}" title="${esc(RELICS[id].name)}">${RELICS[id].icon}</b>`).join('')}</span>
    <i class="sp"></i><button class="tb" id="tbdeck">牌组 ${R.deck.length}</button><button class="tb" id="tbrule">规则</button><button class="tb" id="tbmenu">菜单</button></div>`;
 }
 function bindTop() {
@@ -117,7 +131,28 @@ function bindTop() {
     o.querySelector('#m_back').onclick = () => o.remove(); o.querySelector('#m_snd').onclick = e => { e.target.textContent = `音效：${audio.toggle() ? '开' : '关'}（M）`; }; o.querySelector('#m_shk').onclick = e => { SET.shake = SET.shake ? 0 : 1; saveSet(); e.target.textContent = `画面震动：${SET.shake ? '开' : '关'}`; }; o.querySelector('#m_title').onclick = () => { o.remove(); B = null; title(); };
     o.querySelector('#m_quit').onclick = () => { o.remove(); clearSave(); B = null; R = null; title(); }; });
   view.querySelectorAll('[data-tip]').forEach(el => el.onclick = () => tipBox(el.dataset.tip));
+  view.querySelectorAll('#top [data-rel]').forEach(el => el.onclick = () => { const r = RELICS[el.dataset.rel]; tipBox(`<b>${r.icon} ${r.name}</b>${r.rar === 'boss' ? '（Boss）' : ''}<br>${r.desc}`); });
+  view.querySelectorAll('#top [data-item]').forEach(el => el.onclick = () => itemPop(+el.dataset.item));
 }
+/* 背包用品：点开看说明，可以使用或丢掉 */
+function itemPop(i) {
+  const id = R.items[i], it = ITEMS[id]; if (!it) return;
+  const inBattle = !!(B && !B.over && $('#hand')), can = inBattle ? !!it.battle && !B.busy && !B.anim : !!it.map && !B;
+  const o = overlay(`<div class="panel small"><h2>${it.icon} ${it.name}</h2><p>${it.desc}</p><p class="sub">${can ? '' : inBattle ? '这件东西只能在地图上用。' : '这件东西只能在战斗中用。'}</p>
+    <div class="row">${can ? '<button class="btn" id="it_use">使用</button>' : ''}<button class="btn ghost" id="it_drop">丢掉</button><button class="btn ghost" id="it_x">关闭</button></div></div>`);
+  o.querySelector('#it_x').onclick = () => o.remove();
+  o.querySelector('#it_drop').onclick = () => { R.items.splice(i, 1); save(); o.remove(); B && !B.over ? render() : refreshScreen(); };
+  if (can) o.querySelector('#it_use').onclick = () => {
+    o.remove(); R.items.splice(i, 1);
+    if (inBattle) { E.useItem(B, it); audio.card(); render(); flushMsgs(); checkEnd(); }
+    else { it.map(R, { heal: n => { R.hp = Math.min(R.maxHp, R.hp + n); }, food: n => { R.food += n; }, temp: n => { R.temp = Math.max(0, Math.min(TEMP_MAX, R.temp + n)); } }); tip('用掉了' + it.name); refreshScreen(); }
+    save();
+  };
+}
+function gainItem(id) { if (R.items.length >= ITEM_SLOTS) { tip('背包满了'); return false; } R.items.push(id); save(); return true; }
+function gainRelic(id, quiet) { if (!id || has(id)) return; R.relics.push(id); save(); if (!quiet) tip('得到随身物品：' + RELICS[id].name); }
+/* 当前画面刷新（地图上用完背包用品后） */
+let refreshScreen = () => {};
 
 // ---------- 通用 ----------
 function overlay(html) { const o = document.createElement('div'); o.className = 'overlay'; o.innerHTML = html; stage.appendChild(o); return o; }
@@ -130,27 +165,23 @@ const kwify = s => s.replace(kwRe, m => `<span class="kw">${m}</span>`);
 const dsc = (c, f = x => x) => CARDS[c.id].desc(c.up, f);
 const kwOf = c => { const d = CARDS[c.id], s = dsc(c) + (d.sch === '狙' && d.gun ? '狙击牌' : '') + (d.sch === '冲' ? '冲锋枪牌' : '') + (d.sch === '冲' || d.sch === '手' ? '枪感' : '') + (d.ex ? '消耗' : '') + (d.type === 'power' ? '能力' : '') + (d.gun ? '拼刺' : ''); return Object.keys(KW).filter(k => s.includes(k)); };
 
-/* 卡牌插图：同类卡共用一个图标（同旧游戏）。出图后把有图的名字加进 ICONS_READY */
-const CARD_ICON = { note: 'pistol', s_beat: 'pistol', c_nambu: 'pistol', shoot: 'rifle', high: 'rifle', c_type97: 'rifle', crack: 'apround', h_shells: 'apround', h_lockon: 'helmet',
-  refrain: 'scope', echo: 'scope', h_scope: 'scope', lowf: 'binoc', hs_spotter: 'binoc', h_ex: 'round', h_ricochet: 'round', standby: 'breath', skip: 'wind',
-  barrage: 'smg', burst: 'smg', spread: 'smg', h_twin2: 'smg', c_ppsh: 'smg', h_sweep: 'casings', h_medkit: 'casings', c_type11: 'mg', h_drone: 'belt', expand: 'belt',
-  overload: 'barrel', rapid: 'barrel', hs_quickmag: 'mag', hs_depot: 'mag', hs_medkit: 'medkit', hs_bayonet: 'bayonet', defend: 'cover' };
+/* 卡牌插图：每张牌的 icon 写在内容文件里；同类卡共用一个图标（同旧游戏） */
 const ICON_NAME = { pistol: '手枪', rifle: '步枪', apround: '穿甲弹', helmet: '钢盔', scope: '准星', binoc: '望远镜', round: '子弹', breath: '屏息', wind: '风向', smg: '冲锋枪', casings: '弹壳', mg: '机枪', belt: '弹带', barrel: '枪管', mag: '弹匣', medkit: '急救包', bayonet: '刺刀', cover: '掩体' };
 const ICONS_READY = new Set(Object.keys(ICON_NAME)); /* 18 个图标都已出图 */
 function cardHTML(c, extra = '', attrs = '') {
-  const d = CARDS[c.id], cost = d.cost[c.up ? 1 : 0], ic = CARD_ICON[c.id] || 'round';
+  const live0 = B && !B.over && extra.includes('inhand'), d = CARDS[c.id], cost = live0 ? E.cardCost(B, c) : d.cost[c.up ? 1 : 0], ic = d.icon || 'round';
   let badge = '', cls = '';
   if (B && !B.over && extra.includes('inhand')) {
-    const m = E.gunMode(B, c);
+    const m = E.cardMode(B, c);
     if (m === 'bayonet') { badge = `<div class="cbadge bayo">空仓 · 拼刺 ${BAYONET}</div>`; cls = ' bayo'; }
   }
   /* 战斗中把伤害数字换成实际值：变大绿色，变小红色 */
-  const live = B && !B.over && extra.includes('inhand') && d.gun && E.gunMode(B, c) === 'shoot';
+  const live = live0 && d.gun && E.cardMode(B, c) === 'shoot';
   const f = x => { if (!live) return x; const v = E.previewDmg(B, d, x); return v === x ? x : `<b class="${v > x ? 'dup' : 'ddn'}">${v}</b>`; };
   const text = dsc(c, f);
   const rr = ({ basic: 'c', c: 'c', u: 'u', r: 'r', loot: 'u' })[d.rar] || 'c';
   return `<div class="card t-${d.type} s-${d.sch}${c.up ? ' up' : ''}${d.gun ? ' gun' : ''}${cls} ${extra}" data-cid="${c.id}" ${attrs}>
-    <div class="art">${ICONS_READY.has(ic) ? `<img src="assets/icons/${ic}.png" alt="" draggable="false">` : `<span class="ph">${ICON_NAME[ic]}</span>`}</div>
+    <div class="art">${ICONS_READY.has(ic) ? `<img src="assets/icons/${ic}.png" alt="" draggable="false">` : `<span class="ph">${ICON_NAME[ic] || ''}</span>`}</div>
     <div class="cdesc"><span>${kwify(text)}${d.ex && !text.includes('消耗') ? '<br>消耗。' : ''}</span></div>
     <img class="frame" src="assets/ui/frame_${d.type}_${rr}.png" alt="" draggable="false">
     <div class="cost">${cost}</div><div class="cname">${d.name}${c.up ? '+' : ''}</div>
@@ -163,20 +194,17 @@ function showPile(t, cards, onPick, sub = '') {
   return o;
 }
 function rules() {
-  overlay(`<div class="panel rules"><h2>规则</h2>
-  <p>· 每回合 3 能量，抽 5 张。打出卡牌要花能量。</p>
-  <p>· <b>弹仓</b>：韩松只有一个弹仓（${MAG} 发），所有枪械牌都从这里扣子弹，每「射击 1 发」用掉 1 颗。</p>
-  <p>· <b>装填</b>：「结束回合」上方的按钮，1 费，把弹仓装满。</p>
-  <p>· <b>空仓拼刺</b>：弹仓空了，枪械牌自动变成拼刺，造成 ${BAYONET} 伤害，牌上其他效果照常。</p>
-  <p>· <b>三种枪</b>：狙击牌 1 发高伤、省子弹；冲锋枪牌一次打好几发、耗弹快；手枪牌是便宜的小牌。</p>
-  <p>· <b>标尺</b>：叠在敌人身上，最多 5 层，每层让狙击牌每发 +1 伤害。</p>
-  <p>· <b>枪感</b>：每打一张枪械牌 +1（最多 ${FEEL_MAX}），回合结束 -1；冲锋枪牌和手枪牌每发伤害 + 枪感的一半。</p>
-  <p>· <b>敌人装弹</b>：会开枪的敌人脚下也有弹仓，打空了下回合要装弹，那回合不攻击。</p>
-  <p>· <b>装甲</b>：每次受到的伤害减去装甲值。穿甲弹、反器材无视装甲。</p>
-  <p>· <b>体温</b>：每走一格 -1，到密营回满；低于 3 时战斗第一回合少抽 1 张；为 0 时每走一格再失去 2 生命。</p>
-  <p>· <b>口粮</b>：每走一格 -1，打赢战斗能缴获；为 0 时每走一格失去 3 生命。</p>
-  <p>· <b>缴获</b>：打赢后可能缴获敌人的枪，以卡牌的形式加入牌组（比如「歪把子扫射」「九七式狙击」）。</p>
-  <p class="sub">电脑快捷键：数字键出牌，R 装填，E 结束回合，Esc 取消。</p>
+  const L = ['每回合 3 能量，抽 5 张。打出卡牌要花能量。', ...CHR().mech.rules,
+    '<b>敌人装弹</b>：会开枪的敌人脚下也有弹仓，打空了下回合要装弹，那回合不攻击。',
+    '<b>装甲</b>：每次受到的伤害减去装甲值。穿甲弹、反器材无视装甲。',
+    '<b>体温</b>：每走一格 -1，到密营回满；低于 3 时战斗第一回合少抽 1 张；为 0 时每走一格再失去 2 生命。',
+    '<b>口粮</b>：每走一格 -1，打赢战斗能缴获，也能跟老乡换东西；为 0 时每走一格失去 3 生命。',
+    '<b>随身物品</b>：一直生效的被动效果。精英、物资埋藏点、老乡那里能拿到。',
+    `<b>背包</b>：一次性用品，最多 ${ITEM_SLOTS} 件，点顶栏的格子使用。`,
+    '<b>情报</b>：打赢带「📜」的加强精英得到。集齐三份，才能走到真结局。',
+    '<b>缴获</b>：打赢后可能缴获敌人的枪，以卡牌的形式加入牌组。'];
+  overlay(`<div class="panel rules"><h2>规则</h2>${L.map(x => `<p>· ${x}</p>`).join('')}
+  <p class="sub">电脑快捷键：数字键出牌，${CHR().mech.actions ? 'R 装填，' : ''}E 结束回合，Esc 取消，M 静音。</p>
   <button class="btn" id="ov_close">关闭</button></div>`).querySelector('#ov_close').onclick = e => e.target.closest('.overlay').remove();
 }
 
@@ -185,7 +213,7 @@ function title() {
   B = null; const s = load();
   view.innerHTML = `<div class="tbg pic"></div><div class="tlogo"><h1>深入日军总部</h1><p class="en">INTO THE HQ</p><p class="en2">最小可玩版 · 第一章 林海雪原</p></div>
    <div class="mmenu">${s ? `<button class="btn mm" id="t_cont">继续<small>第 ${Math.max(1, s.floor)} 层 · 生命 ${s.hp}/${s.maxHp}</small></button>` : ''}
-   <button class="btn mm" id="t_new">新的一局<small>神枪手 · 韩松（雪貂）</small></button><button class="btn mm sm2" id="t_rule">规则</button></div>
+   <button class="btn mm" id="t_new">新的一局<small>${CHARS.hansong.title} · ${CHARS.hansong.name}（${CHARS.hansong.code}）</small></button><button class="btn mm sm2" id="t_rule">规则</button></div>
    <p class="tnote">本作为虚构故事，人物均为虚构。美术为色块占位。</p>`;
   if (s) $('#t_cont').onclick = () => { R = s; resume(); };
   $('#t_new').onclick = () => { if (s && !confirm('开始新的一局会覆盖当前进度，确定吗？')) return; newRun(); story(INTRO, () => campaign(0, mapScreen)); };
@@ -212,7 +240,10 @@ function story(lines, done) {
   show();
 }
 function resume() {
-  if (R.pending && (R.pending.t === 'fight' || R.pending.t === 'elite' || R.pending.t === 'boss')) return battle(R.pending.enc, R.pending.t);
+  if (R.pending && (R.pending.t === 'fight' || R.pending.t === 'elite' || R.pending.t === 'boss')) return battle(R.pending.enc, R.pending.t, R.pending.strong);
+  if (R.pending && R.pending.t === 'shop') return shopScreen();
+  if (R.pending && R.pending.t === 'treasure') return treasureScreen();
+  if (R.pending && R.pending.t === 'bossrelic') return bossRelicScreen();
   if (R.pending && R.pending.t === 'rest') return restScreen();
   if (R.pending && R.pending.t === 'loot') return lootScreen();
   mapScreen();
@@ -220,7 +251,7 @@ function resume() {
 
 // ---------- 地图 ----------
 function mapScreen() {
-  B = null; delete R.pending; save();
+  B = null; delete R.pending; save(); refreshScreen = mapScreen;
   const av = available(), M = MAPD(), H = M.h, LC = '#6a4a2a', BOSS_X = Math.round(M.w * M.bossX), BOSS_Y = Math.round(M.h * M.bossY), ROWS = ROWSOF();
   let lines = '', nodes = '';
   /* 走过的路画成红色实线（抗联路线），没走的是灰色虚线 */
@@ -229,39 +260,45 @@ function mapScreen() {
   for (const row of R.map) for (const nd of row) if (nd) for (const c of nd.next) { const t = R.map[nd.r + 1][c]; lines += ln(nodeX(nd), mapY(nd), nodeX(t), mapY(t), walked(nd, t)); }
   for (const nd of R.map[ROWS - 1]) if (nd) lines += ln(nodeX(nd), mapY(nd), BOSS_X, BOSS_Y, false);
   for (const row of R.map) for (const nd of row) if (nd) {
-    const isAv = av.includes(nd), done = R.path.some(p => p.r === nd.r && p.c === nd.c), cur = R.pos && R.pos.r === nd.r && R.pos.c === nd.c, [ch, , col] = NODE[nd.type];
-    nodes += `<div class="node ${NODE_ART ? 'pic' : ''} ${isAv ? 'av' : ''} ${done ? 'done' : ''} ${cur ? 'cur' : ''}" style="left:${nodeX(nd)}px;top:${mapY(nd)}px;${NODE_ART ? '' : 'background:' + col}" data-r="${nd.r}" data-c="${nd.c}">${nodeIcon(nd.type)}${cur && NODE_ART ? '<img class="curflag" src="assets/ui/node_cur.png" alt="">' : ''}</div>`;
+    const isAv = av.includes(nd), done = R.path.some(p => p.r === nd.r && p.c === nd.c), cur = R.pos && R.pos.r === nd.r && R.pos.c === nd.c, hide = rflag('hideMap') && !done;
+    nodes += `<div class="node pic ${isAv ? 'av' : ''} ${done ? 'done' : ''} ${cur ? 'cur' : ''}" style="left:${nodeX(nd)}px;top:${mapY(nd)}px" data-r="${nd.r}" data-c="${nd.c}">${nodeIcon(hide ? 'event' : nd.type)}${nd.strong && !hide && !done ? '<i class="nintel" title="加强精英：打赢得到一份情报">📜</i>' : ''}${cur ? '<img class="curflag" src="assets/ui/node_cur.png" alt="">' : ''}</div>`;
   }
-  nodes += `<div class="node boss ${NODE_ART ? 'pic' : ''} ${av[0] === 'boss' ? 'av' : ''}" style="left:${BOSS_X}px;top:${BOSS_Y}px">${NODE_ART ? nodeIcon('boss') : '讨伐队<br>据点'}</div><div class="maplab" style="left:${BOSS_X}px;top:${BOSS_Y - 82}px">讨伐队长 · 村濑</div>
+  nodes += `<div class="node boss ${NODE_ART ? 'pic' : ''} ${av[0] === 'boss' ? 'av' : ''}" style="left:${BOSS_X}px;top:${BOSS_Y}px">${NODE_ART ? nodeIcon('boss') : '讨伐队<br>据点'}</div><div class="maplab" style="left:${BOSS_X}px;top:${BOSS_Y - 82}px">${ENEMIES[bossKey()].name}</div>
    <div class="maplab start" style="left:${M.w / 2}px;top:${Math.round(M.h * .93)}px">${M.startLabel}</div>`;
   view.innerHTML = `${topBar()}<div id="map"><div id="mapin" style="width:${M.w}px;height:${H}px;background-image:url(${M.img})"><svg width="${M.w}" height="${H}">${lines}</svg>${nodes}</div></div>
-   <div id="legend"><div class="lgt">图例</div>${Object.keys(NODE).map(k => `<div><b class="${NODE_ART ? 'pic' : ''}" style="${NODE_ART ? '' : 'background:' + NODE[k][2]}">${nodeIcon(k)}</b>${NODE[k][1]}</div>`).join('')}<div><b class="${NODE_ART ? 'pic' : ''}" style="${NODE_ART ? '' : 'background:#4a1414'}">${NODE_ART ? nodeIcon('boss') : '首'}</b>讨伐队据点</div><div class="lg2"><i class="redl"></i>走过的路线<br>每走一格：体温 -1，口粮 -1</div></div>`;
+   <div id="legend"><div class="lgt">图例</div>${Object.keys(NODE).map(k => `<div><b class="pic">${nodeIcon(k)}</b>${NODE[k][1]}</div>`).join('')}<div><b class="pic">${nodeIcon('boss')}</b>讨伐队据点</div><div><b class="pic nint">📜</b>加强精英（情报）</div><div class="lg2"><i class="redl"></i>走过的路线<br>每走一格：体温 -1，口粮 -1</div></div>`;
   bindTop();
   const m = $('#map'), y = R.pos ? mapY(R.map[R.pos.r][R.pos.c]) : H; m.scrollTop = Math.max(0, y - m.clientHeight + 200);
   view.querySelectorAll('.node.av').forEach(el => el.onclick = () => {
     if (el.classList.contains('boss')) { if (!walk()) return; R.floor++; return enterNode('boss'); }
     const nd = R.map[+el.dataset.r][+el.dataset.c]; if (!walk()) return;
-    R.pos = { r: nd.r, c: nd.c }; R.path.push(R.pos); R.floor++; enterNode(nd.type);
+    R.pos = { r: nd.r, c: nd.c }; R.path.push(R.pos); R.floor++; enterNode(nd.type, nd);
   });
   dbgPanel();
 }
 /* 走一格：消耗体温和口粮，返回 false 表示倒下了 */
 function walk() {
-  const msg = [];
+  const msg = []; R.steps = (R.steps || 0) + 1;
   if (R.food > 0) R.food--; else { R.hp -= 3; msg.push('没有口粮，饿着肚子赶路：生命 -3'); }
-  if (R.temp > 0) R.temp--; else { R.hp -= 2; msg.push('冻得失去知觉：生命 -2'); }
+  const loss = R.relics.some(id => RELICS[id].walkTemp) ? Math.min(...R.relics.filter(id => RELICS[id].walkTemp).map(id => RELICS[id].walkTemp(R))) : 1;
+  if (R.temp > 0) R.temp = Math.max(0, R.temp - loss); else if (!rflag('noFreezeDmg')) { R.hp -= 2; msg.push('冻得失去知觉：生命 -2'); }
   if (msg.length) say(msg.join('；'));
   if (R.hp <= 0) { R.hp = 0; endScreen(false, '倒在了风雪里'); return false; }
   return true;
 }
-function enterNode(t) {
-  if (t === 'boss') { R.pending = { t: 'boss', enc: ENC.boss[0] }; save(); return battle(R.pending.enc, 'boss'); }
+/* 这一章的 Boss（开局随机定好，地图上能看到是谁） */
+function bossKey() { const C = CH(); if (!R.boss || !C.enc.boss.some(b => b.includes(R.boss))) { const enc = pickOne(C.enc.boss); R.boss = enc.find(k => ENEMIES[k].boss); R.bossEnc = enc; } return R.boss; }
+function enterNode(t, nd) {
+  const C = CH();
+  if (t === 'boss') { bossKey(); R.pending = { t: 'boss', enc: R.bossEnc }; save(); return battle(R.pending.enc, 'boss'); }
   if (t === 'fight' || t === 'elite') {
-    const enc = t === 'elite' ? pickOne(ENC.elite) : pickOne(R.fights < 2 ? ENC.easy : ENC.hard); if (t === 'fight') R.fights++;
-    R.pending = { t, enc }; save(); return battle(enc, t);
+    const enc = t === 'elite' ? pickOne(C.enc.elite) : pickOne(R.fights < C.easyFights ? C.enc.easy : C.enc.hard); if (t === 'fight') R.fights++;
+    R.pending = { t, enc, strong: !!(nd && nd.strong) }; save(); return battle(enc, t, R.pending.strong);
   }
   if (t === 'rest') { R.pending = { t: 'rest' }; save(); return restScreen(); }
   if (t === 'event') { save(); return eventScreen(); }
+  if (t === 'shop') { R.pending = { t: 'shop' }; save(); return shopScreen(); }
+  if (t === 'treasure') { R.pending = { t: 'treasure' }; save(); return treasureScreen(); }
 }
 
 // ---------- 战斗 ----------
@@ -271,32 +308,25 @@ function enterNode(t) {
    帧图还没画好时，用 assets/units/ 下的单张图 + 代码呼吸动作顶替 */
 const HA = { idle: [4, 200, 1], shoot: [4, 75, 0], hurt: [2, 130, 0], down: [3, 220, 2], stab: [2, 140, 0] };
 const EA = { idle: [2, 480, 1], atk: [2, 210, 0], hurt: [1, 320, 0], down: [2, 260, 2] };
-const HERO = { dir: 'hansong', frames: true, still: 'hansong' }; /* 帧图到位后把 frames 改成 true */
-/* 每套帧图切好后的画布信息：cw/ch 画布宽高，ax 脚底锚点 x，sw/sh 站立时人物宽高（切图脚本自动算出） */
-const FR = { hansong: { cw: 389, ch: 291, ax: 205, sw: 182, sh: 287 }, inf: { cw: 462, ch: 404, ax: 195, sw: 359, sh: 402 },
-  puppet: { cw: 555, ch: 396, ax: 278, sw: 274, sh: 394 }, dog: { cw: 635, ch: 211, ax: 360, sw: 384, sh: 153 }, mortar: { cw: 498, ch: 317, ax: 215, sw: 309, sh: 315 },
-  mg: { cw: 521, ch: 216, ax: 271, sw: 393, sh: 206 }, sniper: { cw: 504, ch: 341, ax: 232, sw: 368, sh: 299 }, sergeant: { cw: 440, ch: 382, ax: 154, sw: 240, sh: 380 },
-  captain_car: { cw: 312, ch: 222, ax: 149, sw: 281, sh: 208 }, captain_foot: { cw: 426, ch: 264, ax: 147, sw: 185, sh: 249 } };
+const HERO_ART = () => CHR().art;
 /* 当前用哪套帧（村濑下车后换第二套） */
 const efr = e => (e.phase === 2 && e.d.frames2) ? [e.d.frames2, e.d.artH2] : [e.d.frames, e.d.artH];
 /* 帧图放进固定大小的框：框按站立姿势定大小，脚底锚点对准框的中线；倒地、前冲等超出部分露在框外 */
 function frameBox(key, dispH, src, cls, alt) {
-  const m = FR[key], k = dispH / m.sh;
+  const m = FRAMES[key], k = dispH / m.sh;
   return `<div class="sprw" style="width:${Math.round(m.sw * k)}px;height:${dispH}px"><img class="spr art ${cls}" src="${src}" alt="${alt}" draggable="false" style="position:absolute;left:${Math.round((m.sw / 2 - m.ax) * k)}px;bottom:0;height:${Math.round(m.ch * k)}px;max-width:none"><i class="shd"></i></div>`;
 }
-const SHOTKIND = { 狙: 'rifle', 冲: 'smg', 手: 'pistol' };
-const MUZZLE = [128, 62]; /* 韩松枪口相对脚底锚点的位置（原图像素） */
 let hst = { n: 'idle', t: 0 };
 function heroAct(n) { if (hst.n === 'down') return; hst = { n, t: performance.now() }; }
 function frameOf(tab, st, reset) { const [c, ms, mode] = tab[st.n] || tab.idle; let k = Math.floor((performance.now() - st.t) / ms); if (k >= c) { if (mode === 1) k %= c; else if (mode === 2) k = c - 1; else { reset(); return [ 'idle', Math.floor(performance.now() / tab.idle[1]) % tab.idle[0] ]; } } return [st.n in tab ? st.n : 'idle', k]; }
-function heroSrc() { if (!HERO.frames) return `assets/units/${HERO.still}.png`; const [n, k] = frameOf(HA, hst, () => { hst = { n: 'idle', t: performance.now() }; }); return `assets/${HERO.dir}/${n}${k}.png`; }
+function heroSrc() { const A = HERO_ART(); if (!A.frames) return `assets/units/${A.still}.png`; const [n, k] = frameOf(HA, hst, () => { hst = { n: 'idle', t: performance.now() }; }); return `assets/${A.dir}/${n}${k}.png`; }
 function enemySrc(e) { if (!e.d.frames) return `assets/units/${e.d.art}.png`; const fk = efr(e)[0]; const st = e.anim || { n: e.dead ? 'down' : 'idle', t: 0 }; if (e.dead && st.n !== 'down') { e.anim = { n: 'down', t: performance.now() }; } const [n, k] = frameOf(EA, e.anim || st, () => { e.anim = null; }); return `assets/enemies/${fk}/${n}${k}.png`; }
 function epose(e, n) { e.anim = { n, t: performance.now() }; }
 const pose = (n) => heroAct(n);
 /* 预加载所有帧，第一次播放时不闪 */
 const PRE = [], PREDONE = new Set();
 function preload(dir, tab) { if (PREDONE.has(dir)) return; PREDONE.add(dir); Object.entries(tab).forEach(([n, [c]]) => { for (let k = 0; k < c; k++) { const im = new Image(); im.src = `assets/${dir}/${n}${k}.png`; PRE.push(im); } }); }
-preload('hansong', HA); /* 敌人的帧在进战斗时才加载，手机上不用一开始就下载全部 */
+/* 主角和敌人的帧都在进战斗时才加载，手机上不用一开始就下载全部 */
 /* 和旧游戏一样，每 80 毫秒刷新一次帧 */
 let lastT = 0;
 (function loop(t) { requestAnimationFrame(loop); if (!B || t - lastT < 80) return; lastT = t;
@@ -305,23 +335,25 @@ let lastT = 0;
 })(0);
 function motion(who, cls) { const el = view.querySelector(`[data-eid="${who}"] .sprw`); if (el) { el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); } }
 
-function battle(enc, kind) {
+function battle(enc, kind, strong) {
+  if (HERO_ART().frames) preload(HERO_ART().dir, HA);
   enc.forEach(k => { const d = ENEMIES[k]; if (d.frames) preload('enemies/' + d.frames, EA); if (d.frames2) preload('enemies/' + d.frames2, EA); });
-  B = E.startBattle(R, enc, kind, E.mulberry((Math.random() * 2 ** 31) | 0)); B.sel = -1; B.busy = 0;
-  render(); if (kind === 'boss') banner('讨伐队长 · 村濑'); else if (kind === 'elite') banner('精英：讨伐队军曹');
+  B = E.startBattle(R, enc, kind, E.mulberry((Math.random() * 2 ** 31) | 0), { strong }); B.sel = -1; B.busy = 0;
+  const lead = enc.map(k => ENEMIES[k]).find(d => d.boss || d.elite);
+  render(); if (lead) banner((kind === 'boss' ? '' : strong ? '加强精英：' : '精英：') + lead.name);
   flushMsgs();
 }
 function flushMsgs() { if (B && B.msgs.length) { say(B.msgs.join('\n'), 3600); B.msgs = []; } }
 const ICON = { atk: '⚔', def: '🛡', buff: '⬆', debuff: '⬇', charge: '⏳', flee: '🏃', reload: '🔄', unk: '？' };
-const ESIZE = { dog: [130, 80], sergeant: [120, 185], captain: [250, 170], mg: [150, 110], mortar: [110, 130] };
+
 function enemyHTML(e) {
-  const d = e.d, [w, h] = e.key === 'captain' && e.phase === 2 ? [120, 190] : (ESIZE[e.key] || [100, 160]), it = e.dead ? null : E.intentOf(B, e);
+  const d = e.d, [w, h] = BLOCK_SIZE[e.key] || [100, 160], it = e.dead ? null : E.intentOf(B, e);
   const tg = B.sel >= 0 && B.hand[B.sel] && E.needTarget(B.hand[B.sel]) && !e.dead;
   const label = e.key === 'captain' ? (e.phase === 2 ? '村濑' : '装甲车') : d.name;
   return `<div class="unit enemy ${tg ? 'tg' : ''} ${e.dead ? 'dead' : ''} ${d.frames ? '' : 'noanim'}" data-eid="${e.id}">
     <div class="intent">${it ? `<i class="ii ii-${it.i}">${ICON[it.i]}</i>${it.text}<small>${it.name}</small>` : ''}</div>
     ${d.frames ? frameBox(efr(e)[0], efr(e)[1], enemySrc(e), '', d.name) : `<div class="sprw">${d.art ? `<img class="spr art still" src="${enemySrc(e)}" style="height:${d.artH}px" alt="${d.name}" draggable="false">` : `<div class="spr blk ${d.boss ? 'bossb' : ''}" style="width:${w}px;height:${h}px;background:${d.col}">${label}</div>`}<i class="shd"></i></div>`}
-    <div class="uinfo">${barHTML(e.hp, e.max, e.block)}${e.ammo != null && !e.dead ? `<div class="eammo ${e.ammo ? '' : 'zero'}" data-k="敌人弹仓">${Array.from({ length: e.d.ammo }, (_, k) => `<i class="${k < e.ammo ? 'f' : ''}"></i>`).join('')}${e.ammo ? '' : '<b>空</b>'}</div>` : ''}<div class="badges">${e.armor ? `<b class="arm" data-k="装甲">🛡 装甲 ${e.armor}</b>` : ''}${e.marks ? `<b class="mark" data-k="标尺">🎯 标尺 ${e.marks}</b>` : ''}${stsHTML(e.st)}</div></div></div>`;
+    <div class="uinfo">${barHTML(e.hp, e.max, e.block)}${e.ammo != null && !e.dead ? `<div class="eammo ${e.ammo ? '' : 'zero'}" data-k="敌人弹仓">${Array.from({ length: e.d.ammo }, (_, k) => `<i class="${k < e.ammo ? 'f' : ''}"></i>`).join('')}${e.ammo ? '' : '<b>空</b>'}</div>` : ''}<div class="badges">${e.armor ? `<b class="arm" data-k="装甲">🛡 装甲 ${e.armor}</b>` : ''}${B.mech.enemyChips ? B.mech.enemyChips(e) : ''}${stsHTML(e.st)}</div></div></div>`;
 }
 /* 血条：格挡是左边的蓝色圆圈（同旧游戏） */
 function barHTML(hp, max, blk) {
@@ -329,16 +361,13 @@ function barHTML(hp, max, blk) {
 }
 const STN = { weak: ['虚弱', '#c8a0ff'], vuln: ['易伤', '#ff9a6a'], str: ['力量', '#ff6a5a'] };
 const stsHTML = st => Object.entries(st).filter(([k]) => STN[k]).map(([k, n]) => `<b class="st" style="color:${STN[k][1]};border-color:${STN[k][1]}" data-k="${STN[k][0]}">${STN[k][0]} ${n}</b>`).join('');
-/* 弹仓挂在韩松脚下（旧游戏的光弹也是这样显示的） */
-function ammoHTML() {
-  const pips = B.cap <= 16 ? Array.from({ length: B.cap }, (_, k) => `<i class="${k < B.ammo ? 'f' : ''}"></i>`).join('') : `<em class="mbar"><u style="width:${B.ammo / B.cap * 100}%"></u></em>`;
-  return `<div class="ammo ${B.ammo ? '' : 'zero'}" data-k="弹仓"><span class="pips">${pips}</span><b>${B.ammo}/${B.cap}</b></div>
-   <div class="badges"><b class="feelc" data-k="枪感">枪感 ${B.p.feel}${B.p.feel >= 2 ? `（+${Math.floor(B.p.feel / 2)}）` : ''}</b>${stsHTML(B.p.st)}${Object.keys(B.p.pw).map(k => `<b class="pw">${({ scope: '瞄准镜', depot: '备用弹匣', rapid: '枪感训练', quick: '快换弹匣' })[k]}</b>`).join('')}</div>`;
+/* 主角脚下的资源（角色模块提供：韩松是弹仓和枪感），右侧按钮（韩松是装填） */
+function heroInfoHTML() {
+  const I = B.mech.info ? B.mech.info(B) : { main: '', chips: '', powers: {} };
+  return `${I.main}<div class="badges">${I.chips || ''}${stsHTML(B.p.st)}${Object.keys(B.p.pw).map(k => `<b class="pw">${(I.powers || {})[k] || k}</b>`).join('')}</div>`;
 }
-function reloadBtn() {
-  const why = E.cantReload(B), c = E.reloadCost(B);
-  const lab = why === '弹仓已满' ? '弹仓已满' : `装填 <small>${c} 费${TOUCH ? '' : ' · R'}</small>`;
-  return `<button class="btn reload ${!why ? 'hot' : ''} ${!B.ammo && !why ? 'urgent' : ''}" id="reload" ${why || B.busy ? 'disabled' : ''}>${lab}</button>`;
+function actionBtns() {
+  return E.actions(B).map((a, i) => `<button class="btn reload ${a.hot ? 'hot' : ''} ${a.urgent ? 'urgent' : ''}" style="bottom:${222 + i * 56}px" data-act="${a.id}" ${a.dis || B.busy ? 'disabled' : ''}>${a.label}${!TOUCH && a.key ? ` <small>${a.key}</small>` : ''}</button>`).join('');
 }
 /* 手牌：扇形排开，只露上半截（费用、插图、卡名），鼠标移上去 / 手机按住才看说明（同旧游戏） */
 function handLayout() {
@@ -354,16 +383,17 @@ function render() {
     return cardHTML(c, `inhand ${sel ? 'sel' : ''} ${off ? 'off' : ''}`, `data-i="${i}" style="left:${x0 + i * gap}px;transform:translateY(${sel ? -100 : dy}px) rotate(${sel ? 0 : rot}deg);z-index:${sel ? 60 : i + 1}"`);
   }).join('');
   const inc = E.incoming(B);
-  view.innerHTML = `<div class="bg battle"></div>${topBar()}
-   <div id="hero" class="unit" data-eid="hero"><div class="intent"></div>${HERO.frames ? frameBox('hansong', TOUCH ? 235 : 250, heroSrc(), '', '韩松') : `<div class="sprw"><img class="spr art still" src="${heroSrc()}" style="height:${TOUCH ? 235 : 250}px" alt="韩松" draggable="false"><i class="shd"></i></div>`}
-    <div class="uinfo">${barHTML(R.hp, R.maxHp, B.p.block)}${ammoHTML()}${inc ? `<div class="inc ${inc > B.p.block ? 'low' : 'ok'}">受到 ${Math.max(0, inc - B.p.block)}</div>` : ''}</div></div>
+  view.innerHTML = `<div class="bg battle" style="background-image:url(${CH().battleBg})"></div>${topBar()}
+   <div id="hero" class="unit" data-eid="hero"><div class="intent"></div>${(A => A.frames ? frameBox(A.dir, TOUCH ? A.hTouch : A.h, heroSrc(), '', CHR().name) : `<div class="sprw"><img class="spr art still" src="${heroSrc()}" style="height:${TOUCH ? A.hTouch : A.h}px" alt="${CHR().name}" draggable="false"><i class="shd"></i></div>`)(HERO_ART())}
+    <div class="uinfo">${barHTML(R.hp, R.maxHp, B.p.block)}${heroInfoHTML()}${inc ? `<div class="inc ${inc > B.p.block ? 'low' : 'ok'}">受到 ${Math.max(0, inc - B.p.block)}</div>` : ''}</div></div>
    <div id="enemies">${B.en.filter(e => !(e.dead && Date.now() - e.deadAt > 1400)).map(enemyHTML).join('')}</div>
    <div id="energy" class="${B.p.energy ? '' : 'empty'}">${B.p.energy}/${E.ENERGY}</div>
-   ${reloadBtn()}<button class="btn" id="endturn" ${B.busy ? 'disabled' : ''}>${B.busy ? '敌人回合' : `结束回合${TOUCH ? '' : ' <small>E</small>'}`}</button>
+   ${actionBtns()}<button class="btn" id="endturn" ${B.busy ? 'disabled' : ''}>${B.busy ? '敌人回合' : `结束回合${TOUCH ? '' : ' <small>E</small>'}`}</button>
    <div class="pile" id="drawp">抽牌<b>${B.draw.length}</b></div><div class="pile" id="discp">弃牌<b>${B.disc.length}</b></div><div class="pile" id="exhp">消耗<b>${B.exh.length}</b></div>
    <div id="hand">${hand}</div>${B.sel >= 0 ? `<div id="tip" class="stay">点一个敌人打出（${TOUCH ? '点空白处取消' : 'Esc 取消'}）</div>` : ''}`;
   bindTop();
-  $('#endturn').onclick = endTurn; $('#reload').onclick = doReload;
+  $('#endturn').onclick = endTurn; view.querySelectorAll('[data-act]').forEach(el => el.onclick = () => doAct(el.dataset.act));
+  refreshScreen = render;
   $('#drawp').onclick = () => showPile('抽牌堆（顺序已打乱）', [...B.draw].sort((a, b) => a.id < b.id ? -1 : 1));
   $('#discp').onclick = () => showPile('弃牌堆', B.disc);
   $('#exhp').onclick = () => showPile('消耗', B.exh);
@@ -407,13 +437,13 @@ function clickEnemy(id) {
 /* 出牌：牌先飞到中间，效果在飞的途中结算（同旧游戏） */
 async function play(i, tid) {
   const c = B.hand[i]; if (!c || B.anim) return; const d = CARDS[c.id], why = E.cantPlay(B, c); if (why) { tip(why); return; }
-  const mode = E.gunMode(B, c), el = view.querySelector(`#hand .card[data-i="${i}"]`);
+  const mode = E.cardMode(B, c), el = view.querySelector(`#hand .card[data-i="${i}"]`);
   B.anim = 1; B.sel = -1; kwHide(); audio.card();
   if (el) { flyCard(el, d.type); el.style.visibility = 'hidden'; }
   await sleep(170);
   if (!B || !B.hand.includes(c)) { if (B) B.anim = 0; return; }
   E.playCard(B, B.hand.indexOf(c), tid);
-  B.shotKind = mode === 'shoot' ? SHOTKIND[d.sch] : null;
+  B.shotKind = mode === 'shoot' && B.mech.shotKind ? B.mech.shotKind(d) : null;
   if (mode === 'shoot') heroAct('shoot');
   else if (mode === 'bayonet') { heroAct('stab'); setTimeout(() => motion('hero', 'dash'), 0); audio.stab(); }
   B.anim = 0; render(); flushMsgs();
@@ -430,10 +460,11 @@ function flyCard(el, type) {
   setTimeout(() => { cl.style.transition = 'all .28s ease-in'; cl.style.opacity = '0'; cl.style.transform = type === 'power' ? 'scale(1.8)' : `translate(${SW / 2 - 150}px,330px) scale(.3) rotate(25deg)`; }, 300);
   setTimeout(() => cl.remove(), 650);
 }
-function doReload() {
+/* 角色按钮（韩松：装填） */
+function doAct(id) {
   if (!B || B.busy || B.over || B.anim) return;
-  const why = E.cantReload(B); if (why) { tip(why); return; }
-  if (E.reload(B)) { B.sel = -1; audio.reload(); render(); motion('hero', 'recoil'); flushMsgs(); }
+  const a = E.actions(B).find(x => x.id === id); if (!a) return; if (a.dis) { tip(a.dis); return; }
+  if (E.act(B, id)) { B.sel = -1; if (a.sfx && audio[a.sfx]) audio[a.sfx](); render(); motion('hero', 'recoil'); flushMsgs(); }
 }
 async function endTurn() {
   if (!B || B.busy || B.over || B.anim) return;
@@ -442,7 +473,7 @@ async function endTurn() {
   for (const e of B.en.filter(x => !x.dead)) {
     if (B.over) break;
     const m = e.d.moves[e.move];
-    if (m && m.d) { epose(e, 'atk'); motion(e.id, 'lunge'); const melee = /刺|刀|咬|扑|撞/.test(m.t); setTimeout(() => melee ? audio.stab() : audio.shot(e.key === 'mg' || (e.key === 'captain' && e.move === 'mgun') ? 'smg' : e.key === 'sergeant' || e.move === 'pistol' ? 'pistol' : 'rifle'), 120); await sleep(180); }
+    if (m && m.d) { epose(e, 'atk'); motion(e.id, 'lunge'); const melee = /刺|刀|咬|扑|撞/.test(m.t); setTimeout(() => melee ? audio.stab() : audio.shot(/机枪|扫射|连射/.test(m.t) ? 'smg' : /手枪|驳壳/.test(m.t) ? 'pistol' : 'rifle'), 120); await sleep(180); }
     if (m && m.i === 'reload') audio.reload();
     E.enemyAct(B, e); render(); flushMsgs(); await sleep(m && m.d ? 560 : 380);
   }
@@ -452,10 +483,12 @@ async function endTurn() {
 async function checkEnd() {
   const r = E.result(B); if (!r) return false;
   B.busy = 1; await sleep(800);
-  if (r === 'lose') { heroAct('down'); audio.lose(); await sleep(900); endScreen(false, '倒在了林海雪原里'); return true; }
-  const kind = B.kind, en = B.en; B.over = 'win'; audio.win();
-  if (kind === 'boss') { R.hp = Math.max(1, R.hp); clearSave(); B = null; campaign(1, () => endScreen(true), '林海雪原的讨伐队被打垮了。小分队连夜南下，下一站：新京。'); return true; }
-  winRewards(kind, en); return true;
+  if (r === 'lose') { heroAct('down'); audio.lose(); await sleep(900); endScreen(false, `倒在了${CH().name}里`); return true; }
+  const kind = B.kind, en = B.en, strong = B.strong; B.over = 'win'; audio.win(); E.endBattle(B, true);
+  R.relics.forEach(id => { const r = RELICS[id]; if (r.fightWon) r.fightWon(R); });
+  if (strong) { R.intel = (R.intel || 0) + 1; }
+  if (kind === 'boss') { R.hp = Math.max(1, R.hp); B = null; R.pending = { t: 'bossrelic', opts: rollBossRelics() }; save(); return bossRelicScreen(), true; }
+  winRewards(kind, en, strong); return true;
 }
 
 // ---------- 拖动出牌（移植自旧游戏）：手机只拖动，电脑点击和拖动都可以 ----------
@@ -512,10 +545,10 @@ function flushFx() {
     const p = pos(f.who); if (!p) continue;
     if (f.cls === 'bul') {
       if (!hp) continue; const at = t; t += gap || 40; shotN++;
-      const k = hp.h / FR.hansong.sh, mx = HERO.frames ? hp.cx + MUZZLE[0] * k : hp.right - 8, my = hp.top + (HERO.frames ? MUZZLE[1] * k : hp.h * .27), ty = p.top + p.h * .4;
+      const A = HERO_ART(), k = hp.h / FRAMES[A.dir].sh, mx = A.frames ? hp.cx + A.muzzle[0] * k : hp.right - 8, my = hp.top + (A.frames ? A.muzzle[1] * k : hp.h * .27), ty = p.top + p.h * .4;
       later(at, () => {
         audio.shot(kind || 'rifle');
-        if (!(HERO.frames && kind === 'rifle')) add('muzzle', mx, my, 120); motion('hero', 'recoil'); /* 步枪的火光帧图里已经画了 */
+        if (!(A.frames && kind === 'rifle')) add('muzzle', mx, my, 120); motion('hero', 'recoil'); /* 步枪的火光帧图里已经画了 */
         const b = add('bullet', mx, my, 400); b.style.setProperty('--dx', (p.cx - mx) + 'px'); b.style.setProperty('--dy', (ty - my) + 'px');
         if (kind !== 'rifle') { const c = add('casing', mx - 40, my + 10, 650); c.style.setProperty('--dx', (-30 - Math.random() * 40) + 'px'); c.style.setProperty('--r', (200 + Math.random() * 400) + 'deg'); }
       });
@@ -543,29 +576,42 @@ function flushFx() {
 function shake(hard) { if (!SET.shake) return; view.classList.remove('shake', 'shake2'); void view.offsetWidth; view.classList.add(hard ? 'shake2' : 'shake'); }
 
 // ---------- 战后 ----------
+/* 奖励池：只出当前角色的牌和通用牌 */
+const poolCards = () => Object.values(CARDS).filter(d => d.rar !== 'basic' && d.rar !== 'loot' && (!d.ch || d.ch === R.char));
 function rollCards(n, elite) {
-  const pool = Object.values(CARDS).filter(d => d.rar !== 'basic' && d.rar !== 'loot'), out = [];
-  while (out.length < n) {
+  const pool = poolCards(), out = [];
+  for (let k = 0; out.length < n && k < 200; k++) {
     const x = Math.random(), rar = x < (elite ? .2 : .08) ? 'r' : x < (elite ? .6 : .42) ? 'u' : 'c';
     const cand = pool.filter(d => d.rar === rar && !out.includes(d.id)); if (!cand.length) continue; out.push(pickOne(cand).id);
   }
   return out.map(id => mk(id));
 }
-function winRewards(kind, en) {
+/* 随身物品：按稀有度抽，只出当前角色能用的、还没有的 */
+const relicPool = rar => Object.values(RELICS).filter(r => r.rar === rar && (!r.ch || r.ch === R.char) && !has(r.id));
+function rollRelic(w = { c: 50, u: 33, r: 17 }) {
+  for (let k = 0; k < 20; k++) { let x = Math.random() * 100, rar = 'c'; for (const [r, p] of Object.entries(w)) { x -= p; if (x <= 0) { rar = r; break; } }
+    const p = relicPool(rar); if (p.length) return pickOne(p).id; }
+  const any = ['c', 'u', 'r'].flatMap(relicPool); return any.length ? pickOne(any).id : null;
+}
+const rollBossRelics = () => { const p = relicPool('boss'); const out = []; while (out.length < 3 && p.length) out.push(p.splice(Math.floor(Math.random() * p.length), 1)[0].id); return out; };
+const rollItem = () => pickOne(Object.keys(ITEMS));
+function winRewards(kind, en, strong) {
   const food = kind === 'elite' ? 2 : 1; R.food += food;
   const list = [];
   for (const e of en) if (!e.fled && e.d.loot && Math.random() < e.d.lootP && !list.includes(e.d.loot)) list.push(e.d.loot);
-  B = null; R.pending = { t: 'loot', list, kind, food, cards: rollCards(3, kind === 'elite') }; save();
+  const relic = kind === 'elite' ? rollRelic() : null, item = Math.random() < (kind === 'elite' ? .5 : .4) ? rollItem() : null;
+  B = null; R.pending = { t: 'loot', list, kind, food, strong, relic, item, cards: rollCards(3, kind === 'elite') }; save();
   lootScreen();
 }
 /* 战利品：先选牌，再逐个处理缴获的武器。进度存在 R.pending 里，刷新页面不会丢也不会重抽 */
 function lootScreen() {
   const P = R.pending;
   if (!P || P.t !== 'loot') return mapScreen();
+  if (P.relic) { gainRelic(P.relic, 1); P.relicShown = P.relic; delete P.relic; } if (P.item) { if (R.items.length < ITEM_SLOTS) R.items.push(P.item); P.itemShown = P.item; delete P.item; } save();
   view.innerHTML = `<div class="bg"></div>${topBar()}`; bindTop();
   if (P.cards) {
-    view.insertAdjacentHTML('beforeend', `<div class="panel loot"><h2>${P.kind === 'elite' ? '打退了讨伐队！' : '战斗胜利'}</h2>
-     <p>缴获口粮 +${P.food || 1}</p><p class="sub">选一张牌加入牌组：</p><div class="row">${P.cards.map((c, i) => cardHTML(c, '', `data-k="${i}"`)).join('')}</div>
+    view.insertAdjacentHTML('beforeend', `<div class="panel loot"><h2>${P.kind === 'elite' ? '打退了精英！' : '战斗胜利'}</h2>
+     <p>缴获口粮 +${P.food || 1}${P.strong ? '　📜 得到一份情报' : ''}</p>${P.relicShown ? `<p class="gain">得到随身物品：${RELICS[P.relicShown].icon} <b>${RELICS[P.relicShown].name}</b>　<small>${RELICS[P.relicShown].desc}</small></p>` : ''}${P.itemShown ? `<p class="gain">缴获背包用品：${ITEMS[P.itemShown].icon} <b>${ITEMS[P.itemShown].name}</b>${R.items.includes(P.itemShown) ? '' : '（背包满了，没拿）'}</p>` : ''}<p class="sub">选一张牌加入牌组：</p><div class="row">${P.cards.map((c, i) => cardHTML(c, '', `data-k="${i}"`)).join('')}</div>
      <button class="btn ghost" id="l_skip">不要牌</button></div>`); bindTop();
     const next = () => { delete P.cards; save(); lootScreen(); };
     view.querySelectorAll('.loot .card').forEach(el => el.onclick = () => { const c = P.cards[+el.dataset.k]; R.deck.push(c); tip('加入牌组：' + CARDS[c.id].name); next(); });
@@ -585,7 +631,7 @@ function offerLoot(id, done) {
 
 // ---------- 密营 ----------
 function restScreen() {
-  R.temp = TEMP_MAX; save(); const heal = Math.floor(R.maxHp * .3);
+  R.temp = TEMP_MAX; save(); const heal = Math.floor(R.maxHp * .3) + rsum('restHeal'); refreshScreen = restScreen;
   view.innerHTML = `<div class="bg rest"></div>${topBar()}<div class="panel"><h2>密营</h2><p>林子深处的地窨子，灶里的火压得很低。体温回满了。</p>
     <div class="col"><button class="btn" id="r_heal">休息：回复 ${heal} 生命</button><button class="btn" id="r_up">擦枪：升级 1 张牌</button></div></div>`;
   bindTop();
@@ -598,29 +644,85 @@ function upgradePick(done) {
   showPile('选一张牌升级', cands, c => { c.up = 1; tip('升级了 ' + CARDS[c.id].name); save(); done(true); }, '升级后的效果可以在牌组里看到');
 }
 
-// ---------- 事件 ----------
+// ---------- 事件（章节文件里的事件池；一局里不重复） ----------
 function eventScreen() {
-  const ev = pickOne(EVENTS);
-  view.innerHTML = `<div class="bg ev"></div>${topBar()}<div class="panel evp"><h2>${ev.title}</h2><p>${ev.text}</p><div class="col">${ev.opts.map((o, i) => `<button class="btn opt" data-o="${i}">${o.t}</button>`).join('')}</div></div>`;
+  const pool = CH().events.filter(e => !(R.seenEv || []).includes(e.id)), ev = pickOne(pool.length ? pool : CH().events);
+  R.seenEv = [...(R.seenEv || []), ev.id]; save(); refreshScreen = () => {};
+  let fightEnc = null; const waits = [];
+  const G = { rng: Math.random, foodN: () => R.food, food: n => { R.food = Math.max(0, R.food + n); }, temp: n => { R.temp = Math.max(0, Math.min(TEMP_MAX, R.temp + n)); },
+    hp: n => { R.hp = Math.min(R.maxHp, R.hp + n); }, heal: n => { R.hp = Math.min(R.maxHp, R.hp + n); }, maxHp: n => { R.maxHp += n; R.hp += n; },
+    upgrade: () => waits.push('up'), removeCard: () => waits.push('rm'), addCard: id => R.deck.push(mk(id)), fight: enc => { fightEnc = enc; },
+    relic: id => gainRelic(id || rollRelic()), item: id => gainItem(id || rollItem()), hasItem: () => R.items.length > 0, loseItem: () => R.items.splice(Math.floor(Math.random() * R.items.length), 1) };
+  const draw = () => {
+    view.innerHTML = `<div class="bg ev"></div>${topBar()}<div class="panel evp"><h2>${ev.title}</h2><p>${ev.text}</p><div class="col">${ev.opts.map((o, i) => { const ok = !o.need || o.need(G); return `<button class="btn opt" data-o="${i}" ${ok ? '' : 'disabled'}>${o.t}${ok ? '' : '（条件不够）'}</button>`; }).join('')}</div></div>`;
+    bindTop();
+    view.querySelectorAll('[data-o]').forEach(b => b.onclick = () => {
+      const msg = ev.opts[+b.dataset.o].f(G); save();
+      const after = () => { if (R.hp <= 0) { R.hp = 0; return endScreen(false, `倒在了${CH().name}里`); } if (fightEnc) { R.pending = { t: 'fight', enc: fightEnc }; save(); return battle(fightEnc, 'fight'); } mapScreen(); };
+      const cont = () => { const w = waits.shift(); if (w === 'up') return upgradePick(() => cont()); if (w === 'rm') return removePick(() => cont()); after(); };
+      if (msg) { view.querySelector('.evp').innerHTML = `<h2>${ev.title}</h2><p>${msg}</p><button class="btn" id="ev_ok">继续</button>`; bindTop(); $('#ev_ok').onclick = cont; } else cont();
+    });
+  };
+  refreshScreen = draw; draw();
+}
+function removePick(done) {
+  if (R.deck.length <= 5) { tip('牌组太少了'); return done(false); }
+  showPile('选一张牌去掉', R.deck, c => { R.deck.splice(R.deck.indexOf(c), 1); tip('去掉了 ' + CARDS[c.id].name); save(); done(true); });
+}
+
+// ---------- 老乡（代替商店）：用口粮换东西 ----------
+function shopScreen() {
+  const P = R.pending;
+  if (!P.stock) { P.stock = { cards: rollCards(3).map(c => ({ c, price: 2 })), item: { id: rollItem(), price: 2 }, relic: { id: rollRelic({ c: 40, u: 40, r: 20 }), price: 5 }, remove: 3 }; save(); }
+  const S = P.stock; refreshScreen = shopScreen;
+  const pr = (n, sold) => sold ? '<span class="price no">已换</span>' : `<span class="price ${R.food < n ? 'no' : ''}">🍞 ${n}</span>`;
+  view.innerHTML = `<div class="bg rest"></div>${topBar()}<div class="panel shop wide"><h2>老乡</h2><p>一个赶爬犁的老乡在林边歇脚。他不要钱，只想换点吃的。</p>
+    <div class="row">${S.cards.map((x, i) => `<div class="shopitem ${x.sold ? 'sold' : ''}" data-buy="c${i}">${cardHTML(x.c)}${pr(x.price, x.sold)}</div>`).join('')}
+      ${S.item.id ? `<div class="shopitem rel ${S.item.sold ? 'sold' : ''}" data-buy="item"><b class="big">${ITEMS[S.item.id].icon}</b><b>${ITEMS[S.item.id].name}</b><small>${ITEMS[S.item.id].desc}</small>${pr(S.item.price, S.item.sold)}</div>` : ''}
+      ${S.relic.id ? `<div class="shopitem rel ${S.relic.sold ? 'sold' : ''}" data-buy="relic"><b class="big">${RELICS[S.relic.id].icon}</b><b>${RELICS[S.relic.id].name}</b><small>${RELICS[S.relic.id].desc}</small>${pr(S.relic.price, S.relic.sold)}</div>` : ''}
+      <div class="shopitem rel ${S.removed ? 'sold' : ''}" data-buy="rm"><b class="big">✂</b><b>去掉一张牌</b><small>让牌组更精简</small>${pr(S.remove, S.removed)}</div></div>
+    <button class="btn" id="s_leave">道个谢，继续赶路</button></div>`;
   bindTop();
-  view.querySelectorAll('[data-o]').forEach(b => b.onclick = () => {
-    let fightEnc = null, wait = null;
-    const G = { rng: Math.random, food: n => { R.food = Math.max(0, R.food + n); }, temp: n => { R.temp = Math.max(0, Math.min(TEMP_MAX, R.temp + n)); },
-      hp: n => { R.hp = Math.min(R.maxHp, R.hp + n); }, heal: n => { R.hp = Math.min(R.maxHp, R.hp + n); }, maxHp: n => { R.maxHp += n; R.hp += n; },
-      upgrade: () => { wait = 'up'; }, addCard: id => R.deck.push(mk(id)), fight: enc => { fightEnc = enc; } };
-    const msg = ev.opts[+b.dataset.o].f(G); save();
-    const after = () => { if (R.hp <= 0) { R.hp = 0; return endScreen(false, '倒在了林海雪原里'); } if (fightEnc) { R.pending = { t: 'fight', enc: fightEnc }; save(); return battle(fightEnc, 'fight'); } mapScreen(); };
-    const cont = () => { if (wait === 'up') return upgradePick(() => after()); after(); };
-    if (msg) { view.querySelector('.evp').innerHTML = `<h2>${ev.title}</h2><p>${msg}</p><button class="btn" id="ev_ok">继续</button>`; bindTop(); $('#ev_ok').onclick = cont; } else cont();
+  const pay = n => { if (R.food < n) { tip('口粮不够'); return false; } R.food -= n; return true; };
+  view.querySelectorAll('[data-buy]').forEach(el => el.onclick = () => {
+    const k = el.dataset.buy;
+    if (k[0] === 'c') { const x = S.cards[+k.slice(1)]; if (x.sold || !pay(x.price)) return; x.sold = 1; R.deck.push(x.c); tip('加入牌组：' + CARDS[x.c.id].name); }
+    else if (k === 'item') { if (S.item.sold || R.items.length >= ITEM_SLOTS && (tip('背包满了'), 1) || !pay(S.item.price)) return; S.item.sold = 1; R.items.push(S.item.id); }
+    else if (k === 'relic') { if (S.relic.sold || !pay(S.relic.price)) return; S.relic.sold = 1; gainRelic(S.relic.id); }
+    else if (k === 'rm') { if (S.removed || R.food < S.remove) { if (!S.removed) tip('口粮不够'); return; } return removePick(ok => { if (ok) { R.food -= S.remove; S.removed = 1; } save(); shopScreen(); }); }
+    save(); shopScreen();
   });
+  $('#s_leave').onclick = mapScreen;
+}
+
+// ---------- 物资埋藏点（代替宝箱） ----------
+function treasureScreen() {
+  const P = R.pending; if (!P.relic && !P.taken) { P.relic = rollRelic(); save(); } refreshScreen = treasureScreen;
+  const r = RELICS[P.relic];
+  view.innerHTML = `<div class="bg rest"></div>${topBar()}<div class="panel wide"><h2>物资埋藏点</h2><p>树上刻着约好的记号。扒开积雪，底下埋着一个油布包。</p>
+    ${r ? `<div class="relicbig"><b class="big">${r.icon}</b><b>${r.name}</b><p>${r.desc}</p></div><br><button class="btn" id="tr_take">收下</button>` : '<p class="sub">里面是空的。</p><button class="btn" id="tr_take">继续</button>'}</div>`;
+  bindTop();
+  $('#tr_take').onclick = () => { if (r) gainRelic(P.relic); P.taken = 1; mapScreen(); };
+}
+
+// ---------- Boss 物品三选一（第二章开始才派得上用场） ----------
+function bossRelicScreen() {
+  const P = R.pending, opts = (P.opts || []).filter(id => RELICS[id]);
+  const finish = () => { const C = CH(); R.cleared = C.id; clearSave(); campaign(C.id, () => endScreen(true), C.winText); }; /* 第二章做好后：这里 R.act++ 并重新生成地图 */
+  if (!opts.length) return finish();
+  view.innerHTML = `<div class="bg rest"></div>${topBar()}<div class="panel wide"><h2>缴获讨伐队的东西</h2><p class="sub">选一件带走（Boss 物品，下一章开始生效）</p>
+    <div class="row">${opts.map(id => `<div class="relicbig pick" data-r="${id}"><b class="big">${RELICS[id].icon}</b><b>${RELICS[id].name}</b><p>${RELICS[id].desc}</p></div>`).join('')}</div><button class="btn ghost" id="br_skip">都不要</button></div>`;
+  bindTop();
+  view.querySelectorAll('[data-r]').forEach(el => el.onclick = () => { gainRelic(el.dataset.r); finish(); });
+  $('#br_skip').onclick = finish;
 }
 
 // ---------- 结束 ----------
 function endScreen(win, how = '') {
-  B = null; if (!win) clearSave(); else clearSave();
-  view.innerHTML = `<div class="tbg dark"></div><div class="endw"><div class="ribbon ${win ? 'win' : ''}">${win ? '第一章 完' : '阵亡'}</div>
-   <p class="endsub">${win ? '村濑的装甲车歪在雪沟里冒着黑烟。小分队没有停留，连夜向南——前面是新京城。' : `韩松${how}。`}</p>
-   <table class="score"><tr><td>到达层数</td><td>${Math.max(1, R.floor)}</td></tr><tr><td>击倒敌人</td><td>${R.kills || 0}</td></tr><tr><td>牌组</td><td>${R.deck.length} 张</td></tr></table>
+  B = null; clearSave(); const C = CH();
+  view.innerHTML = `<div class="tbg dark"></div><div class="endw"><div class="ribbon ${win ? 'win' : ''}">${win ? `第${'一二三'[C.id - 1] || C.id}章 完` : '阵亡'}</div>
+   <p class="endsub">${win ? C.winText : `${CHR().name}${how}。`}</p>
+   <table class="score"><tr><td>到达层数</td><td>${Math.max(1, R.floor)}</td></tr><tr><td>击倒敌人</td><td>${R.kills || 0}</td></tr><tr><td>牌组</td><td>${R.deck.length} 张</td></tr><tr><td>随身物品</td><td>${R.relics.length} 件</td></tr><tr><td>情报</td><td>${R.intel || 0}/3</td></tr></table>
    ${win ? '<p class="endsub small">最小可玩版到此结束。谢谢试玩！</p>' : ''}<button class="btn big" id="e_t">回到标题</button></div>`;
   $('#e_t').onclick = () => { R = null; title(); };
 }
@@ -629,7 +731,8 @@ function endScreen(win, how = '') {
 addEventListener('keydown', e => {
   if (!B || B.over || document.querySelector('.overlay') || !$('#hand')) return;
   if (e.key === 'e' || e.key === 'E') endTurn();
-  else if (e.key === 'r' || e.key === 'R') doReload();
+  else { const a = E.actions(B).find(x => x.key && x.key.toLowerCase() === e.key.toLowerCase()); if (a) doAct(a.id); }
+  if (e.key === 'r' || e.key === 'R') return;
   else if (e.key === 'Escape') { B.sel = -1; render(); }
   else if (/^[1-9]$/.test(e.key)) { const i = +e.key - 1; if (i < B.hand.length) clickCard(i); }
   else if ((e.key === 'ArrowLeft' || e.key === 'ArrowRight') && B.sel >= 0) { const a = E.alive(B); B.aimI = ((B.aimI || 0) + (e.key === 'ArrowRight' ? 1 : -1) + a.length) % a.length; aimMark(a[B.aimI].id); e.preventDefault(); }
@@ -639,9 +742,9 @@ addEventListener('keydown', e => {
 // ---------- 调试面板（?debug） ----------
 function dbgPanel() {
   if (!DEBUG) return; $('#dbg')?.remove(); const d = document.createElement('div'); d.id = 'dbg';
-  const btns = B && !B.over ? [['胜利', () => { E.alive(B).forEach(e => { e.hp = 0; e.dead = 1; e.deadAt = Date.now(); }); render(); checkEnd(); }], ['满弹', () => { B.ammo = B.cap; render(); }], ['清空弹仓', () => { B.ammo = 0; render(); }], ['枪感满', () => { B.p.feel = FEEL_MAX; render(); }],
+  const btns = B && !B.over ? [['胜利', () => { E.alive(B).forEach(e => { e.hp = 0; e.dead = 1; e.deadAt = Date.now(); }); render(); checkEnd(); }], ...(B.mech.dbg || []).map(([t, f]) => [t, () => { f(B); render(); }]),
     ['+能量', () => { B.p.energy += 3; render(); }], ['抽牌', () => { E.drawCards(B, 3); render(); }], ['给牌', () => showPile('给一张牌（加入手牌）', Object.keys(CARDS).map(id => ({ id, up: 0, uid: uidN++ })), c => { B.hand.push(c); render(); })], ['满血', () => { R.hp = R.maxHp; render(); }]]
-    : R ? [['去Boss', () => { R.pos = { r: ROWSOF() - 1, c: R.map[ROWSOF() - 1].findIndex(Boolean) }; mapScreen(); }], ['满血', () => { R.hp = R.maxHp; mapScreen(); }], ['口粮+5', () => { R.food += 5; mapScreen(); }], ['体温0', () => { R.temp = 0; mapScreen(); }], ['精英战', () => { R.pending = { t: 'elite', enc: ENC.elite[0] }; battle(ENC.elite[0], 'elite'); }], ['犬机狙', () => battle(['dog', 'mg', 'sniper'], 'fight')], ['伪掷步', () => battle(['puppet', 'mortar', 'puppet'], 'fight')], ['Boss战', () => { R.pending = { t: 'boss', enc: ENC.boss[0] }; battle(ENC.boss[0], 'boss'); }], ['缴获波波沙', () => offerLoot('c_ppsh', mapScreen)]] : [];
+    : R ? [['去Boss', () => { R.pos = { r: ROWSOF() - 1, c: R.map[ROWSOF() - 1].findIndex(Boolean) }; mapScreen(); }], ['满血', () => { R.hp = R.maxHp; mapScreen(); }], ['口粮+5', () => { R.food += 5; mapScreen(); }], ['体温0', () => { R.temp = 0; mapScreen(); }], ['精英战', () => { const enc = pickOne(CH().enc.elite); R.pending = { t: 'elite', enc }; battle(enc, 'elite'); }], ['加强精英', () => { const enc = pickOne(CH().enc.elite); R.pending = { t: 'elite', enc, strong: true }; battle(enc, 'elite', true); }], ['犬机狙', () => battle(['dog', 'mg', 'sniper'], 'fight')], ['Boss战', () => { bossKey(); R.pending = { t: 'boss', enc: R.bossEnc }; battle(R.bossEnc, 'boss'); }], ['换Boss', () => { R.boss = null; bossKey(); mapScreen(); }], ['老乡', () => enterNode('shop')], ['埋藏点', () => enterNode('treasure')], ['事件', () => enterNode('event')], ['给物品', () => { R.relics.push(...Object.keys(RELICS).filter(id => !has(id) && RELICS[id].rar !== 'boss' && (!RELICS[id].ch || RELICS[id].ch === R.char)).slice(0, 4)); mapScreen(); }], ['给背包', () => { R.items = Object.keys(ITEMS).slice(0, ITEM_SLOTS); mapScreen(); }]] : [];
   btns.forEach(([t, f]) => { const b = document.createElement('button'); b.textContent = t; b.onclick = ev => { ev.stopPropagation(); f(); }; d.appendChild(b); });
   if (btns.length) stage.appendChild(d);
 }

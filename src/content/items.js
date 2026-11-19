@@ -1,0 +1,15 @@
+// 背包用品（相当于通往顶端的药水）：一次性，格子有限。
+// battle(G)：战斗中使用的效果；map(R, M)：地图上使用的效果（M 提供 heal、food、temp）。只写了哪个就只能在哪用。
+// 史实：都是当时东北山林里真实会有的东西
+export const ITEM_SLOTS = 3;
+export const ITEMS = {
+  grenade: { name: '手榴弹', icon: '💣', desc: '对所有敌人造成 10 伤害。', battle: G => G.alive().forEach(e => G.melee(e, 10)) },
+  shaodaozi: { name: '烧刀子', icon: '🍶', desc: '东北的高粱烧酒。回复 8 生命，体温 +2。', battle: G => { G.heal(8); G.temp(2); }, map: (R, M) => { M.heal(8); M.temp(2); } },
+  medkit: { name: '急救包', icon: '🩹', desc: '回复 15 生命。', battle: G => G.heal(15), map: (R, M) => M.heal(15) },
+  smoke: { name: '烟幕弹', icon: '💨', desc: '获得 12 格挡。', battle: G => G.block(12) },
+  beef: { name: '缴获的牛肉罐头', icon: '🥫', desc: '战斗中：回复 5 生命。地图上：口粮 +3。', battle: G => G.heal(5), map: (R, M) => M.food(3) },
+  badger: { name: '獾子油', icon: '🫙', desc: '东北民间治冻伤的土方。体温回满。', map: (R, M) => M.temp(99) },
+  flaregun: { name: '缴获的信号枪', icon: '🎆', desc: '给所有敌人 2 层虚弱。', battle: G => G.alive().forEach(e => G.weak(e, 2)) },
+  soybeans: { name: '炒黄豆', icon: '🫘', desc: '获得 2 点能量。', battle: G => G.energy(2) },
+};
+Object.entries(ITEMS).forEach(([k, d]) => { d.id = k; });
