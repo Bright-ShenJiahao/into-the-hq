@@ -120,7 +120,7 @@ export const SCH = { 狙: '狙击', 冲: '冲锋枪', 手: '手枪', 通: '通�
 // 招式：i 意图类型 atk/def/buff/debuff/charge/flee；d 伤害，x 次数，blk 格挡，str 力量（给自己），all 力量给全体友军，weak/vuln 给你
 const pick = (r, a) => a[Math.floor(r() * a.length)];
 export const ENEMIES = {
-  inf: { name: '日军步兵', hp: [22, 26], col: '#6d6a3c', art: 'inf', artH: 240, 
+  inf: { name: '日军步兵', hp: [22, 26], col: '#6d6a3c', art: 'inf', frames: 'inf', artH: 240, 
     moves: { shoot: { t: '射击', i: 'atk', d: 8 }, stab: { t: '刺杀', i: 'atk', d: 6, blk: 5 } },
     ai: (e, B, r) => e.last === 'stab' ? 'shoot' : r() < .55 ? 'shoot' : 'stab' },
   puppet: { name: '伪满军', hp: [14, 18], col: '#7a5a3a', 

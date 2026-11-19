@@ -234,8 +234,16 @@ function enterNode(t) {
    帧图还没画好时，用 assets/units/ 下的单张图 + 代码呼吸动作顶替 */
 const HA = { idle: [4, 200, 1], shoot: [4, 75, 0], hurt: [2, 130, 0], down: [3, 220, 2], stab: [2, 140, 0] };
 const EA = { idle: [2, 480, 1], atk: [2, 210, 0], hurt: [1, 320, 0], down: [2, 260, 2] };
-const HERO = { dir: 'hansong', frames: false, still: 'hansong' }; /* 帧图到位后把 frames 改成 true */
+const HERO = { dir: 'hansong', frames: true, still: 'hansong' }; /* 帧图到位后把 frames 改成 true */
+/* 每套帧图切好后的画布信息：cw/ch 画布宽高，ax 脚底锚点 x，sw/sh 站立时人物宽高（切图脚本自动算出） */
+const FR = { hansong: { cw: 389, ch: 291, ax: 205, sw: 182, sh: 287 }, inf: { cw: 462, ch: 404, ax: 195, sw: 359, sh: 402 } };
+/* 帧图放进固定大小的框：框按站立姿势定大小，脚底锚点对准框的中线；倒地、前冲等超出部分露在框外 */
+function frameBox(key, dispH, src, cls, alt) {
+  const m = FR[key], k = dispH / m.sh;
+  return `<div class="sprw" style="width:${Math.round(m.sw * k)}px;height:${dispH}px"><img class="spr art ${cls}" src="${src}" alt="${alt}" draggable="false" style="position:absolute;left:${Math.round((m.sw / 2 - m.ax) * k)}px;bottom:0;height:${Math.round(m.ch * k)}px;max-width:none"><i class="shd"></i></div>`;
+}
 const SHOTKIND = { 狙: 'rifle', 冲: 'smg', 手: 'pistol' };
+const MUZZLE = [128, 62]; /* 韩松枪口相对脚底锚点的位置（原图像素） */
 let hst = { n: 'idle', t: 0 };
 function heroAct(n) { if (hst.n === 'down') return; hst = { n, t: performance.now() }; }
 function frameOf(tab, st, reset) { const [c, ms, mode] = tab[st.n] || tab.idle; let k = Math.floor((performance.now() - st.t) / ms); if (k >= c) { if (mode === 1) k %= c; else if (mode === 2) k = c - 1; else { reset(); return [ 'idle', Math.floor(performance.now() / tab.idle[1]) % tab.idle[0] ]; } } return [st.n in tab ? st.n : 'idle', k]; }
@@ -243,6 +251,8 @@ function heroSrc() { if (!HERO.frames) return `assets/units/${HERO.still}.png`; 
 function enemySrc(e) { if (!e.d.frames) return `assets/units/${e.d.art}.png`; const st = e.anim || { n: e.dead ? 'down' : 'idle', t: 0 }; if (e.dead && st.n !== 'down') { e.anim = { n: 'down', t: performance.now() }; } const [n, k] = frameOf(EA, e.anim || st, () => { e.anim = null; }); return `assets/enemies/${e.d.frames}/${n}${k}.png`; }
 function epose(e, n) { e.anim = { n, t: performance.now() }; }
 const pose = (n) => heroAct(n);
+/* 预加载所有帧，第一次播放时不闪 */
+const PRE = []; [['hansong', HA], ['enemies/inf', EA]].forEach(([dir, tab]) => Object.entries(tab).forEach(([n, [c]]) => { for (let k = 0; k < c; k++) { const im = new Image(); im.src = `assets/${dir}/${n}${k}.png`; PRE.push(im); } }));
 /* 和旧游戏一样，每 80 毫秒刷新一次帧 */
 let lastT = 0;
 (function loop(t) { requestAnimationFrame(loop); if (!B || t - lastT < 80) return; lastT = t;
@@ -265,7 +275,7 @@ function enemyHTML(e) {
   const label = e.key === 'captain' ? (e.phase === 2 ? '村濑' : '装甲车') : d.name;
   return `<div class="unit enemy ${tg ? 'tg' : ''} ${e.dead ? 'dead' : ''} ${d.frames ? '' : 'noanim'}" data-eid="${e.id}">
     <div class="intent">${it ? `<i class="ii ii-${it.i}">${ICON[it.i]}</i>${it.text}<small>${it.name}</small>` : ''}</div>
-    <div class="sprw">${d.art ? `<img class="spr art ${d.frames ? '' : 'still'}" src="${enemySrc(e)}" style="height:${d.artH}px" alt="${d.name}" draggable="false">` : `<div class="spr blk ${d.boss ? 'bossb' : ''}" style="width:${w}px;height:${h}px;background:${d.col}">${label}</div>`}<i class="shd"></i></div>
+    ${d.frames ? frameBox(d.frames, d.artH, enemySrc(e), '', d.name) : `<div class="sprw">${d.art ? `<img class="spr art still" src="${enemySrc(e)}" style="height:${d.artH}px" alt="${d.name}" draggable="false">` : `<div class="spr blk ${d.boss ? 'bossb' : ''}" style="width:${w}px;height:${h}px;background:${d.col}">${label}</div>`}<i class="shd"></i></div>`}
     ${barHTML(e.hp, e.max, e.block)}<div class="badges">${e.armor ? `<b class="arm" data-k="装甲">🛡 装甲 ${e.armor}</b>` : ''}${e.marks ? `<b class="mark" data-k="标尺">🎯 标尺 ${e.marks}</b>` : ''}${stsHTML(e.st)}</div>
     <div class="uname">${d.name}</div></div>`;
 }
@@ -301,7 +311,7 @@ function render() {
   }).join('');
   const inc = E.incoming(B);
   view.innerHTML = `<div class="bg battle"></div>${topBar()}
-   <div id="hero" class="unit" data-eid="hero"><div class="intent"></div><div class="sprw"><img class="spr art ${HERO.frames ? '' : 'still'}" src="${heroSrc()}" style="height:${TOUCH ? 235 : 250}px" alt="韩松" draggable="false"><i class="shd"></i></div>
+   <div id="hero" class="unit" data-eid="hero"><div class="intent"></div>${HERO.frames ? frameBox('hansong', TOUCH ? 235 : 250, heroSrc(), '', '韩松') : `<div class="sprw"><img class="spr art still" src="${heroSrc()}" style="height:${TOUCH ? 235 : 250}px" alt="韩松" draggable="false"><i class="shd"></i></div>`}
     ${barHTML(R.hp, R.maxHp, B.p.block)}${ammoHTML()}${inc ? `<div class="inc ${inc > B.p.block ? 'low' : 'ok'}">受到 ${Math.max(0, inc - B.p.block)}</div>` : ''}</div>
    <div id="enemies">${B.en.filter(e => !(e.dead && Date.now() - e.deadAt > 1400)).map(enemyHTML).join('')}</div>
    <div id="energy" class="${B.p.energy ? '' : 'empty'}">${B.p.energy}/${E.ENERGY}</div>
@@ -334,7 +344,7 @@ function kwShow(el) {
 }
 function kwHide() { $('#kwbox')?.remove(); }
 /* 敌人一排太宽、会挤到韩松身上时，整排按比例缩小 */
-function fitEnemies() { const row = $('#enemies'), hero = $('#hero .spr'); if (!row || !hero) return; row.style.transform = '';
+function fitEnemies() { const row = $('#enemies'), hero = $('#hero .sprw'); if (!row || !hero) return; row.style.transform = '';
   const s = stage._s || 1, rr = row.getBoundingClientRect(), hr = hero.getBoundingClientRect(), room = (rr.right - hr.right) / s - 40, w = rr.width / s;
   if (w > room && room > 80) { row.style.transformOrigin = 'right bottom'; row.style.transform = `scale(${Math.max(.6, room / w)})`; } }
 /* 电脑：点一下打出（要选目标的牌先点牌再点敌人）。手机：点一下放大看牌，拖上去才打出（防误触） */
@@ -446,7 +456,7 @@ addEventListener('pointercancel', () => { if (DR) { DR = null; $('#aimline')?.re
 // ---------- 打击感：子弹、枪口火光、弹壳、伤害数字、重击停顿、震屏 ----------
 function flushFx() {
   const s = stage._s || 1, sr = stage.getBoundingClientRect(), count = {};
-  const pos = who => { const el = view.querySelector(`[data-eid="${who}"] .spr`); if (!el) return null; const r = el.getBoundingClientRect(); return { cx: (r.left + r.width / 2 - sr.left) / s, top: (r.top - sr.top) / s, h: r.height / s, right: (r.right - sr.left) / s }; };
+  const pos = who => { const el = view.querySelector(`[data-eid="${who}"] .sprw`); if (!el) return null; const r = el.getBoundingClientRect(); return { cx: (r.left + r.width / 2 - sr.left) / s, top: (r.top - sr.top) / s, h: r.height / s, right: (r.right - sr.left) / s }; };
   const later = (ms, f) => ms > 0 ? setTimeout(f, ms) : f();
   const add = (cls, x, y, ms, css = '') => { const d = document.createElement('div'); d.className = cls; d.style.cssText = `left:${x}px;top:${y}px;${css}`; fxl.appendChild(d); setTimeout(() => d.remove(), ms); return d; };
   const kind = B.shotKind, gap = kind === 'smg' ? 85 : kind === 'pistol' ? 110 : 0;
@@ -456,10 +466,10 @@ function flushFx() {
     const p = pos(f.who); if (!p) continue;
     if (f.cls === 'bul') {
       if (!hp) continue; const at = t; t += gap || 40; shotN++;
-      const mx = hp.right - 8, my = hp.top + hp.h * .27, ty = p.top + p.h * .4;
+      const k = hp.h / FR.hansong.sh, mx = HERO.frames ? hp.cx + MUZZLE[0] * k : hp.right - 8, my = hp.top + (HERO.frames ? MUZZLE[1] * k : hp.h * .27), ty = p.top + p.h * .4;
       later(at, () => {
         audio.shot(kind || 'rifle');
-        add('muzzle', mx, my, 120); motion('hero', 'recoil');
+        if (!(HERO.frames && kind === 'rifle')) add('muzzle', mx, my, 120); motion('hero', 'recoil'); /* 步枪的火光帧图里已经画了 */
         const b = add('bullet', mx, my, 400); b.style.setProperty('--dx', (p.cx - mx) + 'px'); b.style.setProperty('--dy', (ty - my) + 'px');
         if (kind !== 'rifle') { const c = add('casing', mx - 40, my + 10, 650); c.style.setProperty('--dx', (-30 - Math.random() * 40) + 'px'); c.style.setProperty('--r', (200 + Math.random() * 400) + 'deg'); }
       });
