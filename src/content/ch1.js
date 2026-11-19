@@ -33,13 +33,13 @@ export const ENEMIES_CH1 = {
     ammo: 2, ai: (e, B, r) => e.phase === 2 ? (e.last === 'roar' ? 'saber' : e.t % 3 === 0 ? 'roar' : pick(r, ['saber', 'pistol'])) : e.last === 'mgun' ? 'ram' : 'mgun',
     onHurt: (e, G) => { if (e.phase !== 2 && e.hp <= e.max / 2) { e.phase = 2; e.armor = 0; e.block = 0; e.t = 0; e.move = 'roar'; e.anim = null; e.ammo = null; /* 下车后只用军刀和手枪，不再显示弹仓 */ G.say('装甲车被打瘫了！村濑跳下车，拔出军刀。'); G.fx(e.id, '装甲车瘫痪', 'st'); } } },
   // —— 新精英 / 新 Boss（美术还没画，先用色块） ——
-  hmg: { name: '九二式重机枪阵地', hp: [58, 62], col: '#3e4636', elite: 1, armor: 4, ammo: 1,
+  hmg: { name: '九二式重机枪阵地', hp: [58, 62], col: '#3e4636', frames: 'hmg', artH: 150, elite: 1, armor: 4, ammo: 1,
     moves: { fire: { t: '连射', i: 'atk', d: 5, x: 4, shot: 1 }, reload: { t: '压弹板', i: 'reload', blk: 12 } },
     ai: () => 'fire' },
-  pcap: { name: '伪满警察讨伐队长', hp: [46, 50], col: '#5a4a2a', elite: 1, ammo: 2,
+  pcap: { name: '伪满警察讨伐队长', hp: [46, 50], col: '#5a4a2a', frames: 'pcap', artH: 250, elite: 1, ammo: 2,
     moves: { bounty: { t: '贴悬赏告示', i: 'debuff', vuln: 2 }, shoot: { t: '驳壳枪连射', i: 'atk', d: 6, x: 2, shot: 1 }, call: { t: '吹哨叫人', i: 'buff', summon: 'puppet', blk: 8 }, reload: { t: '压子弹', i: 'reload', blk: 6 } },
     ai: (e, B) => e.t === 0 ? 'bounty' : (B.en.filter(x => !x.dead && x !== e).length < 2 && e.last !== 'call') ? 'call' : 'shoot' },
-  kcap: { name: '宪兵分队长 · 柏木', hp: [140, 140], col: '#3a2a2a', boss: 1, ammo: 2,
+  kcap: { name: '宪兵分队长 · 柏木', hp: [140, 140], col: '#3a2a2a', frames: 'kcap', artH: 280, boss: 1, ammo: 2,
     moves: { flare: { t: '打信号弹', i: 'debuff', weak: 2, allBlk: 6 }, dogs: { t: '放狗', i: 'buff', summon: 'dog', blk: 10 }, pistol: { t: '南部手枪', i: 'atk', d: 6, x: 2, shot: 1 }, saber: { t: '军刀劈砍', i: 'atk', d: 16 }, reload: { t: '压子弹', i: 'reload', blk: 8 } },
     ai: (e, B) => e.t === 0 ? 'flare' : (B.en.filter(x => !x.dead && x.key === 'dog').length < 2 && e.last !== 'dogs') ? 'dogs' : e.last === 'pistol' ? 'saber' : 'pistol' },
 };
@@ -49,9 +49,10 @@ Object.entries(ENEMIES_CH1).forEach(([k, d]) => { d.key = k; });
 export const FRAMES_CH1 = { inf: { cw: 462, ch: 404, ax: 195, sw: 359, sh: 402 },
   puppet: { cw: 555, ch: 396, ax: 278, sw: 274, sh: 394 }, dog: { cw: 635, ch: 211, ax: 360, sw: 384, sh: 153 }, mortar: { cw: 498, ch: 317, ax: 215, sw: 309, sh: 315 },
   mg: { cw: 521, ch: 216, ax: 271, sw: 393, sh: 206 }, sniper: { cw: 504, ch: 341, ax: 232, sw: 368, sh: 299 }, sergeant: { cw: 440, ch: 382, ax: 154, sw: 240, sh: 380 },
-  captain_car: { cw: 312, ch: 222, ax: 149, sw: 281, sh: 208 }, captain_foot: { cw: 426, ch: 264, ax: 147, sw: 185, sh: 249 } };
+  captain_car: { cw: 312, ch: 222, ax: 149, sw: 281, sh: 208 }, captain_foot: { cw: 426, ch: 264, ax: 147, sw: 185, sh: 249 },
+  hmg: { cw: 433, ch: 230, ax: 179, sw: 424, sh: 228 }, pcap: { cw: 580, ch: 387, ax: 172, sw: 178, sh: 385 }, kcap: { cw: 440, ch: 389, ax: 212, sw: 118, sh: 387 } };
 /* 色块占位时的大小（还没出图的敌人） */
-export const BLOCK_SIZE_CH1 = { hmg: [170, 120], pcap: [110, 175], kcap: [115, 185] };
+export const BLOCK_SIZE_CH1 = {};
 
 /* 遭遇池：前 3 场普通战斗用 easy，之后用 hard（同通往顶端） */
 export const ENC_CH1 = {
