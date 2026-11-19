@@ -1,4 +1,4 @@
-// 《深入日军总部》界面和流程。规则在 engine.js；内容（角色、章节、物品）在 content/，由 data.js 汇总。
+// 《长夜将尽》界面和流程。规则在 engine.js；内容（角色、章节、物品）在 content/，由 data.js 汇总。
 import { CARDS, ENEMIES, CHARS, CHAPTERS, RELICS, ITEMS, ITEM_SLOTS, FRAMES, BLOCK_SIZE, KW, TYPE, RAR, SCH, BAYONET, SAVE_VERSION } from './data.js';
 import * as E from './engine.js';
 import { createAudio } from './audio.js';
@@ -211,7 +211,7 @@ function rules() {
 // ---------- 标题 ----------
 function title() {
   B = null; const s = load();
-  view.innerHTML = `<div class="tbg pic"></div><div class="tlogo"><h1>深入日军总部</h1><p class="en">INTO THE HQ</p><p class="en2">最小可玩版 · 第一章 林海雪原</p></div>
+  view.innerHTML = `<div class="tbg pic"></div><div class="tlogo"><h1>长夜将尽</h1><p class="sub">— 深入关东军司令部 —</p><p class="en">BEFORE THE DAWN · INTO THE KWANTUNG HQ</p><p class="en2">最小可玩版 · 第一章 林海雪原</p></div>
    <div class="mmenu">${s ? `<button class="btn mm" id="t_cont">继续<small>第 ${Math.max(1, s.floor)} 层 · 生命 ${s.hp}/${s.maxHp}</small></button>` : ''}
    <button class="btn mm" id="t_new">新的一局<small>${CHARS.hansong.title} · ${CHARS.hansong.name}（${CHARS.hansong.code}）</small></button><button class="btn mm sm2" id="t_rule">规则</button></div>
    <p class="tnote">本作为虚构故事，人物均为虚构。美术为色块占位。</p>`;
