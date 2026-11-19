@@ -149,7 +149,7 @@ function rules() {
 // ---------- 标题 ----------
 function title() {
   B = null; const s = load();
-  view.innerHTML = `<div class="tbg"></div><div class="tlogo"><h1>深入日军总部</h1><p class="en">INTO THE HQ</p><p class="en2">最小可玩版 · 第一章 林海雪原</p></div>
+  view.innerHTML = `<div class="tbg pic"></div><div class="tlogo"><h1>深入日军总部</h1><p class="en">INTO THE HQ</p><p class="en2">最小可玩版 · 第一章 林海雪原</p></div>
    <div class="mmenu">${s ? `<button class="btn mm" id="t_cont">继续<small>第 ${Math.max(1, s.floor)} 层 · 生命 ${s.hp}/${s.maxHp}</small></button>` : ''}
    <button class="btn mm" id="t_new">新的一局<small>神枪手 · 韩松（雪貂）</small></button><button class="btn mm sm2" id="t_rule">规则</button></div>
    <p class="tnote">本作为虚构故事，人物均为虚构。美术为色块占位。</p>`;
@@ -230,7 +230,7 @@ function enemyHTML(e) {
   const label = e.key === 'captain' ? (e.phase === 2 ? '村濑' : '装甲车') : d.name;
   return `<div class="unit enemy ${tg ? 'tg' : ''} ${e.dead ? 'dead' : ''}" data-eid="${e.id}">
     <div class="intent">${it ? `${ICON[it.i]} ${it.text}<small>${it.name}</small>` : ''}</div>
-    <div class="sprw"><div class="spr blk ${d.boss ? 'bossb' : ''}" style="width:${w}px;height:${h}px;background:${d.col}">${label}</div><i class="shd"></i></div>
+    <div class="sprw">${d.art ? `<img class="spr art" src="assets/units/${d.art}.png" style="height:${d.artH}px" alt="${d.name}">` : `<div class="spr blk ${d.boss ? 'bossb' : ''}" style="width:${w}px;height:${h}px;background:${d.col}">${label}</div>`}<i class="shd"></i></div>
     ${barHTML(e.hp, e.max, e.block)}<div class="badges">${e.armor ? `<b class="arm" data-k="装甲">🛡 装甲 ${e.armor}</b>` : ''}${e.marks ? `<b class="mark" data-k="标尺">🎯 标尺 ${e.marks}</b>` : ''}${stsHTML(e.st)}</div>
     <div class="uname">${d.name}</div></div>`;
 }
@@ -257,8 +257,8 @@ function render() {
     return cardHTML(c, `inhand ${sel ? 'sel' : ''} ${off ? 'off' : ''}`, `data-i="${i}" style="left:${x0 + i * gap}px;transform:translateY(${dy}px) rotate(${rot}deg)${sel ? ' scale(' + (TOUCH ? 1.35 : 1.3) + ')' : ''};z-index:${sel ? 90 : i + 1}"`);
   }).join('');
   const inc = E.incoming(B), selC = B.sel >= 0 ? B.hand[B.sel] : null;
-  view.innerHTML = `<div class="bg"></div>${topBar()}
-   <div id="hero" class="unit" data-eid="hero"><div class="intent"></div><div class="sprw"><div class="spr blk" style="width:110px;height:170px;background:#56603a">韩松</div><i class="shd"></i></div>
+  view.innerHTML = `<div class="bg battle"></div>${topBar()}
+   <div id="hero" class="unit" data-eid="hero"><div class="intent"></div><div class="sprw"><img class="spr art" src="assets/units/hansong.png" style="height:${TOUCH ? 240 : 250}px" alt="韩松"><i class="shd"></i></div>
     ${barHTML(R.hp, R.maxHp, B.p.block)}<div class="badges">${stsHTML(B.p.st)}${Object.keys(B.p.pw).map(k => `<b class="pw">${({ scope: '瞄准镜', depot: '备用弹匣', rapid: '枪感训练', quick: '快换弹匣' })[k]}</b>`).join('')}</div>
     ${inc ? `<div class="inc ${inc > B.p.block ? 'low' : 'ok'}">将受到 ${Math.max(0, inc - B.p.block)} 伤害</div>` : ''}</div>
    <div id="enemies">${B.en.filter(e => !(e.dead && Date.now() - e.deadAt > 1200)).map(enemyHTML).join('')}</div>
@@ -278,11 +278,15 @@ function render() {
   view.querySelectorAll('.enemy').forEach(el => el.onclick = ev => { ev.stopPropagation(); clickEnemy(el.dataset.eid); });
   view.querySelectorAll('.badges b[data-k], #wpn [data-k]').forEach(el => el.onclick = ev => { ev.stopPropagation(); const k = el.dataset.k; tipBox(`<b>${k}</b>：${KW[k] || ({ 力量: '每次攻击伤害增加等同层数。' })[k] || ''}`); });
   view.querySelector('.bg').onclick = () => { if (B.sel >= 0) { B.sel = -1; render(); } };
-  flushFx(); dbgPanel();
+  fitEnemies(); flushFx(); dbgPanel();
 }
 /* 关键词说明框贴在选中的牌旁边（右边放不下就放左边） */
 function kwPos(x, hz) { const sc = TOUCH ? 1.35 : 1.3, half = 75 * sc * hz, cx = (x + 75) * hz, bw = 300 * (TOUCH ? 1.3 : 1);
   return cx + half + 12 + bw < SW - 10 ? `left:${cx + half + 12}px` : `left:${Math.max(10, cx - half - 12 - bw)}px`; }
+/* 敌人一排太宽、会挤到韩松身上时，整排按比例缩小 */
+function fitEnemies() { const row = $('#enemies'), hero = $('#hero .spr'); if (!row || !hero) return; row.style.transform = '';
+  const s = stage._s || 1, rr = row.getBoundingClientRect(), hr = hero.getBoundingClientRect(), room = (rr.right - hr.right) / s - 30, w = rr.width / s;
+  if (w > room && room > 80) { row.style.transformOrigin = 'right bottom'; row.style.transform = `scale(${Math.max(.6, room / w)})`; } }
 function clickCard(i) {
   if (!B || B.busy || B.over) return;
   const c = B.hand[i]; if (!c) return;
@@ -341,6 +345,7 @@ function flushFx() {
     d.style.left = cx + (k - 1) * 16 + 'px'; d.style.top = top + 10 + (k - 1) * 26 + 'px'; d.style.animationDelay = Math.min(6, k - 1) * 60 + 'ms';
     fxl.appendChild(d); setTimeout(() => d.remove(), 1300);
     if (f.cls === 'dmg') { if (f.who === 'hero') shake = true;
+      const sw = view.querySelector(`[data-eid="${f.who}"] .sprw`); if (sw) { sw.classList.remove('hitf'); void sw.offsetWidth; sw.classList.add('hitf'); }
       for (let q = 0; q < (TOUCH ? 4 : 7); q++) { const sp = document.createElement('div'); sp.className = 'spark'; const an = Math.random() * 6.28, dist = 40 + Math.random() * 70;
         sp.style.left = cx + 'px'; sp.style.top = top + h * .45 + 'px'; sp.style.setProperty('--dx', Math.cos(an) * dist + 'px'); sp.style.setProperty('--dy', Math.sin(an) * dist + 'px'); if (f.who === 'hero') sp.style.background = '#ff5a4a';
         fxl.appendChild(sp); setTimeout(() => sp.remove(), 600); } }
