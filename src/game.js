@@ -82,9 +82,9 @@ function genMap() {
 }
 const NODE = { fight: ['战', '战斗', '#8a4a32'], elite: ['精', '精英', '#7a1a1a'], event: ['?', '未知', '#3a5a7a'], rest: ['营', '密营', '#2f6a3a'] };
 /* 章节地图：上北下南，从上（江边）往下（讨伐队据点）走。画布 1000×1500（2:3），出图后把对应开关改成 true */
-const MAP_W = 1000, MAP_H = 1500, MAP_ART = false, NODE_ART = false;
+const MAP_W = 1000, MAP_H = 1500, MAP_ART = true, NODE_ART = true;
 const mapY = nd => 190 + nd.r * 125 + ((nd.c * 37 + nd.r * 11) % 21 - 10); /* 不用存档里的旧 y，老存档也会翻成新方向 */
-const BOSS_Y = 1330;
+const BOSS_Y = 1318, BOSS_X = 470; /* 底图上讨伐队据点的位置 */
 const nodeIcon = t => NODE_ART ? `<img src="assets/ui/node_${t}.png" alt="" draggable="false">` : NODE[t][0];
 function available() {
   if (!R.pos) return R.map[0].filter(Boolean);
@@ -178,13 +178,24 @@ function title() {
    <button class="btn mm" id="t_new">新的一局<small>神枪手 · 韩松（雪貂）</small></button><button class="btn mm sm2" id="t_rule">规则</button></div>
    <p class="tnote">本作为虚构故事，人物均为虚构。美术为色块占位。</p>`;
   if (s) $('#t_cont').onclick = () => { R = s; resume(); };
-  $('#t_new').onclick = () => { if (s && !confirm('开始新的一局会覆盖当前进度，确定吗？')) return; newRun(); story(INTRO, mapScreen); };
+  $('#t_new').onclick = () => { if (s && !confirm('开始新的一局会覆盖当前进度，确定吗？')) return; newRun(); story(INTRO, () => campaign(0, mapScreen)); };
   $('#t_rule').onclick = rules;
 }
 const INTRO = ['1944 年冬。东北抗日联军的一支小分队，在苏联境内整训一年后，奉命潜回东北。',
   '他们的最终目标，是长春——伪满洲国所谓的「新京」，关东军司令部就在那里。',
   '第一站是长白山北麓的林海雪原。日伪讨伐队正在搜山。',
   '神枪手韩松，代号「雪貂」，走在队伍最前面。'];
+/* 战役总图：开局和每章结束时显示。地名用代码叠在图上（不让 AI 画字） */
+const CAMP = [{ n: '第一章 · 林海雪原', t: '1944 年冬', x: 69.4, y: 39.1 }, { n: '第二章 · 新京', t: '1945 年春', x: 39.7, y: 70.7 }, { n: '第三章 · ？？？', t: '1945 年夏', x: 32.7, y: 71 }];
+function campaign(ch, done, note) {
+  const lab = (t, x, y, cls = '') => `<b class="clab ${cls}" style="left:${x}%;top:${y}%">${t}</b>`;
+  view.innerHTML = `<div class="tbg dark"></div><div class="campw"><div class="campmap"><img src="assets/bg/campaign.jpg" alt="">
+    ${lab('苏联远东', 47, 5, 'dim')}${lab('黑龙江', 30, 11, 'river')}${lab('松花江', 46, 33, 'river')}${lab('长白山', 76, 74, 'dim')}${lab('渤海', 24, 91, 'river')}${lab('出发', 72.5, 6.5, 'red')}
+    ${CAMP.map((c, i) => `<i class="cring ${i === ch ? 'now' : i < ch ? 'done' : 'todo'}" style="left:${c.x}%;top:${c.y}%"></i>`).join('')}
+    ${lab(CAMP[0].n, 80, 39, ch === 0 ? 'now' : 'red')}${lab(ch >= 1 ? CAMP[1].n : '第二章 · ？？？', 41, 79.5, ch === 1 ? 'now' : 'red')}${lab(ch >= 2 ? CAMP[2].n : '第三章 · ？？？', 18, 64, ch === 2 ? 'now' : 'red')}
+    </div><div class="camptxt"><p>${note || `${CAMP[Math.min(ch, 2)].t}，${CAMP[Math.min(ch, 2)].n.split('·')[1].trim()}。目标：长春，关东军司令部。`}</p><button class="btn big" id="cp_go">${ch >= 1 ? '继续' : '出发'}</button></div></div>`;
+  $('#cp_go').onclick = done;
+}
 function story(lines, done) {
   let i = 0; const show = () => { view.innerHTML = `<div class="tbg dark"></div><div class="storybox"><p>${lines[i]}</p><button class="btn" id="st_n">${i < lines.length - 1 ? '继续' : '出发'}</button><button class="btn ghost" id="st_s">跳过</button></div>`;
     $('#st_n').onclick = () => { i++; i < lines.length ? show() : done(); }; $('#st_s').onclick = done; };
@@ -206,13 +217,13 @@ function mapScreen() {
   const walked = (a, b) => R.path.some((p, i) => p.r === a.r && p.c === a.c && R.path[i + 1] && R.path[i + 1].r === b.r && R.path[i + 1].c === b.c);
   const ln = (x1, y1, x2, y2, red) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${red ? '#b8241a' : LC}" stroke-width="${red ? 6 : 3}" ${red ? '' : 'stroke-dasharray="4 8" opacity=".75"'} stroke-linecap="round"/>`;
   for (const row of R.map) for (const nd of row) if (nd) for (const c of nd.next) { const t = R.map[nd.r + 1][c]; lines += ln(nd.x, mapY(nd), t.x, mapY(t), walked(nd, t)); }
-  for (const nd of R.map[ROWS - 1]) if (nd) lines += ln(nd.x, mapY(nd), 500, BOSS_Y, false);
+  for (const nd of R.map[ROWS - 1]) if (nd) lines += ln(nd.x, mapY(nd), BOSS_X, BOSS_Y, false);
   for (const row of R.map) for (const nd of row) if (nd) {
     const isAv = av.includes(nd), done = R.path.some(p => p.r === nd.r && p.c === nd.c), cur = R.pos && R.pos.r === nd.r && R.pos.c === nd.c, [ch, , col] = NODE[nd.type];
-    nodes += `<div class="node ${NODE_ART ? 'pic' : ''} ${isAv ? 'av' : ''} ${done ? 'done' : ''} ${cur ? 'cur' : ''}" style="left:${nd.x}px;top:${mapY(nd)}px;${NODE_ART ? '' : 'background:' + col}" data-r="${nd.r}" data-c="${nd.c}">${nodeIcon(nd.type)}</div>`;
+    nodes += `<div class="node ${NODE_ART ? 'pic' : ''} ${isAv ? 'av' : ''} ${done ? 'done' : ''} ${cur ? 'cur' : ''}" style="left:${nd.x}px;top:${mapY(nd)}px;${NODE_ART ? '' : 'background:' + col}" data-r="${nd.r}" data-c="${nd.c}">${nodeIcon(nd.type)}${cur && NODE_ART ? '<img class="curflag" src="assets/ui/node_cur.png" alt="">' : ''}</div>`;
   }
-  nodes += `<div class="node boss ${NODE_ART ? 'pic' : ''} ${av[0] === 'boss' ? 'av' : ''}" style="left:500px;top:${BOSS_Y}px">${NODE_ART ? nodeIcon('boss') : '讨伐队<br>据点'}</div><div class="maplab" style="top:${BOSS_Y + 78}px">讨伐队长 · 村濑</div>
-   <div class="maplab start" style="top:70px">▼ 越过冰封的江面，出发</div>`;
+  nodes += `<div class="node boss ${NODE_ART ? 'pic' : ''} ${av[0] === 'boss' ? 'av' : ''}" style="left:${BOSS_X}px;top:${BOSS_Y}px">${NODE_ART ? nodeIcon('boss') : '讨伐队<br>据点'}</div><div class="maplab" style="left:${BOSS_X}px;top:${BOSS_Y + 72}px">讨伐队长 · 村濑</div>
+   <div class="maplab start" style="top:96px">▼ 越过冰封的江面，出发</div>`;
   view.innerHTML = `${topBar()}<div id="map"><div id="mapin" class="${MAP_ART ? 'art' : ''}" style="height:${H}px"><svg width="${MAP_W}" height="${H}">${lines}</svg>${nodes}</div></div>
    <div id="legend"><div class="lgt">图例</div>${Object.keys(NODE).map(k => `<div><b class="${NODE_ART ? 'pic' : ''}" style="${NODE_ART ? '' : 'background:' + NODE[k][2]}">${nodeIcon(k)}</b>${NODE[k][1]}</div>`).join('')}<div><b class="${NODE_ART ? 'pic' : ''}" style="${NODE_ART ? '' : 'background:#4a1414'}">${NODE_ART ? nodeIcon('boss') : '首'}</b>讨伐队据点</div><div class="lg2"><i class="redl"></i>走过的路线<br>每走一格：体温 -1，口粮 -1</div></div>`;
   bindTop();
@@ -433,7 +444,7 @@ async function checkEnd() {
   B.busy = 1; await sleep(800);
   if (r === 'lose') { heroAct('down'); audio.lose(); await sleep(900); endScreen(false, '倒在了林海雪原里'); return true; }
   const kind = B.kind, en = B.en; B.over = 'win'; audio.win();
-  if (kind === 'boss') { R.hp = Math.max(1, R.hp); clearSave(); endScreen(true); return true; }
+  if (kind === 'boss') { R.hp = Math.max(1, R.hp); clearSave(); B = null; campaign(1, () => endScreen(true), '林海雪原的讨伐队被打垮了。小分队连夜南下，下一站：新京。'); return true; }
   winRewards(kind, en); return true;
 }
 
