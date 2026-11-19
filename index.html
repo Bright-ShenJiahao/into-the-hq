@@ -31,26 +31,30 @@ button{font-family:inherit;cursor:pointer}
 #top .warn{color:#ff5a4a!important;animation:blink 1.2s infinite}
 #top .sp{flex:1}
 #top .tb{background:#2e2618;border:1px solid #a88a50;color:#ffe9b8;border-radius:6px;padding:4px 12px;font-size:15px;flex:none}
-/* 卡牌：上半插图、中间卡名横幅、下半说明（同旧游戏） */
-.card{position:relative;width:150px;height:216px;flex:none;cursor:pointer;transition:transform .12s;border-radius:11px;border:3px solid #6a5a3a;background:linear-gradient(#3a3226,#1a150e);box-shadow:0 4px 12px rgba(0,0,0,.7),inset 0 0 0 2px rgba(0,0,0,.6)}
-.card.t-atk{border-color:#9a4a32;background:linear-gradient(#5a3022,#24140c)}
-.card.t-skill{border-color:#3e7a5a;background:linear-gradient(#24463a,#0e1c16)}
-.card.t-power{border-color:#7a5ab0;background:linear-gradient(#3e2c60,#160f28)}
-.card .art{position:absolute;left:9px;right:9px;top:10px;height:92px;border-radius:6px 6px 2px 2px;overflow:hidden;background:radial-gradient(circle at 50% 45%,#5a5040,#1a1610);display:flex;align-items:center;justify-content:center;border:1px solid rgba(0,0,0,.6)}
+/* 卡牌：卡框图片盖在上面，插图和说明放在卡框挖空的窗口里（窗口位置按卡框图量出来的） */
+.card{position:relative;width:150px;height:216px;flex:none;cursor:pointer;transition:transform .12s}
+.card .frame{position:absolute;left:-3.2%;top:-3.4%;width:105.5%;height:104%;z-index:2;pointer-events:none;filter:drop-shadow(0 3px 5px rgba(0,0,0,.7))}
+.card.t-skill .frame{left:-2.3%;top:-2.8%;width:104.3%;height:103.7%}.card.t-power .frame{left:-2%;top:-3%;width:103.3%;height:103.5%}
+.card .art{position:absolute;left:11.5%;top:9%;right:10.5%;bottom:52.4%;z-index:1;overflow:hidden;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 45%,#5a5040,#1a1610)}
+.card.t-skill .art{left:12.2%;top:11.4%;right:12.2%;bottom:52.2%}.card.t-power .art{left:12.3%;top:9.8%;right:12.6%;bottom:52.8%}
 .card.s-狙 .art{background:radial-gradient(circle at 50% 45%,#3e5a78,#101820)}.card.s-冲 .art{background:radial-gradient(circle at 50% 45%,#7a4e2a,#20140a)}.card.s-手 .art{background:radial-gradient(circle at 50% 45%,#6a6448,#1c1a10)}
-.card .art img{width:100%;height:100%;object-fit:contain}
-.card .art .ph{font-size:24px;font-weight:bold;color:rgba(255,240,210,.55);letter-spacing:2px;text-shadow:0 2px 4px #000}
-.card .cost{position:absolute;left:-10px;top:-10px;width:38px;height:38px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#ffc070,#c84e0e 70%);display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:21px;color:#fff;text-shadow:0 1px 2px #000;border:2px solid #2a1a08;z-index:4}
-.card .cname{position:absolute;left:4px;right:4px;top:102px;height:28px;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:bold;color:#3a2410;white-space:nowrap;overflow:hidden;background:linear-gradient(#f0dcb0,#c8a870);border-radius:4px;box-shadow:0 2px 3px rgba(0,0,0,.6);z-index:3}
+.card .art img{width:100%;height:100%;object-fit:cover}
+.card .art .ph{font-size:22px;font-weight:bold;color:rgba(255,240,210,.5);letter-spacing:2px;text-shadow:0 2px 4px #000;margin-bottom:12px}
+.card .cdesc{position:absolute;left:11.5%;top:63%;right:10.5%;bottom:7.6%;z-index:1;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12.5px;line-height:1.28;color:#f4ecd8;padding:2px 5px;background:linear-gradient(#2a1e14,#1a120c)}
+.card.t-skill .cdesc{left:12.2%;top:63.1%;right:12.2%;bottom:8.8%;background:linear-gradient(#22261c,#121610)}.card.t-power .cdesc{left:12%;top:62.4%;right:12%;bottom:8.2%;background:linear-gradient(#261a20,#140e12)}
+.card .cost{position:absolute;left:3.6%;top:.9%;width:23.6%;height:16.4%;z-index:4;border-radius:50%;background:radial-gradient(circle at 40% 35%,#ffc070,#c84e0e 70%);display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:21px;color:#fff;text-shadow:0 1px 2px #000,0 0 3px #000}
+.card.t-skill .cost,.card.t-power .cost{top:1.9%}
+.card .cname{position:absolute;left:9%;right:9%;top:49.2%;height:11%;z-index:3;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:bold;color:#3a2410;white-space:nowrap;overflow:hidden;text-shadow:0 1px 0 rgba(255,240,210,.6)}
 .card.up .cname{color:#1d6b1d}
-.card .ctype{position:absolute;left:6px;right:6px;top:132px;text-align:center;font-size:10.5px;color:#c8b890;opacity:.9}
-.card .cdesc{position:absolute;left:8px;right:8px;top:146px;bottom:7px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12.5px;line-height:1.3;color:#f4ecd8}
-.card .cbadge{position:absolute;left:12px;right:12px;top:76px;text-align:center;font-size:12px;font-weight:bold;background:rgba(40,40,40,.92);color:#ddd;border-radius:5px;padding:2px 0;z-index:3}
+.card .ctype{position:absolute;left:13%;top:39.5%;z-index:3;font-size:10px;color:#e8dcc0;background:rgba(0,0,0,.6);padding:0 4px;border-radius:3px;white-space:nowrap}
+.card .cbadge{position:absolute;left:14%;right:14%;top:28%;text-align:center;font-size:12px;font-weight:bold;background:rgba(40,40,40,.92);color:#ddd;border-radius:5px;padding:2px 0;z-index:3}
 .card .cbadge.bayo{background:#a8321e;color:#fff}
-.card.bayo{border-color:#ff6a3a;box-shadow:0 0 14px #ff6a3a99}
+.card.bayo .frame{filter:drop-shadow(0 0 6px #ff6a3a) drop-shadow(0 0 10px #ff6a3a)}
+#hand .card.sel .frame{filter:drop-shadow(0 0 8px #ffd35a) drop-shadow(0 0 14px #ffd35a)}
+#hand .card.sel{box-shadow:none!important}
 .kw{color:#ffd35a;border-bottom:1px dotted #ffd35a}
 .card b.dup{color:#7dff7d}.card b.ddn{color:#ff7a6a}
-.card .sch{font-style:normal;font-weight:bold;padding:0 4px;border-radius:3px;color:#111}.sch.s-狙{background:#9fc8ff}.sch.s-冲{background:#ffaa66}.sch.s-手{background:#d8d0a0}
+.card .sch{font-style:normal;font-weight:bold;padding:0 3px;border-radius:2px;color:#111;margin-right:3px}.sch.s-狙{background:#9fc8ff}.sch.s-冲{background:#ffaa66}.sch.s-手{background:#d8d0a0}
 /* 战斗：人物位置同旧游戏 */
 .unit{position:relative;display:flex;flex-direction:column;align-items:center}
 .unit .sprw{position:relative}

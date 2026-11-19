@@ -16,6 +16,11 @@ const pickOne = a => a[Math.floor(Math.random() * a.length)];
 const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
 let R = null, B = null, uidN = 1; /* R 当前一局，B 当前战斗 */
+/* 卡牌说明窗口比较小：字放不下就逐步缩小字号（同旧游戏的 fitCard） */
+function fitCard(c) { const box = c.querySelector('.cdesc'), sp = box && box.querySelector('span'); if (!sp) return; if (!box.clientHeight) { if ((c._fr = (c._fr || 0) + 1) < 20) requestAnimationFrame(() => fitCard(c)); return; }
+  let f = 12.5; sp.style.fontSize = ''; while ((sp.offsetHeight > box.clientHeight - 2 || sp.scrollWidth > box.clientWidth) && f > 8) { f -= .5; sp.style.fontSize = f + 'px'; }
+  const nm = c.querySelector('.cname'); if (nm) { let g = 16; nm.style.fontSize = ''; while (nm.scrollWidth > nm.clientWidth + 1 && g > 10) { g -= .5; nm.style.fontSize = g + 'px'; } } }
+new MutationObserver(ms => { for (const m of ms) for (const n of m.addedNodes) if (n.nodeType === 1) { if (n.classList.contains('card')) fitCard(n); n.querySelectorAll && n.querySelectorAll('.card').forEach(fitCard); } }).observe(document.getElementById('stage'), { childList: true, subtree: true });
 
 // ---------- 画面缩放：固定 720 高，宽度 1280–2000 ----------
 let SW = 1280;
@@ -128,11 +133,13 @@ function cardHTML(c, extra = '', attrs = '') {
   const live = B && !B.over && extra.includes('inhand') && d.gun && E.gunMode(B, c) === 'shoot';
   const f = x => { if (!live) return x; const v = E.previewDmg(B, d, x); return v === x ? x : `<b class="${v > x ? 'dup' : 'ddn'}">${v}</b>`; };
   const text = dsc(c, f);
+  const rr = ({ basic: 'c', c: 'c', u: 'u', r: 'r', loot: 'u' })[d.rar] || 'c';
   return `<div class="card t-${d.type} s-${d.sch}${c.up ? ' up' : ''}${d.gun ? ' gun' : ''}${cls} ${extra}" data-cid="${c.id}" ${attrs}>
     <div class="art">${ICONS_READY.has(ic) ? `<img src="assets/icons/${ic}.png" alt="" draggable="false">` : `<span class="ph">${ICON_NAME[ic]}</span>`}</div>
+    <div class="cdesc"><span>${kwify(text)}${d.ex && !text.includes('消耗') ? '<br>消耗。' : ''}</span></div>
+    <img class="frame" src="assets/ui/frame_${d.type}_${rr}.png" alt="" draggable="false">
     <div class="cost">${cost}</div><div class="cname">${d.name}${c.up ? '+' : ''}</div>
-    <div class="ctype">${d.sch !== '通' ? `<i class="sch s-${d.sch}">${SCH[d.sch]}</i> · ` : ''}${TYPE[d.type]}${d.rar === 'loot' ? ' · 缴获' : ''}</div>
-    <div class="cdesc"><span>${kwify(text)}${d.ex && !text.includes('消耗') ? '<br>消耗。' : ''}</span></div>${badge}</div>`;
+    <div class="ctype">${d.sch !== '通' ? `<i class="sch s-${d.sch}">${SCH[d.sch]}</i>` : ''}${TYPE[d.type]}${d.rar === 'loot' ? '·缴获' : ''}</div>${badge}</div>`;
 }
 function showPile(t, cards, onPick, sub = '') {
   const o = overlay(`<h2>${t}</h2>${sub ? `<p class="sub">${sub}</p>` : ''}<div class="grid">${cards.length ? cards.map((c, i) => cardHTML(c, '', `data-k="${i}"`)).join('') : '<p class="sub">（空）</p>'}</div><button class="btn" id="ov_close">${onPick ? '取消' : '关闭'}</button>`);
