@@ -28,7 +28,7 @@ export function startBattle(R, keys, kind, rng) {
 
 export function startTurn(B, first) {
   const p = B.p; B.turn++;
-  p.block = 0; p.energy = ENERGY; p.reloaded = 0; p.depotLeft = 0; p.firstSniper = 0; p.nextSn = 0;
+  p.block = 0; p.energy = ENERGY; p.firstSniper = 0; p.nextSn = 0;
   let n = DRAW; if (first && B.R.temp < 3) { n--; B.msgs.push('体温太低，手脚发僵：第一回合少抽 1 张。'); }
   drawCards(B, n);
 }
@@ -50,7 +50,6 @@ export const gunMode = (B, c) => !CARDS[c.id].gun ? null : B.ammo > 0 ? 'shoot' 
 export function cantPlay(B, c) {
   const d = CARDS[c.id];
   if (cardCost(B, c) > B.p.energy) return '能量不够';
-  if (d.gun && B.p.reloaded && !B.p.depotLeft) return '装填后本回合不能开枪';
   if (d.last && B.ammo !== 1) return '弹仓要刚好剩 1 发';
   return null;
 }
@@ -86,7 +85,6 @@ export function playCard(B, i, tid) {
   B.p.energy -= cardCost(B, c); B.hand.splice(i, 1);
   B.last = { id: c.id, mode: gunMode(B, c) };
   if (d.gun) {
-    if (B.p.reloaded) B.p.depotLeft--;
     const res = { pre: d.pre ? d.pre(B.G, u, t) : 0 };
     if (B.ammo > 0) Object.assign(res, fire(B, d, u, t));
     else { res.bayonet = 1; fx(B, 'hero', '拼刺！', 'st'); if (!t) t = alive(B)[0]; const before = t.dead; hitEnemy(B, t, atkMod(B, t, BAYONET)); res.kill = !before && t.dead; }
@@ -161,10 +159,12 @@ function mkG(B) {
   return G;
 }
 
-/* 装填按钮：0 费，装满弹仓；之后本回合不能打枪械牌（备用弹匣例外） */
+/* 装填按钮：1 费，把弹仓装满（有「备用弹匣」时 0 费） */
+export const reloadCost = B => (B.p.pw.depot ? 0 : 1);
+export function cantReload(B) { if (B.ammo >= B.cap) return '弹仓已满'; if (B.p.energy < reloadCost(B)) return '能量不够'; return null; }
 export function reload(B) {
-  if (B.ammo >= B.cap || B.p.reloaded) return false;
-  B.ammo = B.cap; B.p.reloaded = 1; B.p.depotLeft = B.p.pw.depot ? 1 : 0;
+  if (cantReload(B)) return false;
+  B.p.energy -= reloadCost(B); B.ammo = B.cap;
   fx(B, 'hero', '装填', 'st');
   if (B.p.pw.quick) { drawCards(B, B.p.pw.quick); addFeel(B, 1); }
   return true;

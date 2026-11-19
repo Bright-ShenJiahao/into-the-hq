@@ -123,7 +123,6 @@ function cardHTML(c, extra = '', attrs = '') {
   if (B && !B.over && extra.includes('inhand')) {
     const m = E.gunMode(B, c);
     if (m === 'bayonet') { badge = `<div class="cbadge bayo">空仓 · 拼刺 ${BAYONET}</div>`; cls = ' bayo'; }
-    else if (d.gun && B.p.reloaded && !B.p.depotLeft) badge = '<div class="cbadge">已装填 · 不能开枪</div>';
   }
   /* 战斗中把伤害数字换成实际值：变大绿色，变小红色 */
   const live = B && !B.over && extra.includes('inhand') && d.gun && E.gunMode(B, c) === 'shoot';
@@ -145,7 +144,7 @@ function rules() {
   overlay(`<div class="panel rules"><h2>规则</h2>
   <p>· 每回合 3 能量，抽 5 张。打出卡牌要花能量。</p>
   <p>· <b>弹仓</b>：韩松只有一个弹仓（${MAG} 发），所有枪械牌都从这里扣子弹，每「射击 1 发」用掉 1 颗。</p>
-  <p>· <b>装填</b>：弹仓旁边的按钮，0 费，把弹仓装满；装填后本回合不能再打枪械牌。</p>
+  <p>· <b>装填</b>：「结束回合」上方的按钮，1 费，把弹仓装满。</p>
   <p>· <b>空仓拼刺</b>：弹仓空了，枪械牌自动变成拼刺，造成 ${BAYONET} 伤害，牌上其他效果照常。</p>
   <p>· <b>三种枪</b>：狙击牌 1 发高伤、省子弹；冲锋枪牌一次打好几发、耗弹快；手枪牌是便宜的小牌。</p>
   <p>· <b>标尺</b>：叠在敌人身上，最多 5 层，每层让狙击牌每发 +1 伤害。</p>
@@ -299,9 +298,9 @@ function ammoHTML() {
    <div class="badges"><b class="feelc" data-k="枪感">枪感 ${B.p.feel}${B.p.feel >= 2 ? `（+${Math.floor(B.p.feel / 2)}）` : ''}</b>${stsHTML(B.p.st)}${Object.keys(B.p.pw).map(k => `<b class="pw">${({ scope: '瞄准镜', depot: '备用弹匣', rapid: '枪感训练', quick: '快换弹匣' })[k]}</b>`).join('')}</div>`;
 }
 function reloadBtn() {
-  const full = B.ammo >= B.cap;
-  const lab = B.p.reloaded ? (B.p.depotLeft ? '已装填 · 还能打 1 张' : '已装填 · 本回合不能开枪') : full ? '弹仓已满' : `装填 <small>0 费 · R</small>`;
-  return `<button class="btn reload ${!full && !B.p.reloaded ? 'hot' : ''} ${!B.ammo && !B.p.reloaded ? 'urgent' : ''}" id="reload" ${full || B.p.reloaded || B.busy ? 'disabled' : ''}>${lab}</button>`;
+  const why = E.cantReload(B), c = E.reloadCost(B);
+  const lab = why === '弹仓已满' ? '弹仓已满' : `装填 <small>${c} 费${TOUCH ? '' : ' · R'}</small>`;
+  return `<button class="btn reload ${!why ? 'hot' : ''} ${!B.ammo && !why ? 'urgent' : ''}" id="reload" ${why || B.busy ? 'disabled' : ''}>${lab}</button>`;
 }
 /* 手牌：扇形排开，只露上半截（费用、插图、卡名），鼠标移上去 / 手机按住才看说明（同旧游戏） */
 function handLayout() {
@@ -395,6 +394,7 @@ function flyCard(el, type) {
 }
 function doReload() {
   if (!B || B.busy || B.over || B.anim) return;
+  const why = E.cantReload(B); if (why) { tip(why); return; }
   if (E.reload(B)) { B.sel = -1; audio.reload(); render(); motion('hero', 'recoil'); flushMsgs(); }
 }
 async function endTurn() {

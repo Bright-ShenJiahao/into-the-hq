@@ -9,7 +9,7 @@ export const FEEL_MAX = 6; // 枪感上限
 // ---------- 关键词说明 ----------
 export const KW = {
   '弹仓': '韩松只有一个弹仓（8 发），所有枪械牌都从这里扣子弹。',
-  '装填': '0 费，把弹仓装满。装填后本回合不能再打枪械牌。',
+  '装填': '1 费，把弹仓装满。',
   '拼刺': '弹仓空了，枪械牌改为拼刺：造成 5 伤害，牌上其他效果照常。',
   '标尺': '叠在敌人身上，最多 5 层。每层让狙击牌每发 +1 伤害。',
   '枪感': '每打出一张枪械牌 +1（最多 6），回合结束 -1。冲锋枪牌和手枪牌每发伤害 + 枪感的一半。',
@@ -98,8 +98,8 @@ export const CARDS = {
     desc: u => `抽 ${V(u, 1, 2)}；标尺 +1；枪感 +1。`, play: (G, u, t) => { G.draw(V(u, 1, 2)); G.mark(t, 1); G.feel(1); } },
   expand: { name: '弹袋', type: 'power', cost: [1, 1], rar: 'u', sch: '通',
     desc: u => `弹仓上限 +${V(u, 3, 5)}，并立刻多装 ${V(u, 3, 5)} 发。`, play: (G, u) => G.magUp(V(u, 3, 5)) },
-  hs_depot: { name: '备用弹匣', type: 'power', cost: [1, 0], rar: 'u', sch: '通',
-    desc: () => '每回合装填后，本回合仍可再打 1 张枪械牌。', play: G => G.power('depot', 1) },
+  hs_depot: { name: '备用弹匣', type: 'power', cost: [2, 1], rar: 'u', sch: '通',
+    desc: () => '装填不再花能量。', play: G => G.power('depot', 1) },
   // —— 缴获（不在奖励池，只从敌人或事件拿到） ——
   c_type97: { name: '九七式狙击', type: 'atk', cost: [1, 1], rar: 'loot', sch: '狙', tgt: 'one', gun: 1,
     sh: u => ({ n: 1, d: V(u, 12, 15) }), extra: (G, u, t) => { if (t && !t.dead) G.mark(t, 1); }, desc: (u, f) => `缴获的狙击步枪。射击 1 发，${f(V(u, 12, 15))} 伤害；标尺 +1。` },
