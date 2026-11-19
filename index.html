@@ -31,84 +31,107 @@ button{font-family:inherit;cursor:pointer}
 #top .warn{color:#ff5a4a!important;animation:blink 1.2s infinite}
 #top .sp{flex:1}
 #top .tb{background:#2e2618;border:1px solid #a88a50;color:#ffe9b8;border-radius:6px;padding:4px 12px;font-size:15px;flex:none}
-/* 卡牌（色块版） */
-.card{position:relative;width:150px;height:216px;flex:none;cursor:pointer;transition:transform .12s;border-radius:12px;border:3px solid #8a7a5a;background:#2a241c;box-shadow:0 4px 10px rgba(0,0,0,.6)}
-.card.t-atk{border-color:#b0503a;background:linear-gradient(#4a2a20 0 34%,#22160f 34%)}
-.card.t-skill{border-color:#4a8a6a;background:linear-gradient(#1f3d30 0 34%,#0f1d16 34%)}
-.card.t-power{border-color:#8a6ab8;background:linear-gradient(#3a2a58 0 34%,#16102a 34%)}
-.card.up .cname{color:#8aff8a}
-.card .cost{position:absolute;left:-10px;top:-10px;width:40px;height:40px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#ffc070,#c84e0e 70%);display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:22px;color:#fff;text-shadow:0 1px 2px #000;border:2px solid #2a1a08;z-index:3}
-.card .cname{position:absolute;left:6px;right:6px;top:16px;text-align:center;font-size:19px;font-weight:bold;color:#ffe9c8;white-space:nowrap;overflow:hidden;text-shadow:0 2px 2px #000}
-.card .ctype{position:absolute;left:6px;right:6px;top:44px;text-align:center;font-size:11px;color:#c8b890;opacity:.85}
-.card .cdesc{position:absolute;left:8px;right:8px;top:78px;bottom:8px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:13.5px;line-height:1.35;color:#f4ecd8}
-.card.gun::before{content:'';position:absolute;left:50%;top:64px;width:56px;height:6px;margin-left:-28px;background:#c9a35a;border-radius:3px;opacity:.6}
-.card .cbadge{position:absolute;left:8px;right:8px;top:60px;text-align:center;font-size:12px;font-weight:bold;background:#3a3a3a;color:#ddd;border-radius:6px;padding:2px 0;z-index:3}
+/* 卡牌：上半插图、中间卡名横幅、下半说明（同旧游戏） */
+.card{position:relative;width:150px;height:216px;flex:none;cursor:pointer;transition:transform .12s;border-radius:11px;border:3px solid #6a5a3a;background:linear-gradient(#3a3226,#1a150e);box-shadow:0 4px 12px rgba(0,0,0,.7),inset 0 0 0 2px rgba(0,0,0,.6)}
+.card.t-atk{border-color:#9a4a32;background:linear-gradient(#5a3022,#24140c)}
+.card.t-skill{border-color:#3e7a5a;background:linear-gradient(#24463a,#0e1c16)}
+.card.t-power{border-color:#7a5ab0;background:linear-gradient(#3e2c60,#160f28)}
+.card .art{position:absolute;left:9px;right:9px;top:10px;height:92px;border-radius:6px 6px 2px 2px;overflow:hidden;background:radial-gradient(circle at 50% 45%,#5a5040,#1a1610);display:flex;align-items:center;justify-content:center;border:1px solid rgba(0,0,0,.6)}
+.card.s-狙 .art{background:radial-gradient(circle at 50% 45%,#3e5a78,#101820)}.card.s-冲 .art{background:radial-gradient(circle at 50% 45%,#7a4e2a,#20140a)}.card.s-手 .art{background:radial-gradient(circle at 50% 45%,#6a6448,#1c1a10)}
+.card .art img{width:100%;height:100%;object-fit:contain}
+.card .art .ph{font-size:24px;font-weight:bold;color:rgba(255,240,210,.55);letter-spacing:2px;text-shadow:0 2px 4px #000}
+.card .cost{position:absolute;left:-10px;top:-10px;width:38px;height:38px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#ffc070,#c84e0e 70%);display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:21px;color:#fff;text-shadow:0 1px 2px #000;border:2px solid #2a1a08;z-index:4}
+.card .cname{position:absolute;left:4px;right:4px;top:102px;height:28px;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:bold;color:#3a2410;white-space:nowrap;overflow:hidden;background:linear-gradient(#f0dcb0,#c8a870);border-radius:4px;box-shadow:0 2px 3px rgba(0,0,0,.6);z-index:3}
+.card.up .cname{color:#1d6b1d}
+.card .ctype{position:absolute;left:6px;right:6px;top:132px;text-align:center;font-size:10.5px;color:#c8b890;opacity:.9}
+.card .cdesc{position:absolute;left:8px;right:8px;top:146px;bottom:7px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12.5px;line-height:1.3;color:#f4ecd8}
+.card .cbadge{position:absolute;left:12px;right:12px;top:76px;text-align:center;font-size:12px;font-weight:bold;background:rgba(40,40,40,.92);color:#ddd;border-radius:5px;padding:2px 0;z-index:3}
 .card .cbadge.bayo{background:#a8321e;color:#fff}
-.card.bayo{border-color:#ff6a3a;box-shadow:0 0 12px #ff6a3a88}
+.card.bayo{border-color:#ff6a3a;box-shadow:0 0 14px #ff6a3a99}
 .kw{color:#ffd35a;border-bottom:1px dotted #ffd35a}
 .card b.dup{color:#7dff7d}.card b.ddn{color:#ff7a6a}
 .card .sch{font-style:normal;font-weight:bold;padding:0 4px;border-radius:3px;color:#111}.sch.s-狙{background:#9fc8ff}.sch.s-冲{background:#ffaa66}.sch.s-手{background:#d8d0a0}
-/* 战斗 */
+/* 战斗：人物位置同旧游戏 */
 .unit{position:relative;display:flex;flex-direction:column;align-items:center}
 .unit .sprw{position:relative}
-.unit .spr.blk{display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:bold;color:#fff;text-shadow:0 2px 3px #000;border:3px solid rgba(0,0,0,.55);border-radius:10px;position:relative;z-index:1;writing-mode:horizontal-tb;padding:4px;text-align:center}
+.unit .spr.blk{display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:bold;color:#fff;text-shadow:0 2px 3px #000;border:3px solid rgba(0,0,0,.55);border-radius:10px;position:relative;z-index:1;padding:4px;text-align:center}
 .unit .spr.bossb{border-radius:18px 18px 8px 8px;border-color:#2a0a0a}
+.unit .spr.art{display:block;position:relative;z-index:1;filter:drop-shadow(0 4px 4px rgba(0,0,0,.35));transform-origin:50% 100%;-webkit-user-drag:none}
+.unit .spr.art.still{animation:breathe 2.6s ease-in-out infinite}
+@keyframes breathe{50%{transform:scale(1.008,1.018)}}
 .unit .shd{position:absolute;left:50%;bottom:-10px;width:110%;height:26px;transform:translateX(-50%);background:radial-gradient(closest-side,rgba(0,0,0,.6),transparent);z-index:0}
-#hero{position:absolute;left:calc(300px + (var(--sw,1280px) - 1280px) / 5);bottom:230px}
-#enemies{position:absolute;right:calc(170px + (var(--sw,1280px) - 1280px) / 5);bottom:230px;display:flex;align-items:flex-end;gap:22px}
-.enemy.tg{cursor:crosshair}.enemy.tg .spr{box-shadow:0 0 0 3px #ffd35a,0 0 18px #ffd35a}
-.unit .bar{width:140px;height:18px;background:#2a0d0d;border:1px solid #000;border-radius:9px;position:relative;margin-top:8px;overflow:hidden}
+#hero{position:absolute;left:calc(180px + (var(--sw,1280px) - 1280px) / 4);bottom:200px}
+#enemies{position:absolute;right:calc(200px + (var(--sw,1280px) - 1280px) / 4);bottom:200px;display:flex;align-items:flex-end;gap:20px}
+.enemy.tg{cursor:crosshair}.enemy.tg .sprw{filter:drop-shadow(0 0 8px #ffd35a)}.enemy.aim .sprw{filter:drop-shadow(0 0 10px #ff5a4a) drop-shadow(0 0 4px #fff)}
+.hpw{position:relative;margin-top:8px}
+.unit .bar{width:140px;height:16px;background:#2a0d0d;border:1px solid #000;border-radius:8px;position:relative;overflow:hidden}
 .unit .bar i{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(#e04a3a,#a02018)}
 .unit .bar.blk{border:2px solid #6ab0ff}
-.unit .bar span{position:absolute;inset:0;font-size:13px;line-height:16px;text-align:center;color:#fff;text-shadow:0 1px 1px #000;font-weight:bold}
-.badges{display:flex;gap:4px;flex-wrap:wrap;justify-content:center;max-width:220px;margin-top:4px;min-height:22px}
-.badges b{font-size:13px;padding:1px 6px;border-radius:5px;background:rgba(0,0,0,.65);border:1px solid #888;font-weight:normal;cursor:help}
-.badges b.mark{color:#ffd35a;border-color:#ffd35a;font-weight:bold;font-size:15px}.badges b.arm{color:#a8c8e8;border-color:#a8c8e8}.badges b.pw{color:#c8a8ff;border-color:#8a6ab8}
-.enemy .uname{display:none}.uname{font-size:13px;color:#ffe9b8;margin-top:2px;text-shadow:0 1px 2px #000}
+.unit .bar span{position:absolute;inset:0;font-size:12px;line-height:14px;text-align:center;color:#fff;text-shadow:0 1px 1px #000;font-weight:bold}
+.blkv{position:absolute;left:-18px;top:50%;margin-top:-15px;width:30px;height:30px;background:#3a70c0;border:2px solid #cde;border-radius:50% 50% 45% 45%;font-size:14px;font-weight:bold;display:flex;align-items:center;justify-content:center;z-index:2;color:#fff;font-style:normal}
+.badges{display:flex;gap:4px;flex-wrap:wrap;justify-content:center;max-width:240px;margin-top:4px;min-height:20px}
+.badges b{font-size:12px;padding:1px 6px;border-radius:5px;background:rgba(0,0,0,.65);border:1px solid #888;font-weight:normal;cursor:help}
+.badges b.mark{color:#ffd35a;border-color:#ffd35a;font-weight:bold;font-size:14px}.badges b.arm{color:#a8c8e8;border-color:#a8c8e8}.badges b.pw{color:#c8a8ff;border-color:#8a6ab8}.badges b.feelc{color:#ffaa66;border-color:#ff8a3a}
+.ammo{display:flex;align-items:center;gap:6px;margin-top:5px;padding:3px 8px;background:rgba(10,10,10,.7);border:1px solid #8a7040;border-radius:6px;cursor:help}
+.ammo .pips{display:flex;gap:2px}.ammo .pips i{width:8px;height:17px;border-radius:3px 3px 1px 1px;background:#333;border:1px solid #555}.ammo .pips i.f{background:linear-gradient(#ffe08a,#c8901e);border-color:#ffd35a}
+.ammo .mbar{width:120px;height:10px;background:#333;border-radius:4px;overflow:hidden;display:block}.ammo .mbar u{display:block;height:100%;background:#d8a030}
+.ammo b{font-size:14px;color:#fff}.ammo.zero{border-color:#ff5a4a;animation:blink 1s infinite}.ammo.zero b{color:#ff6a5a}
+.uname{display:none}
 .intent{height:34px;font-size:22px;font-weight:bold;color:#fff;text-shadow:0 0 3px #000,0 0 3px #000;white-space:nowrap;margin-bottom:6px}
-.intent small{font-size:13px;color:#ffe9b8;margin-left:4px}
-.inc{font-size:13px;margin-top:4px;padding:1px 8px;border-radius:4px;background:rgba(0,0,0,.6)}.inc.low{color:#ff8a7a}.inc.ok{color:#8aff9a}
-.sprw.lunge{animation:lunge .35s}@keyframes lunge{50%{translate:-40px 0}}
-.unit.dead{animation:die .6s forwards}@keyframes die{to{opacity:0;filter:grayscale(1)}}
-/* 弹仓面板 */
-#wpn{position:absolute;left:14px;bottom:262px;width:270px;background:rgba(10,12,14,.85);border:2px solid #6a5a3a;border-radius:10px;padding:8px 10px;z-index:12;display:flex;flex-direction:column;gap:7px}
-.wrow{display:grid;grid-template-columns:1fr auto;gap:4px 8px;font-size:14px}
-.wrow b{color:#ffd35a;font-size:16px}
-.wrow .pips{grid-column:1/3;display:flex;gap:3px;align-items:center;flex-wrap:wrap}
-.wrow .pips i{width:13px;height:26px;border-radius:4px 4px 1px 1px;background:#333;border:1px solid #666}.wrow .pips i.f{background:linear-gradient(#ffe08a,#c8901e);border-color:#ffd35a}
-.wrow .mbar{width:240px;height:14px;background:#333;border-radius:4px;overflow:hidden;display:block}.wrow .mbar u{display:block;height:100%;background:linear-gradient(#ffe08a,#c8901e)}
-.wrow .cnt{font-style:normal;font-weight:bold;color:#fff;font-size:20px}.wrow .cnt.zero{color:#ff5a4a}
-.feel{display:grid;grid-template-columns:auto 1fr;gap:2px 8px;align-items:center;cursor:help}.feel b{color:#ff9a5a;font-size:15px}
-.feel .fpips{display:flex;gap:3px}.feel .fpips i{width:14px;height:10px;border-radius:2px;background:#333}.feel .fpips i.f{background:#ff8a3a}
-.feel small{grid-column:1/3;color:#a89a7a;font-size:12px}
-.btn.reload{font-size:16px;padding:8px 6px;width:100%}.btn.reload.hot{background:linear-gradient(#8a6a2a,#5a4218);border-color:#ffd35a}
-#energy{position:absolute;left:24px;bottom:150px;width:100px;height:100px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#ffcf6a,#c8641a 65%,#5a2a08);border:4px solid #2a1a08;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:bold;color:#fff;text-shadow:0 2px 3px #000;z-index:10}
+.intent .ii{font-style:normal;margin-right:3px}.intent small{font-size:13px;color:#ffe9b8;margin-left:4px}
+.inc{font-size:12px;margin-top:3px;padding:1px 8px;border-radius:4px;background:rgba(0,0,0,.6)}.inc.low{color:#ff8a7a}.inc.ok{color:#8aff9a}
+/* 代码动作（叠加在逐帧动画上） */
+.sprw.lunge{animation:lunge .38s ease-out}@keyframes lunge{40%{translate:-46px 0}}
+.sprw.recoil{animation:recoil .16s ease-out}@keyframes recoil{30%{translate:-9px 0;rotate:-1.5deg}}
+.sprw.dash{animation:dash .42s ease-out}@keyframes dash{35%{translate:90px 0}}
+.sprw.hitf{animation:hitf .3s}@keyframes hitf{0%,100%{translate:0;filter:none}25%{translate:-8px 0;filter:brightness(1.8) sepia(.6) hue-rotate(-30deg)}70%{translate:5px 0}}
+.sprw.hitbig{animation:hitbig .45s}@keyframes hitbig{0%{filter:brightness(3)}18%{translate:0;filter:brightness(3)}30%{translate:-16px 0;filter:brightness(1.6) sepia(.7) hue-rotate(-30deg)}60%{translate:8px 0}100%{translate:0;filter:none}}
+.unit.dead.noanim .sprw{animation:fall .7s forwards}@keyframes fall{to{opacity:0;filter:grayscale(1) brightness(.6);rotate:-6deg;translate:10px 14px}}
+.unit.dead .sprw{animation:fade .6s .9s forwards}@keyframes fade{to{opacity:0;filter:grayscale(1)}}
+.unit.dead .hpw,.unit.dead .badges,.unit.dead .intent{opacity:0;transition:opacity .3s}
+#energy{position:absolute;left:26px;bottom:140px;width:110px;height:110px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#ffcf6a,#c8641a 65%,#5a2a08);border:4px solid #2a1a08;box-shadow:0 0 0 3px #8a6a3a,0 4px 10px #000;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:bold;color:#fff;text-shadow:0 2px 3px #000;z-index:10}
 #energy.empty{background:radial-gradient(circle at 40% 35%,#777,#333 70%)}
-.pile{position:absolute;bottom:16px;width:96px;height:62px;background:rgba(10,10,10,.75);border:2px solid #6a5a3a;border-radius:8px;cursor:pointer;font-size:13px;color:#c8b890;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10}
+.pile{position:absolute;bottom:14px;width:92px;height:64px;background:rgba(10,10,10,.75);border:2px solid #6a5a3a;border-radius:8px;cursor:pointer;font-size:13px;color:#c8b890;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10}
 .pile b{font-size:22px;color:#fff}
-#drawp{left:24px}#discp{right:22px}#exhp{right:126px}
-#endturn{position:absolute;right:22px;bottom:150px;width:200px;height:64px;font-size:20px;font-weight:bold;z-index:10;background:linear-gradient(#6a8a3a,#3a5a1c);border-color:#b8d88a}
+#drawp{left:30px}#discp{right:24px}#exhp{right:126px}
+#endturn{position:absolute;right:22px;bottom:150px;width:200px;height:62px;font-size:20px;font-weight:bold;z-index:10;background:linear-gradient(#6a8a3a,#3a5a1c);border-color:#b8d88a}#endturn small{font-size:12px;opacity:.7}
 #endturn:disabled{background:#3a3a3a}
-#hand{position:absolute;left:0;right:0;bottom:0;height:260px;pointer-events:none;z-index:15}
-#hand .card{position:absolute;bottom:-22px;pointer-events:auto}
-#hand .card.off{filter:brightness(.6) saturate(.6)}
+.btn.reload{position:absolute;right:22px;bottom:222px;width:200px;height:48px;font-size:18px;padding:4px;z-index:10}.btn.reload small{font-size:12px;opacity:.75}
+.btn.reload.hot{background:linear-gradient(#8a6a2a,#5a4218);border-color:#ffd35a}.btn.reload.urgent{animation:pulse2 1s infinite}@keyframes pulse2{50%{box-shadow:0 0 18px #ffd35a}}
+/* 手牌（同旧游戏：只露上半，悬停升起） */
+#hand{position:absolute;left:150px;right:150px;bottom:0;height:260px;pointer-events:none;z-index:15}
+#hand .card{position:absolute;bottom:-78px;pointer-events:auto;touch-action:none}
+#hand .card *{pointer-events:none}
+#hand .card.off{filter:brightness(.65) saturate(.6)}
 #hand .card.sel{box-shadow:0 0 22px 6px #ffd35a}
-.notouch #hand .card:not(.sel):hover{z-index:80!important;transform:translateY(-110px) scale(1.15)!important}
-#kwbox{position:absolute;bottom:250px;width:300px;background:rgba(14,12,8,.94);border:2px solid #c9a35a;border-radius:10px;padding:8px 12px;z-index:30;pointer-events:none}
-#kwbox p{font-size:14px;line-height:1.45;color:#e8dcc0;margin:3px 0}#kwbox b{color:#ffd35a;margin-right:6px}#kwbox .hint{color:#8aff9a;font-weight:bold;margin-top:6px}
-#tip{position:absolute;left:50%;top:120px;transform:translateX(-50%);background:rgba(0,0,0,.8);padding:8px 20px;border-radius:8px;font-size:20px;color:#ffd35a;pointer-events:none;z-index:120}
-#stage .say{position:absolute;left:50%;top:160px;transform:translateX(-50%);max-width:820px;padding:12px 24px;background:rgba(14,10,8,.9);border:2px solid #c9a35a;border-radius:12px;color:#ffe9c8;font-size:22px;line-height:1.5;text-align:center;z-index:70;pointer-events:none;white-space:pre-line}
+.notouch #hand .card:not(.dragging):hover{z-index:50!important;transform:translateY(-100px) scale(1.12) rotate(0deg)!important}
+#hand .card.dragging,#hand .card.dragging:hover{transition:none!important;z-index:80!important;transform:var(--dt)!important}
+#hand .card.ready{filter:drop-shadow(0 0 14px #ffd35a)}
+#kwbox{position:absolute;background:rgba(14,12,8,.95);border:2px solid #c9a35a;border-radius:10px;padding:8px 12px;z-index:70;pointer-events:none}
+#kwbox p{font-size:13px;line-height:1.45;color:#e8dcc0;margin:3px 0}#kwbox b{color:#ffd35a;margin-right:6px}#kwbox .hint{color:#8aff9a;font-weight:bold;margin-top:6px}#kwbox .hint.bad{color:#ff8a7a}
+#tip{position:absolute;left:50%;top:120px;transform:translateX(-50%);background:rgba(0,0,0,.8);padding:8px 20px;border-radius:8px;font-size:20px;color:#ffd35a;pointer-events:none;z-index:120}#tip.stay{top:64px;font-size:17px}
+#stage .say{position:absolute;left:50%;top:150px;transform:translateX(-50%);max-width:820px;padding:12px 24px;background:rgba(14,10,8,.9);border:2px solid #c9a35a;border-radius:12px;color:#ffe9c8;font-size:22px;line-height:1.5;text-align:center;z-index:70;pointer-events:none;white-space:pre-line}
 #banner{position:absolute;left:0;right:0;top:250px;text-align:center;font-size:46px;font-weight:bold;color:#ffe9b8;text-shadow:0 3px 8px #000;pointer-events:none;animation:ban 1.2s forwards;z-index:70}
 @keyframes ban{0%{opacity:0;transform:scale(.8)}20%,70%{opacity:1;transform:scale(1)}100%{opacity:0}}
-.fxn{position:absolute;font-size:40px;font-weight:bold;pointer-events:none;text-shadow:0 2px 3px #000,0 0 2px #000;animation:fxn 1.1s both;z-index:60;transform:translateX(-50%);white-space:nowrap}
-.fxn.dmg{color:#fff}.fxn.blk{color:#8cf}.fxn.heal{color:#7f7}.fxn.st{color:#ffd35a;font-size:22px}
-@keyframes fxn{0%{opacity:0;transform:translate(-50%,0) scale(1.3)}10%{opacity:1}100%{transform:translate(-50%,-70px);opacity:0}}
+/* 打击感特效 */
+.fxn{position:absolute;font-size:44px;font-weight:bold;pointer-events:none;text-shadow:0 2px 3px #000,0 0 2px #000;animation:fxn 1.1s both;z-index:60;transform:translateX(-50%);white-space:nowrap}
+.fxn.dmg{color:#fff}.fxn.crit{color:#ffe14a;font-size:64px;animation:fxc 1.2s both}.fxn.blk{color:#8cf}.fxn.heal{color:#7f7}.fxn.st{color:#ffd35a;font-size:21px}
+@keyframes fxn{0%{opacity:0;transform:translate(-50%,0) scale(1.4)}10%{opacity:1;transform:translate(-50%,0) scale(1)}100%{transform:translate(-50%,-70px);opacity:0}}
+@keyframes fxc{0%{opacity:0;transform:translate(-50%,0) scale(2)}12%{opacity:1;transform:translate(-50%,0) scale(1)}100%{transform:translate(-50%,-80px);opacity:0}}
 .spark{position:absolute;width:7px;height:7px;background:#ffd35a;box-shadow:0 0 6px #ffb020;pointer-events:none;z-index:59;animation:spark .55s ease-out forwards}
 @keyframes spark{to{transform:translate(var(--dx),var(--dy)) scale(.3);opacity:0}}
-.bullet{position:absolute;width:24px;height:6px;margin:-3px 0 0 -12px;border-radius:3px;background:linear-gradient(90deg,transparent,#fff6c0,#ffc040);box-shadow:0 0 10px #ffc040;pointer-events:none;z-index:61;opacity:0;animation:bul .22s ease-in both}
+.bullet{position:absolute;width:30px;height:5px;margin:-2px 0 0 -15px;border-radius:3px;background:linear-gradient(90deg,transparent,#fff6c0,#ffc040);box-shadow:0 0 10px #ffc040;pointer-events:none;z-index:61;animation:bul .11s linear both}
 @keyframes bul{0%{opacity:1;transform:translate(0,0)}100%{opacity:1;transform:translate(var(--dx),var(--dy))}}
+.muzzle{position:absolute;width:70px;height:46px;margin:-23px 0 0 -10px;pointer-events:none;z-index:62;background:radial-gradient(ellipse at 20% 50%,#fff 0,#ffe27a 25%,rgba(255,140,30,.7) 50%,transparent 72%);animation:muz .11s ease-out forwards}
+@keyframes muz{0%{opacity:1;transform:scale(.6)}50%{opacity:1;transform:scale(1.1)}100%{opacity:0;transform:scale(1.2)}}
+.casing{position:absolute;width:5px;height:11px;background:linear-gradient(#ffe08a,#b8801a);border-radius:1px;pointer-events:none;z-index:61;animation:casing .6s cubic-bezier(.2,.7,.4,1) forwards}
+@keyframes casing{0%{transform:translate(0,0) rotate(0)}40%{transform:translate(calc(var(--dx)*.6),-46px) rotate(calc(var(--r)*.5))}100%{transform:translate(var(--dx),40px) rotate(var(--r));opacity:0}}
+.impact{position:absolute;width:40px;height:40px;margin:-20px 0 0 -20px;border-radius:50%;pointer-events:none;z-index:62;background:radial-gradient(circle,#fff 0,rgba(255,240,180,.8) 30%,transparent 70%);animation:imp .22s ease-out forwards}
+.impact.big{width:90px;height:90px;margin:-45px 0 0 -45px}
+@keyframes imp{0%{transform:scale(.4);opacity:1}100%{transform:scale(1.6);opacity:0}}
 .shake{animation:shake .28s}@keyframes shake{20%{translate:-8px 4px}40%{translate:7px -5px}60%{translate:-5px 3px}80%{translate:4px -2px}}
-.blink{animation:blink 1.6s infinite}@keyframes blink{50%{opacity:.4}}
+.shake2{animation:shake2 .34s}@keyframes shake2{0%{translate:0 0}15%{translate:-14px 6px}30%{translate:12px -8px}50%{translate:-8px 5px}70%{translate:5px -3px}100%{translate:0 0}}
+.blink{animation:blink 1.6s infinite}@keyframes blink{50%{opacity:.45}}
 /* 面板 */
 .panel{position:absolute;left:50%;top:54%;transform:translate(-50%,-50%);background:rgba(16,14,10,.94);border:3px solid #a88a50;border-radius:14px;padding:24px 34px;text-align:center;min-width:440px;max-width:1100px;z-index:25}
 .panel h2{font-size:30px;margin-bottom:12px;color:#ffe9b8}
@@ -155,19 +178,22 @@ button{font-family:inherit;cursor:pointer}
 #rot .ph{width:70px;height:120px;border:5px solid #ffd35a;border-radius:12px;animation:rot 1.6s ease-in-out infinite}
 @keyframes rot{0%,20%{transform:rotate(0)}60%,100%{transform:rotate(90deg)}}
 @media (orientation:portrait) and (max-width:900px){#rot{display:flex}}
-/* ===== 手机（触屏）：按钮和字放大 ===== */
+/* ===== 手机（触屏）：同旧游戏的放大方式 ===== */
 .touch #top{height:58px;font-size:23px;gap:16px}.touch #top .tb{font-size:20px;min-height:44px;padding:4px 14px}
 .touch #map{top:58px}
-.touch #hand{zoom:1.25;height:240px}.touch #hand .card{bottom:-16px}
-.touch #wpn{zoom:1.2;bottom:250px;left:8px}
-.touch #energy{zoom:1.2;bottom:128px;left:12px}
-.touch #endturn{bottom:168px;width:240px;height:84px;font-size:26px}
+.touch #hand{left:0;right:0;zoom:1.45;height:240px}.touch #hand .card{bottom:-40px}
+.touch #hand .card.peek{z-index:60!important;transform:translateY(-120px) scale(1.3) rotate(0deg)!important}
+.touch #energy{zoom:1.15;bottom:150px;left:10px}
+.touch #endturn{bottom:175px;width:250px;height:84px;font-size:26px}
+.touch .btn.reload{bottom:268px;width:250px;height:64px;font-size:24px}
 .touch .pile{zoom:1.15}
-.touch #hero{bottom:258px;left:calc(390px + (var(--sw,1280px) - 1280px) / 5)}.touch #enemies{bottom:258px;right:calc(230px + (var(--sw,1280px) - 1280px) / 5)}
-.touch .intent{font-size:30px;height:42px}.touch .intent small{font-size:18px}
-.touch .unit .bar{width:170px;height:26px;border-radius:13px}.touch .unit .bar span{font-size:19px;line-height:23px}
-.touch .badges b{font-size:18px;padding:2px 8px}.touch .badges b.mark{font-size:20px}.touch .inc{font-size:18px}
-.touch #kwbox{bottom:200px;width:390px}.touch #kwbox p{font-size:19px}
+.touch #hero{bottom:255px}.touch #enemies{bottom:255px;gap:0}
+.touch .intent{font-size:30px;height:42px;margin-bottom:-4px}.touch .intent small{font-size:18px}
+.touch .unit .bar{width:170px;height:24px;border-radius:12px}.touch .unit .bar span{font-size:18px;line-height:22px}
+.touch .blkv{width:38px;height:38px;margin-top:-19px;left:-24px;font-size:18px}
+.touch .badges{max-width:300px}.touch .badges b{font-size:17px;padding:2px 7px}.touch .badges b.mark{font-size:19px}.touch .inc{font-size:17px}
+.touch .ammo .pips i{width:11px;height:22px}.touch .ammo b{font-size:19px}
+.touch #kwbox p{font-size:19px}
 .touch .btn{min-height:54px;font-size:21px}.touch .btn.opt{min-height:62px}
 .touch .panel{zoom:1.25}.touch .overlay .grid{zoom:1.2}
 .touch .node{transform:scale(1.25)}.touch #legend{zoom:1.35}
@@ -175,6 +201,7 @@ button{font-family:inherit;cursor:pointer}
 .touch .storybox{font-size:34px}.touch .endw{zoom:1.2}
 .touch #dbg{top:62px;left:420px}.touch #dbg button{font-size:16px;padding:6px 10px}
 .touch #stage .say{font-size:28px;max-width:1100px}.touch #tip{font-size:28px}
+.touch .fxn{font-size:150%}
 </style>
 </head>
 <body>

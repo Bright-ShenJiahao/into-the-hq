@@ -1,6 +1,10 @@
 // 《深入日军总部》界面和流程（最小可玩版：韩松 · 第一章 林海雪原）。规则在 engine.js，数据在 data.js。
 import { CARDS, ENEMIES, ENC, EVENTS, STARTER, KW, TYPE, RAR, SCH, BAYONET, MAG, FEEL_MAX } from './data.js';
 import * as E from './engine.js';
+import { createAudio } from './audio.js';
+const audio = createAudio();
+let SET = { shake: 1 }; try { Object.assign(SET, JSON.parse(localStorage.getItem('ithq_set') || '{}')); } catch (e) {}
+const saveSet = () => { try { localStorage.setItem('ithq_set', JSON.stringify(SET)); } catch (e) {} };
 
 const $ = s => document.querySelector(s);
 const view = $('#view'), fxl = $('#fx'), stage = $('#stage');
@@ -89,8 +93,8 @@ function topBar() {
 function bindTop() {
   $('#tbdeck') && ($('#tbdeck').onclick = () => showPile('牌组', R.deck));
   $('#tbrule') && ($('#tbrule').onclick = rules);
-  $('#tbmenu') && ($('#tbmenu').onclick = () => { const o = overlay(`<h2>菜单</h2><div class="col"><button class="btn" id="m_back">继续</button><button class="btn" id="m_title">回到标题（进度已保存）</button><button class="btn red" id="m_quit">放弃这一局</button></div>`);
-    o.querySelector('#m_back').onclick = () => o.remove(); o.querySelector('#m_title').onclick = () => { o.remove(); B = null; title(); };
+  $('#tbmenu') && ($('#tbmenu').onclick = () => { const o = overlay(`<h2>菜单</h2><div class="col"><button class="btn" id="m_back">继续</button><button class="btn" id="m_snd">音效：${audio.isOn() ? '开' : '关'}（M）</button><button class="btn" id="m_shk">画面震动：${SET.shake ? '开' : '关'}</button><button class="btn" id="m_title">回到标题（进度已保存）</button><button class="btn red" id="m_quit">放弃这一局</button></div>`);
+    o.querySelector('#m_back').onclick = () => o.remove(); o.querySelector('#m_snd').onclick = e => { e.target.textContent = `音效：${audio.toggle() ? '开' : '关'}（M）`; }; o.querySelector('#m_shk').onclick = e => { SET.shake = SET.shake ? 0 : 1; saveSet(); e.target.textContent = `画面震动：${SET.shake ? '开' : '关'}`; }; o.querySelector('#m_title').onclick = () => { o.remove(); B = null; title(); };
     o.querySelector('#m_quit').onclick = () => { o.remove(); clearSave(); B = null; R = null; title(); }; });
   view.querySelectorAll('[data-tip]').forEach(el => el.onclick = () => tipBox(el.dataset.tip));
 }
@@ -106,8 +110,15 @@ const kwify = s => s.replace(kwRe, m => `<span class="kw">${m}</span>`);
 const dsc = (c, f = x => x) => CARDS[c.id].desc(c.up, f);
 const kwOf = c => { const d = CARDS[c.id], s = dsc(c) + (d.sch === '狙' && d.gun ? '狙击牌' : '') + (d.sch === '冲' ? '冲锋枪牌' : '') + (d.sch === '冲' || d.sch === '手' ? '枪感' : '') + (d.ex ? '消耗' : '') + (d.type === 'power' ? '能力' : '') + (d.gun ? '拼刺' : ''); return Object.keys(KW).filter(k => s.includes(k)); };
 
+/* 卡牌插图：同类卡共用一个图标（同旧游戏）。出图后把有图的名字加进 ICONS_READY */
+const CARD_ICON = { note: 'pistol', s_beat: 'pistol', c_nambu: 'pistol', shoot: 'rifle', high: 'rifle', c_type97: 'rifle', crack: 'apround', h_shells: 'apround', h_lockon: 'helmet',
+  refrain: 'scope', echo: 'scope', h_scope: 'scope', lowf: 'binoc', hs_spotter: 'binoc', h_ex: 'round', h_ricochet: 'round', standby: 'breath', skip: 'wind',
+  barrage: 'smg', burst: 'smg', spread: 'smg', h_twin2: 'smg', c_ppsh: 'smg', h_sweep: 'casings', h_medkit: 'casings', c_type11: 'mg', h_drone: 'belt', expand: 'belt',
+  overload: 'barrel', rapid: 'barrel', hs_quickmag: 'mag', hs_depot: 'mag', hs_medkit: 'medkit', hs_bayonet: 'bayonet', defend: 'cover' };
+const ICON_NAME = { pistol: '手枪', rifle: '步枪', apround: '穿甲弹', helmet: '钢盔', scope: '准星', binoc: '望远镜', round: '子弹', breath: '屏息', wind: '风向', smg: '冲锋枪', casings: '弹壳', mg: '机枪', belt: '弹带', barrel: '枪管', mag: '弹匣', medkit: '急救包', bayonet: '刺刀', cover: '掩体' };
+const ICONS_READY = new Set();
 function cardHTML(c, extra = '', attrs = '') {
-  const d = CARDS[c.id], cost = d.cost[c.up ? 1 : 0];
+  const d = CARDS[c.id], cost = d.cost[c.up ? 1 : 0], ic = CARD_ICON[c.id] || 'round';
   let badge = '', cls = '';
   if (B && !B.over && extra.includes('inhand')) {
     const m = E.gunMode(B, c);
@@ -118,9 +129,10 @@ function cardHTML(c, extra = '', attrs = '') {
   const live = B && !B.over && extra.includes('inhand') && d.gun && E.gunMode(B, c) === 'shoot';
   const f = x => { if (!live) return x; const v = E.previewDmg(B, d, x); return v === x ? x : `<b class="${v > x ? 'dup' : 'ddn'}">${v}</b>`; };
   const text = dsc(c, f);
-  return `<div class="card t-${d.type}${c.up ? ' up' : ''}${d.gun ? ' gun' : ''}${cls} ${extra}" data-cid="${c.id}" ${attrs}>
+  return `<div class="card t-${d.type} s-${d.sch}${c.up ? ' up' : ''}${d.gun ? ' gun' : ''}${cls} ${extra}" data-cid="${c.id}" ${attrs}>
+    <div class="art">${ICONS_READY.has(ic) ? `<img src="assets/icons/${ic}.png" alt="" draggable="false">` : `<span class="ph">${ICON_NAME[ic]}</span>`}</div>
     <div class="cost">${cost}</div><div class="cname">${d.name}${c.up ? '+' : ''}</div>
-    <div class="ctype">${d.sch !== '通' ? `<i class="sch s-${d.sch}">${SCH[d.sch]}</i> · ` : ''}${TYPE[d.type]} · ${RAR[d.rar]}</div>
+    <div class="ctype">${d.sch !== '通' ? `<i class="sch s-${d.sch}">${SCH[d.sch]}</i> · ` : ''}${TYPE[d.type]}${d.rar === 'loot' ? ' · 缴获' : ''}</div>
     <div class="cdesc"><span>${kwify(text)}${d.ex && !text.includes('消耗') ? '<br>消耗。' : ''}</span></div>${badge}</div>`;
 }
 function showPile(t, cards, onPick, sub = '') {
@@ -216,6 +228,29 @@ function enterNode(t) {
 }
 
 // ---------- 战斗 ----------
+/* 逐帧动画（同旧游戏）：[帧数, 每帧毫秒, 模式] 模式 1=循环 0=播完回待机 2=停在最后一帧
+   韩松：assets/hansong/idle0-3、shoot0-3、hurt0-1、down0-2、stab0-1（共 15 帧）
+   敌人：assets/enemies/<名字>/idle0-1、atk0-1、hurt0、down0-1（共 7 帧）
+   帧图还没画好时，用 assets/units/ 下的单张图 + 代码呼吸动作顶替 */
+const HA = { idle: [4, 200, 1], shoot: [4, 75, 0], hurt: [2, 130, 0], down: [3, 220, 2], stab: [2, 140, 0] };
+const EA = { idle: [2, 480, 1], atk: [2, 210, 0], hurt: [1, 320, 0], down: [2, 260, 2] };
+const HERO = { dir: 'hansong', frames: false, still: 'hansong' }; /* 帧图到位后把 frames 改成 true */
+const SHOTKIND = { 狙: 'rifle', 冲: 'smg', 手: 'pistol' };
+let hst = { n: 'idle', t: 0 };
+function heroAct(n) { if (hst.n === 'down') return; hst = { n, t: performance.now() }; }
+function frameOf(tab, st, reset) { const [c, ms, mode] = tab[st.n] || tab.idle; let k = Math.floor((performance.now() - st.t) / ms); if (k >= c) { if (mode === 1) k %= c; else if (mode === 2) k = c - 1; else { reset(); return [ 'idle', Math.floor(performance.now() / tab.idle[1]) % tab.idle[0] ]; } } return [st.n in tab ? st.n : 'idle', k]; }
+function heroSrc() { if (!HERO.frames) return `assets/units/${HERO.still}.png`; const [n, k] = frameOf(HA, hst, () => { hst = { n: 'idle', t: performance.now() }; }); return `assets/${HERO.dir}/${n}${k}.png`; }
+function enemySrc(e) { if (!e.d.frames) return `assets/units/${e.d.art}.png`; const st = e.anim || { n: e.dead ? 'down' : 'idle', t: 0 }; if (e.dead && st.n !== 'down') { e.anim = { n: 'down', t: performance.now() }; } const [n, k] = frameOf(EA, e.anim || st, () => { e.anim = null; }); return `assets/enemies/${e.d.frames}/${n}${k}.png`; }
+function epose(e, n) { e.anim = { n, t: performance.now() }; }
+const pose = (n) => heroAct(n);
+/* 和旧游戏一样，每 80 毫秒刷新一次帧 */
+let lastT = 0;
+(function loop(t) { requestAnimationFrame(loop); if (!B || t - lastT < 80) return; lastT = t;
+  const h = view.querySelector('#hero .spr.art'); if (h) { const f = heroSrc(); if (!h.src.endsWith(f)) h.src = f; }
+  view.querySelectorAll('.enemy .spr.art').forEach(im => { const e = B.en.find(x => x.id === im.closest('.enemy').dataset.eid); if (e) { const f = enemySrc(e); if (!im.src.endsWith(f)) im.src = f; } });
+})(0);
+function motion(who, cls) { const el = view.querySelector(`[data-eid="${who}"] .sprw`); if (el) { el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); } }
+
 function battle(enc, kind) {
   B = E.startBattle(R, enc, kind, E.mulberry((Math.random() * 2 ** 31) | 0)); B.sel = -1; B.busy = 0;
   render(); if (kind === 'boss') banner('讨伐队长 · 村濑'); else if (kind === 'elite') banner('精英：讨伐队军曹');
@@ -228,131 +263,228 @@ function enemyHTML(e) {
   const d = e.d, [w, h] = e.key === 'captain' && e.phase === 2 ? [120, 190] : (ESIZE[e.key] || [100, 160]), it = e.dead ? null : E.intentOf(B, e);
   const tg = B.sel >= 0 && B.hand[B.sel] && E.needTarget(B.hand[B.sel]) && !e.dead;
   const label = e.key === 'captain' ? (e.phase === 2 ? '村濑' : '装甲车') : d.name;
-  return `<div class="unit enemy ${tg ? 'tg' : ''} ${e.dead ? 'dead' : ''}" data-eid="${e.id}">
-    <div class="intent">${it ? `${ICON[it.i]} ${it.text}<small>${it.name}</small>` : ''}</div>
-    <div class="sprw">${d.art ? `<img class="spr art" src="assets/units/${d.art}.png" style="height:${d.artH}px" alt="${d.name}">` : `<div class="spr blk ${d.boss ? 'bossb' : ''}" style="width:${w}px;height:${h}px;background:${d.col}">${label}</div>`}<i class="shd"></i></div>
+  return `<div class="unit enemy ${tg ? 'tg' : ''} ${e.dead ? 'dead' : ''} ${d.frames ? '' : 'noanim'}" data-eid="${e.id}">
+    <div class="intent">${it ? `<i class="ii ii-${it.i}">${ICON[it.i]}</i>${it.text}<small>${it.name}</small>` : ''}</div>
+    <div class="sprw">${d.art ? `<img class="spr art ${d.frames ? '' : 'still'}" src="${enemySrc(e)}" style="height:${d.artH}px" alt="${d.name}" draggable="false">` : `<div class="spr blk ${d.boss ? 'bossb' : ''}" style="width:${w}px;height:${h}px;background:${d.col}">${label}</div>`}<i class="shd"></i></div>
     ${barHTML(e.hp, e.max, e.block)}<div class="badges">${e.armor ? `<b class="arm" data-k="装甲">🛡 装甲 ${e.armor}</b>` : ''}${e.marks ? `<b class="mark" data-k="标尺">🎯 标尺 ${e.marks}</b>` : ''}${stsHTML(e.st)}</div>
     <div class="uname">${d.name}</div></div>`;
 }
+/* 血条：格挡是左边的蓝色圆圈（同旧游戏） */
 function barHTML(hp, max, blk) {
-  return `<div class="bar ${blk ? 'blk' : ''}"><i style="width:${Math.max(0, hp) / max * 100}%"></i><span>${Math.max(0, hp)}/${max}${blk ? ` +${blk}` : ''}</span></div>`;
+  return `<div class="hpw">${blk ? `<b class="blkv">${blk}</b>` : ''}<div class="bar ${blk ? 'blk' : ''}"><i style="width:${Math.max(0, hp) / max * 100}%"></i><span>${Math.max(0, hp)}/${max}</span></div></div>`;
 }
 const STN = { weak: ['虚弱', '#c8a0ff'], vuln: ['易伤', '#ff9a6a'], str: ['力量', '#ff6a5a'] };
 const stsHTML = st => Object.entries(st).filter(([k]) => STN[k]).map(([k, n]) => `<b class="st" style="color:${STN[k][1]};border-color:${STN[k][1]}" data-k="${STN[k][0]}">${STN[k][0]} ${n}</b>`).join('');
-function magHTML() {
+/* 弹仓挂在韩松脚下（旧游戏的光弹也是这样显示的） */
+function ammoHTML() {
   const pips = B.cap <= 16 ? Array.from({ length: B.cap }, (_, k) => `<i class="${k < B.ammo ? 'f' : ''}"></i>`).join('') : `<em class="mbar"><u style="width:${B.ammo / B.cap * 100}%"></u></em>`;
-  const full = B.ammo >= B.cap, fb = Math.floor(B.p.feel / 2);
-  const lab = B.p.reloaded ? (B.p.depotLeft ? '已装填（还能打 1 张枪械牌）' : '已装填 · 本回合不能开枪') : full ? '弹仓已满' : '装填（0 费）';
-  return `<div id="wpn"><div class="wrow on"><b>弹仓</b><em class="cnt ${B.ammo ? '' : 'zero'}">${B.ammo}/${B.cap}</em><span class="pips">${pips}</span></div>
-   <div class="feel" data-k="枪感"><b>枪感 ${B.p.feel}</b><span class="fpips">${Array.from({ length: FEEL_MAX }, (_, k) => `<i class="${k < B.p.feel ? 'f' : ''}"></i>`).join('')}</span><small>${fb ? `冲锋枪/手枪每发 +${fb}` : '每 2 点 +1 伤害'}</small></div>
-   <button class="btn reload ${!full && !B.p.reloaded ? 'hot' : ''}" id="reload" ${full || B.p.reloaded || B.busy ? 'disabled' : ''}>${lab}</button></div>`;
+  return `<div class="ammo ${B.ammo ? '' : 'zero'}" data-k="弹仓"><span class="pips">${pips}</span><b>${B.ammo}/${B.cap}</b></div>
+   <div class="badges"><b class="feelc" data-k="枪感">枪感 ${B.p.feel}${B.p.feel >= 2 ? `（+${Math.floor(B.p.feel / 2)}）` : ''}</b>${stsHTML(B.p.st)}${Object.keys(B.p.pw).map(k => `<b class="pw">${({ scope: '瞄准镜', depot: '备用弹匣', rapid: '枪感训练', quick: '快换弹匣' })[k]}</b>`).join('')}</div>`;
+}
+function reloadBtn() {
+  const full = B.ammo >= B.cap;
+  const lab = B.p.reloaded ? (B.p.depotLeft ? '已装填 · 还能打 1 张' : '已装填 · 本回合不能开枪') : full ? '弹仓已满' : `装填 <small>0 费 · R</small>`;
+  return `<button class="btn reload ${!full && !B.p.reloaded ? 'hot' : ''} ${!B.ammo && !B.p.reloaded ? 'urgent' : ''}" id="reload" ${full || B.p.reloaded || B.busy ? 'disabled' : ''}>${lab}</button>`;
+}
+/* 手牌：扇形排开，只露上半截（费用、插图、卡名），鼠标移上去 / 手机按住才看说明（同旧游戏） */
+function handLayout() {
+  const n = B.hand.length, HZ = TOUCH ? 1.45 : 1, cw = 150, W = TOUCH ? (SW - 560) / HZ : SW - 300, gap = Math.min(cw + 6, (W - cw) / Math.max(1, n - 1));
+  const x0 = TOUCH ? (SW / HZ - (gap * (n - 1) + cw)) / 2 : (W - (gap * (n - 1) + cw)) / 2;
+  return { n, HZ, gap, x0 };
 }
 function render() {
   if (!B) return;
-  const n = B.hand.length, HZ = TOUCH ? 1.25 : 1, cw = 150, Wd = SW / HZ - (TOUCH ? 330 : 300), gap = Math.min(cw + 8, (Wd - cw) / Math.max(1, n - 1));
-  const x0 = (SW / HZ - (gap * (n - 1) + cw)) / 2 - (TOUCH ? 0 : 0);
+  const { n, gap, x0 } = handLayout();
   const hand = B.hand.map((c, i) => {
-    const mid = (n - 1) / 2, sel = B.sel === i, rot = sel ? 0 : (i - mid) * 3, dy = sel ? (TOUCH ? -60 : -70) : Math.abs(i - mid) ** 2 * 2.2;
-    const off = E.cantPlay(B, c);
-    return cardHTML(c, `inhand ${sel ? 'sel' : ''} ${off ? 'off' : ''}`, `data-i="${i}" style="left:${x0 + i * gap}px;transform:translateY(${dy}px) rotate(${rot}deg)${sel ? ' scale(' + (TOUCH ? 1.35 : 1.3) + ')' : ''};z-index:${sel ? 90 : i + 1}"`);
+    const mid = (n - 1) / 2, sel = B.sel === i, rot = (i - mid) * 3, dy = Math.abs(i - mid) ** 2 * 2.2, off = E.cantPlay(B, c);
+    return cardHTML(c, `inhand ${sel ? 'sel' : ''} ${off ? 'off' : ''}`, `data-i="${i}" style="left:${x0 + i * gap}px;transform:translateY(${sel ? -100 : dy}px) rotate(${sel ? 0 : rot}deg);z-index:${sel ? 60 : i + 1}"`);
   }).join('');
-  const inc = E.incoming(B), selC = B.sel >= 0 ? B.hand[B.sel] : null;
+  const inc = E.incoming(B);
   view.innerHTML = `<div class="bg battle"></div>${topBar()}
-   <div id="hero" class="unit" data-eid="hero"><div class="intent"></div><div class="sprw"><img class="spr art" src="assets/units/hansong.png" style="height:${TOUCH ? 240 : 250}px" alt="韩松"><i class="shd"></i></div>
-    ${barHTML(R.hp, R.maxHp, B.p.block)}<div class="badges">${stsHTML(B.p.st)}${Object.keys(B.p.pw).map(k => `<b class="pw">${({ scope: '瞄准镜', depot: '备用弹匣', rapid: '枪感训练', quick: '快换弹匣' })[k]}</b>`).join('')}</div>
-    ${inc ? `<div class="inc ${inc > B.p.block ? 'low' : 'ok'}">将受到 ${Math.max(0, inc - B.p.block)} 伤害</div>` : ''}</div>
-   <div id="enemies">${B.en.filter(e => !(e.dead && Date.now() - e.deadAt > 1200)).map(enemyHTML).join('')}</div>
-   ${magHTML()}
+   <div id="hero" class="unit" data-eid="hero"><div class="intent"></div><div class="sprw"><img class="spr art ${HERO.frames ? '' : 'still'}" src="${heroSrc()}" style="height:${TOUCH ? 235 : 250}px" alt="韩松" draggable="false"><i class="shd"></i></div>
+    ${barHTML(R.hp, R.maxHp, B.p.block)}${ammoHTML()}${inc ? `<div class="inc ${inc > B.p.block ? 'low' : 'ok'}">受到 ${Math.max(0, inc - B.p.block)}</div>` : ''}</div>
+   <div id="enemies">${B.en.filter(e => !(e.dead && Date.now() - e.deadAt > 1400)).map(enemyHTML).join('')}</div>
    <div id="energy" class="${B.p.energy ? '' : 'empty'}">${B.p.energy}/${E.ENERGY}</div>
-   <button class="btn" id="endturn" ${B.busy ? 'disabled' : ''}>${B.busy ? '敌人回合' : '结束回合'}</button>
-   <div class="pile" id="drawp">抽牌堆<b>${B.draw.length}</b></div><div class="pile" id="discp">弃牌堆<b>${B.disc.length}</b></div><div class="pile" id="exhp">消耗<b>${B.exh.length}</b></div>
-   <div id="hand">${hand}</div>
-   ${selC ? `<div id="kwbox" style="${kwPos(x0 + B.sel * gap, HZ)}">${kwOf(selC).map(k => `<p><b>${k}</b>${KW[k]}</p>`).join('')}<p class="hint">${E.cantPlay(B, selC) ? '⚠ ' + E.cantPlay(B, selC) : E.needTarget(selC) && E.alive(B).length > 1 ? '点一个敌人打出' : TOUCH ? '再点一次打出' : '再点一次或按空格打出'}</p></div>` : ''}`;
+   ${reloadBtn()}<button class="btn" id="endturn" ${B.busy ? 'disabled' : ''}>${B.busy ? '敌人回合' : `结束回合${TOUCH ? '' : ' <small>E</small>'}`}</button>
+   <div class="pile" id="drawp">抽牌<b>${B.draw.length}</b></div><div class="pile" id="discp">弃牌<b>${B.disc.length}</b></div><div class="pile" id="exhp">消耗<b>${B.exh.length}</b></div>
+   <div id="hand">${hand}</div>${B.sel >= 0 ? `<div id="tip" class="stay">点一个敌人打出（${TOUCH ? '点空白处取消' : 'Esc 取消'}）</div>` : ''}`;
   bindTop();
-  $('#endturn').onclick = endTurn;
-  $('#reload').onclick = doReload;
+  $('#endturn').onclick = endTurn; $('#reload').onclick = doReload;
   $('#drawp').onclick = () => showPile('抽牌堆（顺序已打乱）', [...B.draw].sort((a, b) => a.id < b.id ? -1 : 1));
   $('#discp').onclick = () => showPile('弃牌堆', B.disc);
   $('#exhp').onclick = () => showPile('消耗', B.exh);
-  view.querySelectorAll('#hand .card').forEach(el => el.onclick = ev => { ev.stopPropagation(); clickCard(+el.dataset.i); });
+  view.querySelectorAll('#hand .card').forEach(el => {
+    el.onclick = ev => { ev.stopPropagation(); if (DRAGGED) return; clickCard(+el.dataset.i); };
+    if (!TOUCH) { el.onmouseenter = () => kwShow(el); el.onmouseleave = kwHide; }
+  });
   view.querySelectorAll('.enemy').forEach(el => el.onclick = ev => { ev.stopPropagation(); clickEnemy(el.dataset.eid); });
-  view.querySelectorAll('.badges b[data-k], #wpn [data-k]').forEach(el => el.onclick = ev => { ev.stopPropagation(); const k = el.dataset.k; tipBox(`<b>${k}</b>：${KW[k] || ({ 力量: '每次攻击伤害增加等同层数。' })[k] || ''}`); });
-  view.querySelector('.bg').onclick = () => { if (B.sel >= 0) { B.sel = -1; render(); } };
+  view.querySelectorAll('.badges b[data-k], .ammo[data-k]').forEach(el => el.onclick = ev => { ev.stopPropagation(); const k = el.dataset.k; tipBox(`<b>${k}</b>：${KW[k] || ({ 力量: '每次攻击伤害增加等同层数。' })[k] || ''}`); });
+  view.querySelector('.bg').onclick = () => { kwHide(); if (B.sel >= 0) { B.sel = -1; render(); } };
   fitEnemies(); flushFx(); dbgPanel();
 }
-/* 关键词说明框贴在选中的牌旁边（右边放不下就放左边） */
-function kwPos(x, hz) { const sc = TOUCH ? 1.35 : 1.3, half = 75 * sc * hz, cx = (x + 75) * hz, bw = 300 * (TOUCH ? 1.3 : 1);
-  return cx + half + 12 + bw < SW - 10 ? `left:${cx + half + 12}px` : `left:${Math.max(10, cx - half - 12 - bw)}px`; }
+/* 关键词说明框：贴在牌的旁边 */
+function kwShow(el) {
+  kwHide(); const c = B && B.hand[+el.dataset.i]; if (!c) return; const L = kwOf(c), why = E.cantPlay(B, c);
+  const s = stage._s || 1, sr = stage.getBoundingClientRect(), r = el.getBoundingClientRect(), bw = TOUCH ? 380 : 270;
+  const box = document.createElement('div'); box.id = 'kwbox';
+  box.innerHTML = `${L.map(k => `<p><b>${k}</b>${KW[k]}</p>`).join('')}${why ? `<p class="hint bad">⚠ ${why}</p>` : `<p class="hint">${TOUCH ? '往上拖动打出' : E.needTarget(c) && E.alive(B).length > 1 ? '点牌后再点敌人，或直接拖到敌人身上' : '点击打出，或往上拖'}</p>`}`;
+  const right = (r.right - sr.left) / s + 14, left = (r.left - sr.left) / s - 14 - bw;
+  box.style.left = (right + bw < SW - 10 ? right : Math.max(10, left)) + 'px'; box.style.bottom = (TOUCH ? 250 : 200) + 'px'; box.style.width = bw + 'px';
+  stage.appendChild(box);
+}
+function kwHide() { $('#kwbox')?.remove(); }
 /* 敌人一排太宽、会挤到韩松身上时，整排按比例缩小 */
 function fitEnemies() { const row = $('#enemies'), hero = $('#hero .spr'); if (!row || !hero) return; row.style.transform = '';
-  const s = stage._s || 1, rr = row.getBoundingClientRect(), hr = hero.getBoundingClientRect(), room = (rr.right - hr.right) / s - 30, w = rr.width / s;
+  const s = stage._s || 1, rr = row.getBoundingClientRect(), hr = hero.getBoundingClientRect(), room = (rr.right - hr.right) / s - 40, w = rr.width / s;
   if (w > room && room > 80) { row.style.transformOrigin = 'right bottom'; row.style.transform = `scale(${Math.max(.6, room / w)})`; } }
+/* 电脑：点一下打出（要选目标的牌先点牌再点敌人）。手机：点一下放大看牌，拖上去才打出（防误触） */
 function clickCard(i) {
-  if (!B || B.busy || B.over) return;
-  const c = B.hand[i]; if (!c) return;
-  /* 电脑：不用选目标（或只剩一个敌人）的牌点一下就打出；手机：第一下放大看牌，第二下打出 */
-  if (B.sel !== i) {
-    if (!TOUCH && !E.cantPlay(B, c) && (!E.needTarget(c) || E.alive(B).length === 1)) return play(i, E.needTarget(c) ? E.alive(B)[0].id : undefined);
-    B.sel = i; render(); return;
-  }
+  if (!B || B.busy || B.over || B.anim) return; const c = B.hand[i]; if (!c) return;
+  if (TOUCH) return;
   const why = E.cantPlay(B, c); if (why) { tip(why); return; }
-  if (E.needTarget(c)) { const a = E.alive(B); if (a.length === 1) return play(i, a[0].id); tip('点一个敌人打出'); return; }
+  if (E.needTarget(c)) { const a = E.alive(B); if (a.length === 1) return play(i, a[0].id); B.sel = B.sel === i ? -1 : i; kwHide(); render(); return; }
   play(i);
 }
 function clickEnemy(id) {
-  if (!B || B.busy || B.over || B.sel < 0) return; const c = B.hand[B.sel]; if (!c) return;
+  if (!B || B.busy || B.over || B.anim || B.sel < 0) return; const c = B.hand[B.sel]; if (!c) return;
   const why = E.cantPlay(B, c); if (why) { tip(why); return; }
-  play(B.sel, E.needTarget(c) ? id : undefined);
+  play(B.sel, id);
 }
+/* 出牌：牌先飞到中间，效果在飞的途中结算（同旧游戏） */
 async function play(i, tid) {
-  const c = B.hand[i], wasEmpty = B.ammo === 0 && CARDS[c.id].gun;
-  if (!E.playCard(B, i, tid)) return;
-  B.sel = -1; render(); flushMsgs();
-  if (wasEmpty) say('弹仓空了，端起刺刀！', 1600);
+  const c = B.hand[i]; if (!c || B.anim) return; const d = CARDS[c.id], why = E.cantPlay(B, c); if (why) { tip(why); return; }
+  const mode = E.gunMode(B, c), el = view.querySelector(`#hand .card[data-i="${i}"]`);
+  B.anim = 1; B.sel = -1; kwHide(); audio.card();
+  if (el) { flyCard(el, d.type); el.style.visibility = 'hidden'; }
+  await sleep(170);
+  if (!B || !B.hand.includes(c)) { if (B) B.anim = 0; return; }
+  E.playCard(B, B.hand.indexOf(c), tid);
+  B.shotKind = mode === 'shoot' ? SHOTKIND[d.sch] : null;
+  if (mode === 'shoot') heroAct('shoot');
+  else if (mode === 'bayonet') { heroAct('stab'); setTimeout(() => motion('hero', 'dash'), 0); audio.stab(); }
+  B.anim = 0; render(); flushMsgs();
+  if (mode === 'bayonet') say('弹仓空了，端起刺刀！', 1500);
   await checkEnd();
 }
-function doReload() { if (!B || B.busy || B.over) return; if (E.reload(B)) { B.sel = -1; render(); } }
+function flyCard(el, type) {
+  const sc = stage._s || 1, sr = stage.getBoundingClientRect(), r = el.getBoundingClientRect();
+  const cl = el.cloneNode(true); cl.removeAttribute('data-i'); cl.classList.remove('sel', 'off', 'peek', 'dragging');
+  cl.style.cssText = `position:absolute;left:${(r.left - sr.left) / sc}px;top:${(r.top - sr.top) / sc}px;z-index:80;transform:none;margin:0;pointer-events:none`;
+  fxl.appendChild(cl); cl.getBoundingClientRect();
+  cl.style.transition = 'left .18s ease-out,top .18s ease-out,transform .18s ease-out';
+  cl.style.left = (SW / 2 - 75) + 'px'; cl.style.top = '170px'; cl.style.transform = 'scale(1.25)';
+  setTimeout(() => { cl.style.transition = 'all .28s ease-in'; cl.style.opacity = '0'; cl.style.transform = type === 'power' ? 'scale(1.8)' : `translate(${SW / 2 - 150}px,330px) scale(.3) rotate(25deg)`; }, 300);
+  setTimeout(() => cl.remove(), 650);
+}
+function doReload() {
+  if (!B || B.busy || B.over || B.anim) return;
+  if (E.reload(B)) { B.sel = -1; audio.reload(); render(); motion('hero', 'recoil'); flushMsgs(); }
+}
 async function endTurn() {
-  if (!B || B.busy || B.over) return;
-  B.busy = 1; B.sel = -1; E.endPlayerTurn(B); render();
+  if (!B || B.busy || B.over || B.anim) return;
+  B.busy = 1; B.sel = -1; kwHide(); E.endPlayerTurn(B); render();
   await sleep(350);
   for (const e of B.en.filter(x => !x.dead)) {
-    if (B.over) break; E.enemyAct(B, e); lunge(e.id); render(); flushMsgs(); await sleep(520);
+    if (B.over) break;
+    const m = e.d.moves[e.move];
+    if (m && m.d) { epose(e, 'atk'); motion(e.id, 'lunge'); const melee = /刺|刀|咬|扑|撞/.test(m.t); setTimeout(() => melee ? audio.stab() : audio.shot(e.key === 'mg' || (e.key === 'captain' && e.move === 'mgun') ? 'smg' : e.key === 'sergeant' || e.move === 'pistol' ? 'pistol' : 'rifle'), 120); await sleep(180); }
+    E.enemyAct(B, e); render(); flushMsgs(); await sleep(m && m.d ? 560 : 380);
   }
   if (await checkEnd()) return;
   E.startTurn(B); B.busy = 0; render(); flushMsgs();
 }
-function lunge(id) { const el = view.querySelector(`.enemy[data-eid="${id}"] .sprw`); if (el) { el.classList.remove('lunge'); void el.offsetWidth; el.classList.add('lunge'); } }
 async function checkEnd() {
   const r = E.result(B); if (!r) return false;
-  B.busy = 1; await sleep(700);
-  if (r === 'lose') { endScreen(false, '倒在了林海雪原里'); return true; }
-  const kind = B.kind, en = B.en; B.over = 'win';
+  B.busy = 1; await sleep(800);
+  if (r === 'lose') { heroAct('down'); audio.lose(); await sleep(900); endScreen(false, '倒在了林海雪原里'); return true; }
+  const kind = B.kind, en = B.en; B.over = 'win'; audio.win();
   if (kind === 'boss') { R.hp = Math.max(1, R.hp); clearSave(); endScreen(true); return true; }
   winRewards(kind, en); return true;
 }
 
-// ---------- 动画 ----------
+// ---------- 拖动出牌（移植自旧游戏）：手机只拖动，电脑点击和拖动都可以 ----------
+let DR = null, DRAGGED = false;
+const stXY = ev => { const s = stage._s || 1, r = stage.getBoundingClientRect(); return [(ev.clientX - r.left) / s, (ev.clientY - r.top) / s]; };
+const enemyAt = ev => { const el = document.elementFromPoint(ev.clientX, ev.clientY); const en = el && el.closest && el.closest('.enemy'); const e = en && B && B.en.find(x => x.id === en.dataset.eid); return e && !e.dead ? e : null; };
+const aimMark = id => { view.querySelectorAll('.enemy.aim').forEach(x => x.classList.remove('aim')); if (id) view.querySelector(`.enemy[data-eid="${id}"]`)?.classList.add('aim'); };
+view.addEventListener('pointerdown', ev => {
+  const el = ev.target.closest && ev.target.closest('#hand .card'); if (!el || !B || B.busy || B.over || B.anim || ev.button > 0) return;
+  const i = +el.dataset.i, c = B.hand[i]; if (!c) return; const [x, y] = stXY(ev), r = el.getBoundingClientRect(), s = stage._s || 1, sr = stage.getBoundingClientRect();
+  DR = { i, el, x0: x, y0: y, moved: false, tgt: E.needTarget(c), cx: (r.left + r.width / 2 - sr.left) / s, cy: (r.top - sr.top) / s + 20 };
+  ev.preventDefault(); DRAGGED = false;
+  if (TOUCH) { view.querySelectorAll('#hand .card.peek').forEach(x => x.classList.remove('peek')); el.classList.add('peek'); kwShow(el); }
+});
+addEventListener('pointermove', ev => {
+  if (!DR || !B) return; const [x, y] = stXY(ev); if (!DR.moved && Math.hypot(x - DR.x0, y - DR.y0) < 14) return;
+  if (!DR.moved) { DR.moved = true; DRAGGED = true; kwHide(); DR.el.classList.remove('peek'); DR.el.classList.add('dragging'); }
+  if (DR.tgt) {
+    DR.el.style.setProperty('--dt', 'translateY(-40px) scale(1.05) rotate(0deg)'); let ln = $('#aimline');
+    if (!ln) { ln = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); ln.id = 'aimline'; ln.setAttribute('style', `position:absolute;left:0;top:0;width:${SW}px;height:720px;z-index:85;pointer-events:none;overflow:visible`); stage.appendChild(ln); }
+    /* 杀戮尖塔式箭头：沿曲线排一串由小变大的箭头块，指到敌人时变红 */
+    const e = enemyAt(ev), col = e ? '#ff5a4a' : '#ffd35a', x0 = DR.cx, y0 = DR.cy - 40, cx = (x0 + x) / 2, cy = Math.min(y0, y) - 160, N = 11;
+    const P = t => [(1 - t) * (1 - t) * x0 + 2 * (1 - t) * t * cx + t * t * x, (1 - t) * (1 - t) * y0 + 2 * (1 - t) * t * cy + t * t * y];
+    let h = '';
+    for (let k = 1; k < N; k++) { const t = k / N, [px, py] = P(t), [qx, qy] = P(t + .01), a = Math.atan2(qy - py, qx - px) * 180 / Math.PI, sz = 9 + 15 * t;
+      h += `<path d="M${-sz},${-sz} L${sz * .6},0 L${-sz},${sz} L${-sz * .4},0 Z" fill="${col}" stroke="#2a1a08" stroke-width="3" transform="translate(${px},${py}) rotate(${a})"/>`; }
+    const [ex, ey] = P(.97), ang = Math.atan2(y - ey, x - ex) * 180 / Math.PI;
+    h += `<path d="M-38,-38 L30,0 L-38,38 L-18,0 Z" fill="${col}" stroke="#2a1a08" stroke-width="3" transform="translate(${x},${y}) rotate(${ang})"/>`;
+    ln.innerHTML = h; aimMark(e ? e.id : null);
+  } else { DR.el.style.setProperty('--dt', `translate(${x - DR.x0}px,${y - DR.y0}px) scale(1.08)`); DR.el.classList.toggle('ready', y < 470); }
+});
+addEventListener('pointerup', ev => {
+  if (!DR || !B) { DR = null; return; } const d = DR, [, y] = stXY(ev);
+  if (!d.moved) { DR = null; return; }
+  const e = d.tgt ? enemyAt(ev) : null; DR = null; $('#aimline')?.remove(); aimMark(null); setTimeout(() => { DRAGGED = false; }, 50);
+  const c = B.hand[d.i], why = c && E.cantPlay(B, c);
+  if (why && (e || y < 470)) { tip(why); render(); return; }
+  if (d.tgt) { const a = E.alive(B); if (e) return play(d.i, e.id); if (a.length === 1 && y < 470) return play(d.i, a[0].id); }
+  else if (y < 470) return play(d.i);
+  render();
+});
+addEventListener('pointercancel', () => { if (DR) { DR = null; $('#aimline')?.remove(); aimMark(null); render(); } });
+
+// ---------- 打击感：子弹、枪口火光、弹壳、伤害数字、重击停顿、震屏 ----------
 function flushFx() {
-  const s = stage._s || 1, sr = stage.getBoundingClientRect(), count = {}; let shake = false, bn = 0;
-  const pos = who => { const el = view.querySelector(`[data-eid="${who}"] .spr`); if (!el) return null; const r = el.getBoundingClientRect(); return [(r.left + r.width / 2 - sr.left) / s, (r.top - sr.top) / s, r.height / s]; };
+  const s = stage._s || 1, sr = stage.getBoundingClientRect(), count = {};
+  const pos = who => { const el = view.querySelector(`[data-eid="${who}"] .spr`); if (!el) return null; const r = el.getBoundingClientRect(); return { cx: (r.left + r.width / 2 - sr.left) / s, top: (r.top - sr.top) / s, h: r.height / s, right: (r.right - sr.left) / s }; };
+  const later = (ms, f) => ms > 0 ? setTimeout(f, ms) : f();
+  const add = (cls, x, y, ms, css = '') => { const d = document.createElement('div'); d.className = cls; d.style.cssText = `left:${x}px;top:${y}px;${css}`; fxl.appendChild(d); setTimeout(() => d.remove(), ms); return d; };
+  const kind = B.shotKind, gap = kind === 'smg' ? 85 : kind === 'pistol' ? 110 : 0;
+  let t = 0, shotN = 0, bigShake = false;
+  const hp = pos('hero');
   for (const f of B.fx) {
-    const p = pos(f.who); if (!p) continue; const [cx, top, h] = p;
-    if (f.cls === 'bul') { const hp = pos('hero'); if (!hp) continue; const hx = hp[0] + 50, hy = hp[1] + 50, ty = top + h * .4;
-      const b = document.createElement('div'); b.className = 'bullet'; b.style.left = hx + 'px'; b.style.top = hy + 'px'; b.style.setProperty('--dx', (cx - hx) + 'px'); b.style.setProperty('--dy', (ty - hy) + 'px'); b.style.animationDelay = bn * 70 + 'ms'; bn++; fxl.appendChild(b); setTimeout(() => b.remove(), 600 + bn * 70); continue; }
+    const p = pos(f.who); if (!p) continue;
+    if (f.cls === 'bul') {
+      if (!hp) continue; const at = t; t += gap || 40; shotN++;
+      const mx = hp.right - 8, my = hp.top + hp.h * .27, ty = p.top + p.h * .4;
+      later(at, () => {
+        audio.shot(kind || 'rifle');
+        add('muzzle', mx, my, 120); motion('hero', 'recoil');
+        const b = add('bullet', mx, my, 400); b.style.setProperty('--dx', (p.cx - mx) + 'px'); b.style.setProperty('--dy', (ty - my) + 'px');
+        if (kind !== 'rifle') { const c = add('casing', mx - 40, my + 10, 650); c.style.setProperty('--dx', (-30 - Math.random() * 40) + 'px'); c.style.setProperty('--r', (200 + Math.random() * 400) + 'deg'); }
+      });
+      f.at = at + 110; continue;
+    }
+    const at = f.who !== 'hero' && f.cls === 'dmg' && shotN ? Math.max(0, t - (gap || 40)) + 110 : f.who === 'hero' ? 0 : t;
     count[f.who] = (count[f.who] || 0) + 1; const k = count[f.who];
-    const d = document.createElement('div'); d.className = 'fxn ' + f.cls; d.textContent = f.text;
-    d.style.left = cx + (k - 1) * 16 + 'px'; d.style.top = top + 10 + (k - 1) * 26 + 'px'; d.style.animationDelay = Math.min(6, k - 1) * 60 + 'ms';
-    fxl.appendChild(d); setTimeout(() => d.remove(), 1300);
-    if (f.cls === 'dmg') { if (f.who === 'hero') shake = true;
-      const sw = view.querySelector(`[data-eid="${f.who}"] .sprw`); if (sw) { sw.classList.remove('hitf'); void sw.offsetWidth; sw.classList.add('hitf'); }
-      for (let q = 0; q < (TOUCH ? 4 : 7); q++) { const sp = document.createElement('div'); sp.className = 'spark'; const an = Math.random() * 6.28, dist = 40 + Math.random() * 70;
-        sp.style.left = cx + 'px'; sp.style.top = top + h * .45 + 'px'; sp.style.setProperty('--dx', Math.cos(an) * dist + 'px'); sp.style.setProperty('--dy', Math.sin(an) * dist + 'px'); if (f.who === 'hero') sp.style.background = '#ff5a4a';
-        fxl.appendChild(sp); setTimeout(() => sp.remove(), 600); } }
+    const n = parseInt(String(f.text).replace('-', '')) || 0, big = f.cls === 'dmg' && n >= 12;
+    if (big && f.who !== 'hero') bigShake = true;
+    later(at, () => {
+      const d = add('fxn ' + f.cls + (big ? ' crit' : ''), p.cx + (k - 1) * 14, p.top + 10 + (f.cls === 'st' ? (k - 1) * 24 : 0), 1300);
+      d.textContent = f.text;
+      if (f.cls === 'dmg') {
+        motion(f.who, big ? 'hitbig' : 'hitf'); add('impact' + (big ? ' big' : ''), p.cx, p.top + p.h * .42, 260);
+        for (let q = 0; q < (TOUCH ? 4 : 7) + (big ? 5 : 0); q++) { const an = Math.random() * 6.28, dist = 40 + Math.random() * (big ? 120 : 70);
+          const sp = add('spark', p.cx, p.top + p.h * .45, 600, f.who === 'hero' ? 'background:#ff5a4a' : ''); sp.style.setProperty('--dx', Math.cos(an) * dist + 'px'); sp.style.setProperty('--dy', Math.sin(an) * dist + 'px'); }
+        if (f.who === 'hero') { audio.hurt(); heroAct('hurt'); shake(); }
+        else { audio.hit(big); const e = B && B.en.find(x => x.id === f.who); if (e) { if (e.dead && !e.sfxDead) { e.sfxDead = 1; epose(e, 'down'); setTimeout(() => audio.kill(), 120); } else if (!e.dead) epose(e, 'hurt'); } }
+        if (big) shake(true);
+      } else if (f.cls === 'blk' && f.text === '格挡') audio.block();
+    });
   }
-  if (shake) { view.classList.remove('shake'); void view.offsetWidth; view.classList.add('shake'); }
-  B.fx = [];
+  B.fx = []; B.shotKind = null;
 }
+function shake(hard) { if (!SET.shake) return; view.classList.remove('shake', 'shake2'); void view.offsetWidth; view.classList.add(hard ? 'shake2' : 'shake'); }
 
 // ---------- 战后 ----------
 function rollCards(n, elite) {
@@ -444,7 +576,8 @@ addEventListener('keydown', e => {
   else if (e.key === 'r' || e.key === 'R') doReload();
   else if (e.key === 'Escape') { B.sel = -1; render(); }
   else if (/^[1-9]$/.test(e.key)) { const i = +e.key - 1; if (i < B.hand.length) clickCard(i); }
-  else if ((e.key === ' ' || e.key === 'Enter') && B.sel >= 0) { e.preventDefault(); clickCard(B.sel); }
+  else if ((e.key === 'ArrowLeft' || e.key === 'ArrowRight') && B.sel >= 0) { const a = E.alive(B); B.aimI = ((B.aimI || 0) + (e.key === 'ArrowRight' ? 1 : -1) + a.length) % a.length; aimMark(a[B.aimI].id); e.preventDefault(); }
+  else if ((e.key === 'Enter' || e.key === ' ') && B.sel >= 0) { e.preventDefault(); const a = E.alive(B); play(B.sel, a[(B.aimI || 0) % a.length].id); }
 });
 
 // ---------- 调试面板（?debug） ----------
