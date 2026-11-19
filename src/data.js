@@ -9,6 +9,14 @@ import { CHAPTER1 } from './content/ch1.js';
 import { RELICS } from './content/relics.js';
 import { ITEMS, ITEM_SLOTS } from './content/items.js';
 export { V, pick, RELICS, ITEMS, ITEM_SLOTS, BAYONET, MAG, FEEL_MAX };
+/* 随身物品、背包用品的图标：有图用图（assets/relics、assets/items），没图的新物品先用内容文件里写的表情符号 */
+const ICON_READY = { relics: new Set(['strap', 'watch', 'mittens', 'ulacao', 'foodbag', 'canteen', 'belt', 'whet', 'doghat', 'scope2', 'drum', 'letter', 'herbs', 'intelmap', 'flint', 'ginseng', 'notes', 'ammobox', 'kwmap', 'apcmg', 'saber']),
+  items: new Set(['grenade', 'shaodaozi', 'smoke', 'beef', 'badger', 'flaregun', 'soybeans']) };
+const ICON_PATH = { items: { medkit: 'assets/icons/medkit.png' } };
+for (const [dir, tab] of [['relics', RELICS], ['items', ITEMS]]) for (const [id, d] of Object.entries(tab)) {
+  d.emoji = d.icon; const src = (ICON_PATH[dir] || {})[id] || (ICON_READY[dir].has(id) ? `assets/${dir}/${id}.png` : null);
+  if (src) d.icon = `<img class="ico" src="${src}" alt="" draggable="false">`;
+}
 
 export const SAVE_VERSION = 2;
 export const CHARS = { hansong: HANSONG };

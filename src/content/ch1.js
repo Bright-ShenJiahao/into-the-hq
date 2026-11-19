@@ -50,7 +50,7 @@ export const FRAMES_CH1 = { inf: { cw: 462, ch: 404, ax: 195, sw: 359, sh: 402 }
   puppet: { cw: 555, ch: 396, ax: 278, sw: 274, sh: 394 }, dog: { cw: 635, ch: 211, ax: 360, sw: 384, sh: 153 }, mortar: { cw: 498, ch: 317, ax: 215, sw: 309, sh: 315 },
   mg: { cw: 521, ch: 216, ax: 271, sw: 393, sh: 206 }, sniper: { cw: 504, ch: 341, ax: 232, sw: 368, sh: 299 }, sergeant: { cw: 440, ch: 382, ax: 154, sw: 240, sh: 380 },
   captain_car: { cw: 312, ch: 222, ax: 149, sw: 281, sh: 208 }, captain_foot: { cw: 426, ch: 264, ax: 147, sw: 185, sh: 249 },
-  hmg: { cw: 433, ch: 230, ax: 179, sw: 424, sh: 228 }, pcap: { cw: 580, ch: 387, ax: 172, sw: 178, sh: 385 }, kcap: { cw: 440, ch: 389, ax: 212, sw: 118, sh: 387 } };
+  hmg: { cw: 433, ch: 230, ax: 179, sw: 424, sh: 228 }, pcap: { cw: 580, ch: 387, ax: 172, sw: 178, sh: 385 }, kcap: { cw: 450, ch: 376, ax: 246, sw: 118, sh: 374 } };
 /* 色块占位时的大小（还没出图的敌人） */
 export const BLOCK_SIZE_CH1 = {};
 
