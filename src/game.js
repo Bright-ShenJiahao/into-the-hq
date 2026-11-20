@@ -2,7 +2,7 @@
 import { CARDS, ENEMIES, CHARS, CHAPTERS, RELICS, ITEMS, ITEM_SLOTS, FRAMES, BLOCK_SIZE, KW, TYPE, RAR, SCH, BAYONET, SAVE_VERSION } from './data.js';
 import * as E from './engine.js';
 import { createAudio } from './audio.js';
-import { MENTOR, TUT, HIST, TERMS, MARTYRS, PEOPLE } from './content/codex.js';
+import { MENTOR, TUT, HIST, TERMS, MARTYRS, PEOPLE, ARCHIVE } from './content/codex.js';
 const audio = createAudio();
 let SET = { shake: 1, tut: 1 }; try { Object.assign(SET, JSON.parse(localStorage.getItem('ithq_set') || '{}')); } catch (e) {}
 const saveSet = () => { try { localStorage.setItem('ithq_set', JSON.stringify(SET)); } catch (e) {} };
@@ -190,7 +190,7 @@ const enemyImg = d => d.frames ? `assets/enemies/${d.frames}/idle0.png` : '';
 const portraitOf = d => `assets/portraits/${d.key === 'captain' ? 'captain' : d.key}.png`;
 function codex(tab = 'people') {
   let sel = null; const o = document.createElement('div'); o.className = 'overlay codex'; stage.appendChild(o);
-  const TABS = [['people', '人物'], ['enemy', '敌人'], ['boss', '首领'], ['card', '卡牌'], ['relic', '随身物品'], ['item', '背包'], ['term', '术语'], ['hero', '英烈录']];
+  const TABS = [['people', '人物'], ['enemy', '敌人'], ['boss', '首领'], ['card', '卡牌'], ['relic', '随身物品'], ['item', '背包'], ['term', '术语'], ['hero', '英烈录'], ['arch', '史实档案']];
   const lists = {
     enemy: () => Object.values(ENEMIES).filter(d => !d.boss).sort((a, b) => (a.elite || 0) - (b.elite || 0) || a.hp[0] - b.hp[0]).map(d => ({ k: 'e:' + d.key, d })),
     boss: () => Object.values(ENEMIES).filter(d => d.boss).map(d => ({ k: 'e:' + d.key, d })),
@@ -200,8 +200,9 @@ function codex(tab = 'people') {
     term: () => [...Object.entries(KW).map(([n, t]) => ({ k: 't:' + n, g: '卡牌', n, t })), ...TERMS.map(([g, n, t]) => ({ k: 't:' + n, g, n, t }))],
     hero: () => MARTYRS.map(m => ({ k: 'h:' + m.n, m })),
     people: () => PEOPLE.map(p => ({ k: 'p:' + p.id, p })),
+    arch: () => ARCHIVE.map(m => ({ k: 'a:' + m.n, m })),
   };
-  const open = e => tab === 'term' || tab === 'hero' || tab === 'people' || SEEN[e.k] || DEBUG && SEEN.__all;
+  const open = e => tab === 'term' || tab === 'hero' || tab === 'people' || tab === 'arch' || SEEN[e.k] || DEBUG && SEEN.__all;
   const RARN = { start: '初始', c: '普通', u: '罕见', r: '稀有', boss: 'Boss' };
   const cell = e => {
     const ok = open(e);
@@ -210,9 +211,10 @@ function codex(tab = 'people') {
     if (tab === 'relic' || tab === 'item') return `<div class="cd ic ${ok ? '' : 'lk'}" data-k="${e.k}"><b class="big">${e.d.icon}</b><span>${ok ? e.d.name : '？？？'}</span></div>`;
     if (tab === 'term') return `<div class="cd tm" data-k="${e.k}"><i>${e.g}</i><b>${e.n}</b></div>`;
     if (tab === 'people') return `<div class="cd pp" data-k="${e.k}">${e.p.img ? `<img src="${e.p.img}" alt="">` : '<div class="pph">立绘<br>制作中</div>'}<span>${e.p.n}</span><i class="tg ${e.p.play === '可玩' ? 'ok' : ''}">${e.p.play}</i></div>`;
-    return `<div class="cd tm hero" data-k="${e.k}"><i>${e.m.y}</i><b>${e.m.n}</b></div>`;
+    return `<div class="cd tm hero ${tab}" data-k="${e.k}"><i>${e.m.y}</i><b>${e.m.n}</b></div>`;
   };
   const detail = e => {
+    if (!e && tab === 'arch') return '<p class="no">这一页记的是真实发生过的事。游戏里的人物是虚构的，但这些不是。<br><br>点左边的条目查看。每条都写明了资料来源。</p>';
     if (!e) return `<p class="no">${tab === 'hero' ? '东北抗日联军在白山黑水间坚持了十四年。这一页记的是真实的英烈；游戏里的其他人物都是虚构的。<br><br>点左边的名字看生平。' : '点左边的条目看详情。'}</p>`;
     if (!open(e)) return `<div class="pic lk">${tab === 'card' ? '<div class="cback">？</div>' : tab === 'relic' || tab === 'item' ? `<b class="big">${e.d.icon}</b>` : `<img src="${enemyImg(e.d)}" alt="">`}</div><h3>？？？</h3><p class="no">${tab === 'enemy' || tab === 'boss' ? '在战斗中第一次遇到后解锁。' : tab === 'card' ? '在战利品、老乡那里见过或拿到后解锁。' : '第一次拿到后解锁。'}</p>`;
     if (tab === 'enemy' || tab === 'boss') { const d = e.d;
@@ -222,12 +224,13 @@ function codex(tab = 'people') {
     if (tab === 'relic' || tab === 'item') { const d = e.d, id = d.id; return `<div class="pic"><b class="big huge">${d.icon}</b></div><h3>${d.name}</h3><span class="tg2">${tab === 'relic' ? `随身物品 · ${RARN[d.rar] || ''}${d.ch ? ' · 韩松专用' : ''}` : '背包用品'}</span><h4>效 果</h4><p>${d.desc}</p>${HIST[id] ? `<h4>史 实</h4><p class="hist">${HIST[id]}</p>` : ''}`; }
     if (tab === 'people') { const p = e.p; return `<div class="pic">${p.img ? `<img src="${p.img}" alt="">` : '<div class="pph big">立绘制作中</div>'}</div><h3>${p.n}</h3><span class="tg2">${p.sub} · ${p.play}</span><h4>出 身</h4><p>${p.from}</p><h4>伤 疤</h4><p>${p.wound}</p><h4>性 子</h4><p>${p.heart}</p><h4>语 言</h4><p class="hist">${p.lang}</p><p class="no">人物为虚构。</p>`; }
     if (tab === 'term') return `<h3>${e.n}</h3><span class="tg2">术语 · ${e.g}</span><p>${e.t}</p>`;
+    if (tab === 'arch') return `<h3>${e.m.n}</h3><span class="tg2">${e.m.y}</span><p>${e.m.d}</p><p class="no">资料来源：${e.m.src}</p>`;
     return `<h3>${e.m.n}</h3><span class="tg2">${e.m.y}</span><p class="sub2">${e.m.t}</p><p>${e.m.d}</p><p class="no">资料来源：新华网、共产党员网、人民网等公开报道。</p>`;
   };
   const draw = () => {
     const L = lists[tab](), cur = L.find(e => e.k === sel), n = L.filter(open).length;
     o.innerHTML = `<div class="cx"><div class="hd"><h2>图鉴</h2>${TABS.map(([k, t]) => `<button class="tb2 ${k === tab ? 'on' : ''}" data-t="${k}">${t}</button>`).join('')}
-      <span class="ct">${tab === 'term' || tab === 'hero' ? `共 ${L.length} 条` : `已发现 ${n} / ${L.length}`}</span>${DEBUG ? '<button class="tb2" id="cx_all">解锁全部</button>' : ''}<button class="x" id="cx_x">✕</button></div>
+      <span class="ct">${tab === 'term' || tab === 'hero' || tab === 'people' || tab === 'arch' ? `共 ${L.length} 条` : `已发现 ${n} / ${L.length}`}</span>${DEBUG ? '<button class="tb2" id="cx_all">解锁全部</button>' : ''}<button class="x" id="cx_x">✕</button></div>
       <div class="bd"><div class="gr g-${tab}">${L.map(cell).join('')}</div><div class="dt">${detail(cur)}</div></div></div>`;
     o.querySelectorAll('[data-t]').forEach(b => b.onclick = () => { tab = b.dataset.t; sel = null; draw(); });
     o.querySelectorAll('.gr [data-k]').forEach(c => c.onclick = () => { sel = c.dataset.k; draw(); });
