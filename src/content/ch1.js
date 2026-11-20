@@ -4,28 +4,29 @@
 import { pick } from './util.js';
 
 export const ENEMIES_CH1 = {
-  inf: { name: '日军步兵', hp: [22, 26], col: '#6d6a3c', frames: 'inf', artH: 240,
+  // sup：督战（日军和伪满警察队长在场时，伪满军不溃逃）；morale：会动摇溃逃；showAmmo：脚下显示弹数（普通敌人不显示，只有机枪组、精英、首领显示）
+  inf: { name: '日军步兵', hp: [22, 26], col: '#6d6a3c', frames: 'inf', artH: 240, sup: 1,
     ammo: 2, moves: { shoot: { t: '射击', i: 'atk', d: 8, shot: 1 }, stab: { t: '刺杀', i: 'atk', d: 6, blk: 5 }, reload: { t: '装弹', i: 'reload', blk: 4 } },
     ai: (e, B, r) => e.last === 'stab' ? 'shoot' : r() < .7 ? 'shoot' : 'stab' },
-  puppet: { name: '伪满军', hp: [14, 18], col: '#7a5a3a', frames: 'puppet', artH: 235, 
-    ammo: 2, moves: { shoot: { t: '射击', i: 'atk', d: 6, shot: 1 }, reload: { t: '装弹', i: 'reload', blk: 6 }, flee: { t: '逃跑', i: 'flee' } },
-    ai: e => (e.t >= 2 && e.hp < e.max / 2) ? 'flee' : 'shoot' },
+  puppet: { name: '伪满军', hp: [14, 18], col: '#7a5a3a', frames: 'puppet', artH: 235, morale: 1,
+    ammo: 2, moves: { shoot: { t: '射击', i: 'atk', d: 6, shot: 1 }, reload: { t: '装弹', i: 'reload', blk: 6 }, flee: { t: '溃逃', i: 'flee', tx: '动摇到 2 层、又没人督战时，扔下枪跑了' } },
+    ai: (e, B) => (e.st.shaken >= 2 && !B.en.some(x => !x.dead && x.d.sup)) ? 'flee' : 'shoot' },
   dog: { name: '军犬', hp: [12, 15], col: '#5a4a3a', frames: 'dog', artH: 90,
     moves: { bite: { t: '撕咬', i: 'atk', d: 4, x: 2 }, pounce: { t: '扑倒', i: 'atk', d: 6, weak: 1 } },
     ai: (e, B, r) => e.last === 'pounce' ? 'bite' : r() < .6 ? 'bite' : 'pounce' },
-  mortar: { name: '掷弹筒兵', hp: [20, 22], col: '#6a6050', frames: 'mortar', artH: 188,
+  mortar: { name: '掷弹筒兵', hp: [20, 22], col: '#6a6050', frames: 'mortar', artH: 188, sup: 1,
     moves: { load: { t: '装弹', i: 'charge', next: 14 }, fire: { t: '炮击', i: 'atk', d: 14 }, dig: { t: '挖掩体', i: 'def', blk: 8 } },
     ai: e => ['load', 'fire', 'dig'][e.t % 3] },
-  mg: { name: '机枪组', hp: [30, 34], col: '#4a5040', armor: 2, frames: 'mg', artH: 123, loot: 'c_type11', lootP: .5,
+  mg: { name: '机枪组', hp: [30, 34], col: '#4a5040', armor: 2, frames: 'mg', artH: 123, loot: 'c_type11', lootP: .5, sup: 1, showAmmo: 1,
     ammo: 2, moves: { spray: { t: '扫射', i: 'atk', d: 3, x: 3, shot: 1 }, reload: { t: '换弹斗', i: 'reload', blk: 10 } },
     ai: () => 'spray' },
-  sniper: { name: '日军狙击手', hp: [18, 20], col: '#4e5a3a', frames: 'sniper', artH: 179, loot: 'c_type97', lootP: .5,
+  sniper: { name: '日军狙击手', hp: [18, 20], col: '#4e5a3a', frames: 'sniper', artH: 179, loot: 'c_type97', lootP: .5, sup: 1,
     ammo: 1, moves: { aim: { t: '瞄准', i: 'charge', next: 18 }, snipe: { t: '狙击', i: 'atk', d: 18, shot: 1 }, reload: { t: '拉栓装弹', i: 'reload', blk: 8 } },
     ai: e => e.last === 'aim' ? 'snipe' : 'aim' },
-  sergeant: { name: '讨伐队军曹', hp: [50, 54], col: '#7a3a2a', elite: 1, frames: 'sergeant', artH: 250, loot: 'c_nambu', lootP: 1,
+  sergeant: { name: '讨伐队军曹', hp: [50, 54], col: '#7a3a2a', elite: 1, frames: 'sergeant', artH: 250, loot: 'c_nambu', lootP: 1, sup: 1,
     moves: { rally: { t: '冲锋号令', i: 'buff', all: 2 }, saber: { t: '军刀劈砍', i: 'atk', d: 13 }, pistol: { t: '手枪射击', i: 'atk', d: 7, weak: 1 } },
     ai: e => e.t === 0 ? 'rally' : e.t % 2 ? 'saber' : 'pistol' },
-  captain: { name: '讨伐队长 · 村濑', hp: [150, 150], col: '#5a2a2a', boss: 1, armor: 2, frames: 'captain_car', artH: 280, frames2: 'captain_foot', artH2: 265,
+  captain: { name: '讨伐队长 · 村濑', hp: [150, 150], col: '#5a2a2a', boss: 1, sup: 1, armor: 2, frames: 'captain_car', artH: 280, frames2: 'captain_foot', artH2: 265,
     moves: {
       mgun: { t: '车载机枪', i: 'atk', d: 4, x: 4, shot: 1 }, ram: { t: '冲撞', i: 'atk', d: 16 }, reload: { t: '关上舱盖换弹', i: 'reload', blk: 15 },
       saber: { t: '军刀', i: 'atk', d: 14 }, pistol: { t: '手枪连射', i: 'atk', d: 6, x: 2 }, roar: { t: '怒吼', i: 'buff', str: 3 },
@@ -33,15 +34,19 @@ export const ENEMIES_CH1 = {
     ammo: 2, ai: (e, B, r) => e.phase === 2 ? (e.last === 'roar' ? 'saber' : e.t % 3 === 0 ? 'roar' : pick(r, ['saber', 'pistol'])) : e.last === 'mgun' ? 'ram' : 'mgun',
     onHurt: (e, G) => { if (e.phase !== 2 && e.hp <= e.max / 2) { e.phase = 2; e.armor = 0; e.block = 0; e.t = 0; e.move = 'roar'; e.anim = null; e.ammo = null; /* 下车后只用军刀和手枪，不再显示弹仓 */ G.say('装甲车被打瘫了！村濑跳下车，拔出军刀。'); G.fx(e.id, '装甲车瘫痪', 'st'); } } },
   // —— 新精英 / 新 Boss（美术还没画，先用色块） ——
-  hmg: { name: '九二式重机枪阵地', hp: [58, 62], col: '#3e4636', frames: 'hmg', artH: 150, elite: 1, armor: 4, ammo: 1,
+  hmg: { name: '九二式重机枪阵地', hp: [58, 62], col: '#3e4636', frames: 'hmg', artH: 150, elite: 1, sup: 1, armor: 4, ammo: 1,
     moves: { fire: { t: '连射', i: 'atk', d: 5, x: 4, shot: 1 }, reload: { t: '压弹板', i: 'reload', blk: 12 } },
     ai: () => 'fire' },
-  pcap: { name: '伪满警察讨伐队长', hp: [46, 50], col: '#5a4a2a', frames: 'pcap', artH: 250, elite: 1, ammo: 2,
+  pcap: { name: '伪满警察讨伐队长', hp: [46, 50], col: '#5a4a2a', frames: 'pcap', artH: 250, elite: 1, sup: 1, ammo: 2,
     moves: { bounty: { t: '贴悬赏告示', i: 'debuff', vuln: 2 }, shoot: { t: '驳壳枪连射', i: 'atk', d: 6, x: 2, shot: 1 }, call: { t: '吹哨叫人', i: 'buff', summon: 'puppet', blk: 8 }, reload: { t: '压子弹', i: 'reload', blk: 6 } },
     ai: (e, B) => e.t === 0 ? 'bounty' : (B.en.filter(x => !x.dead && x !== e).length < 2 && e.last !== 'call') ? 'call' : 'shoot' },
-  kcap: { name: '宪兵分队长 · 柏木', hp: [140, 140], col: '#3a2a2a', frames: 'kcap', artH: 280, boss: 1, ammo: 2,
+  kcap: { name: '宪兵分队长 · 柏木', hp: [140, 140], col: '#3a2a2a', frames: 'kcap', artH: 280, boss: 1, sup: 1, ammo: 2,
     moves: { flare: { t: '打信号弹', i: 'debuff', weak: 2, allBlk: 6 }, dogs: { t: '放狗', i: 'buff', summon: 'dog', blk: 10 }, pistol: { t: '南部手枪', i: 'atk', d: 6, x: 2, shot: 1 }, saber: { t: '军刀劈砍', i: 'atk', d: 16 }, reload: { t: '压子弹', i: 'reload', blk: 8 } },
     ai: (e, B) => e.t === 0 ? 'flare' : (B.en.filter(x => !x.dead && x.key === 'dog').length < 2 && e.last !== 'dogs') ? 'dogs' : e.last === 'pistol' ? 'saber' : 'pistol' },
+  /* 加强精英战里多出来的押运兵：背着档案箱（情报），3 回合后撤走。暂时借用日军步兵的图 */
+  escort: { name: '押运档案箱的日军', hp: [20, 22], col: '#6d6a3c', frames: 'inf', artH: 240, intel: 1, sup: 1,
+    moves: { back: { t: e => `后撤（${3 - e.t} 回合后撤走）`, i: 'def', blk: 5 }, flee: { t: '带着档案箱撤走', i: 'flee', tx: '第 3 回合带着档案箱撤走，情报就没了' } },
+    ai: e => e.t >= 2 ? 'flee' : 'back' },
 };
 
 Object.entries(ENEMIES_CH1).forEach(([k, d]) => { d.key = k; });
@@ -77,14 +82,14 @@ export const EVENTS_CH1 = [
       { t: '翻找一下（口粮 +2）', f: G => { G.food(2); return '墙角埋着半袋土豆，冻得像石头，煮一煮还能吃。'; } },
       { t: '不停留，继续赶路', f: () => '你们没有停下。' },
     ] },
-  { id: 'courier', title: '交通员留下的补给', text: '约定的那棵老红松底下，雪是新翻过的。地下交通员果然把东西埋在了这里，用油布包得严严实实。',
+  { id: 'courier', title: '苏联方面的补给', text: '约定的那棵老红松底下，雪是新翻过的。这是上一支回国的小分队从苏联那边带过来、埋在这儿备用的东西，用油布包得严严实实。',
     opts: [
-      { t: '取出那支冲锋枪（获得「波波沙」）', f: G => { G.addCard('c_ppsh'); return '一支波波沙冲锋枪，枪油还没干。'; } },
+      { t: '取出那支冲锋枪（获得「波波沙」）', f: G => { G.addCard('c_ppsh'); return '一支苏制波波沙冲锋枪，枪油还没干。'; } },
       { t: '取出药品（获得背包用品「急救包」，回复 10 生命）', f: G => { G.item('medkit'); G.heal(10); return '油布里有绷带、磺胺粉，还有一小瓶酒精。'; } },
     ] },
   { id: 'shrine', title: '山神爷', text: '山路拐弯处有一座半人高的小庙，用几块石板搭成，供着「山神爷老把头」。放山的、打猎的进山前都要在这儿拜一拜。风停了，四下静得出奇。',
     opts: [
-      { t: '留下一块干粮（口粮 -1，最大生命 +4）', need: G => G.foodN() >= 1, f: G => { G.food(-1); G.maxHp(4); G.awe(1); return '你放下干粮，鞠了一躬。起身时，好像听见庙后面有什么东西轻轻走开了。'; } },
+      { t: '留下一块干粮（口粮 -1，最大生命 +4）', need: G => G.foodN() >= 1, f: G => { G.food(-1); G.maxHp(4); G.awe(1, '放山的、打猎的都拜它。咱借道走，也该打声招呼。'); return '你放下干粮，鞠了一躬。起身时，好像听见庙后面有什么东西轻轻走开了。'; } },
       { t: '不停留', f: () => '你们没有停下。走出很远，回头还能看见小庙前那截没烧完的香。' },
     ] },
   { id: 'river', title: '封冻的河', text: '一条河挡在前面。冰面看着结实，但河心颜色发暗。绕到上游的桥要多走半天。',
@@ -117,7 +122,7 @@ export const EVENTS_CH1 = [
       { t: '翻找一下（获得 1 件随身物品）', f: G => { G.relic(); return '炕洞里藏着一个小布包，是当年留下的东西。'; } },
       { t: '在墙上也刻下小分队的名字（升级 1 张牌）', f: G => { G.upgrade(); return '你用刺刀一笔一画刻下了名字，和前面那几行字挨在一起。'; } },
     ] },
-  { id: 'oroqen', title: '鄂伦春猎人', text: '一个鄂伦春猎人骑着马从林子里出来，马背上驮着一只狍子。他看了看你们，用生硬的汉话问要不要换东西。',
+  { id: 'manchu', title: '满族老猎人', text: '一个满族老猎人拖着爬犁从林子里出来，爬犁上捆着一只狍子。他在这片山里打了一辈子猎，看了看你们，问要不要换东西。',
     opts: [
       { t: '用一件背包用品换狍子肉（口粮 +4）', need: G => G.hasItem(), f: G => { G.loseItem(); G.food(4); return '他掂了掂你给的东西，割下半扇狍子肉递过来。'; } },
       { t: '请他指一条近路（体温 +3）', f: G => { G.temp(3); return '他带着你们穿过一片背风的山坳，少走了半天的冤枉路。'; } },
@@ -127,7 +132,7 @@ export const EVENTS_CH1 = [
       { t: '帮他守一夜（体温 -2；获得背包用品「獾子油」）', f: G => { G.temp(-2); G.item('badger'); return '天亮时，老人从怀里掏出一个小罐子：「獾子油，冻伤了就抹上。」'; } },
       { t: '用 2 口粮换一截参须（回复 15 生命）', need: G => G.foodN() >= 2, f: G => { G.food(-2); G.heal(15); return '参须熬的汤又苦又暖，喝下去浑身都有了力气。'; } },
     ] },
-  /* —— 以下三个：日本逃兵（语言选项）、黄皮子讨封、保家仙牌位（「敬畏」隐藏数值，第三章兑现） —— */
+  /* —— 以下三个：日本逃兵（语言选项）、黄皮子讨封、保家仙牌位（「敬畏」：看得见的事件标记，选完老沈说一句；只影响以后的事件分支，第三章兑现） —— */
   { id: 'deserter', title: '冻僵的日本兵', text: '雪窝子里蜷着一个日本兵，枪不见了，脸冻得发紫。看见你们，他哆哆嗦嗦地举起两只手，嘴里反反复复念叨着同一句日语。',
     opts: [
       { t: '【听得懂几句日语】仔细听他在说什么', need: G => G.lang('ja') >= 1, f: G => { G.relic(G.hasRelic('intelmap') ? null : 'intelmap'); return '你只听懂了几个词：「讨伐队」「北沟」「明天」。他是从讨伐队里逃出来的，路线全在他嘴里。你们照着他比划的方向，画下了一张敌情图。'; } },
@@ -136,15 +141,15 @@ export const EVENTS_CH1 = [
     ] },
   { id: 'weasel', title: '黄皮子讨封', text: '雪地上，一只黄皮子（黄鼠狼）像人一样直直地站了起来，两只前爪拱在胸前，一动不动地盯着你。屯子里的老辈人说过：黄皮子修行到了时候，会拦住过路人「讨封」，问一句——「你看我，像人，还是像神？」',
     opts: [
-      { t: '「像神。」', f: G => { G.awe(2); G.heal(10); return '它冲你拜了三拜，一扭身钻进林子，雪上没留下脚印。那天夜里，你们睡得格外踏实。（生命 +10）'; } },
-      { t: '「像个黄皮子。」', f: G => { G.awe(-2); G.temp(-2); return '它盯了你一会儿，慢慢趴下，走了。当晚林子里刮起一阵怪风，怎么也生不着火。（体温 -2）'; } },
-      { t: '举枪', f: G => { G.awe(-3); G.temp(-1); return '枪响了，什么也没打中。雪地上干干净净，连个脚印都没有。田守义的脸色很难看。（体温 -1）'; } },
+      { t: '「像神。」', f: G => { G.awe(2, '讨封的事，屯子里的老人都这么应。它往后不找你麻烦。'); G.heal(10); return '它冲你拜了三拜，一扭身钻进林子，雪上没留下脚印。那天夜里，你们睡得格外踏实。（生命 +10）'; } },
+      { t: '「像个黄皮子。」', f: G => { G.awe(-2, '这话太冲了。老辈人说，讨封被驳了的，记仇。'); G.temp(-2); return '它盯了你一会儿，慢慢趴下，走了。当晚林子里刮起一阵怪风，怎么也生不着火。（体温 -2）'; } },
+      { t: '举枪', f: G => { G.awe(-3, '……往后别这么干。子弹是留给鬼子的。'); G.temp(-1); return '枪响了，什么也没打中。雪地上干干净净，连个脚印都没有。田守义的脸色很难看。（体温 -1）'; } },
       { t: '不搭腔，绕开走', f: () => '你们绕了个大圈子。回头再看，它还站在原地，望着你们。' },
     ] },
   { id: 'baojiaxian', title: '保家仙的牌位', text: '被烧掉的屯子里，一间塌了半边的土坯房，墙角还供着一块红纸写的仙家牌位，香炉里落满了雪。这一家人去了哪儿，没人知道。',
     opts: [
-      { t: '摆上一点干粮当供品，点一炷香（口粮 -1，生命 +6）', need: G => G.foodN() >= 1, f: G => { G.food(-1); G.awe(2); G.heal(6); return (G.char === 'hansong' ? '韩松在门口站了很久，一句话也没说。' : '') + '香火在冷风里晃了晃，没灭。'; } },
-      { t: '拿走供桌上剩下的炒黄豆', f: G => { G.awe(-2); G.item('soybeans'); return '你把供桌上那一小袋炒黄豆揣进了怀里。出门时，背后好像有什么东西「咔哒」响了一声。'; } },
+      { t: '摆上一点干粮当供品，点一炷香（口粮 -1，生命 +6）', need: G => G.foodN() >= 1, f: G => { G.food(-1); G.awe(2, '这一家人不知道还在不在。替他们供上，也算个念想。'); G.heal(6); return (G.char === 'hansong' ? '韩松在门口站了很久，一句话也没说。' : '') + '香火在冷风里晃了晃，没灭。'; } },
+      { t: '拿走供桌上剩下的炒黄豆', f: G => { G.awe(-2, '人都不在了……算了，饿着肚子也是真的。'); G.item('soybeans'); return '你把供桌上那一小袋炒黄豆揣进了怀里。出门时，背后好像有什么东西「咔哒」响了一声。'; } },
       { t: '什么也不碰，默默离开', f: () => '你们轻轻带上了半扇破门。' },
     ] },
 ];
@@ -152,9 +157,11 @@ export const EVENTS_CH1 = [
 export const CHAPTER1 = {
   id: 1, name: '林海雪原', season: '1944 年冬', rows: 15, cols: 5,
   /* 地图规则（照通往顶端 / 杀戮尖塔）：节点权重；第几层固定什么；精英和密营最早第几层 */
-  nodes: { fight: 45, event: 22, elite: 16, rest: 12, shop: 5 }, fixed: { 0: 'fight', 8: 'treasure', 14: 'rest' }, earliest: 5, easyFights: 3,
+  nodes: { fight: 45, event: 22, elite: 16, rest: 12, shop: 5 }, fixed: { 0: 'fight', 4: 'shop', 8: 'treasure', 14: 'rest' }, /* 第 5 层固定老乡 */ earliest: 5, easyFights: 3,
   /* 底图上各区域的位置（按比例，换图不用改代码） */
-  map: { img: 'assets/bg/map_ch1.jpg', w: 1000, h: 1779, startY: .865, endY: .175, bossX: .5, bossY: .092, xMin: .27, xMax: .73, startLabel: '▲ 越过冰封的江面，出发' },
+  map: { img: 'assets/bg/map_ch1.jpg', w: 1000, h: 1779, startY: .865, endY: .175, bossX: .5, bossY: .092, xMin: .27, xMax: .73, startLabel: '▲ 向长白山北麓转进' },
   battleBg: 'assets/bg/battle_snow.jpg', enemies: ENEMIES_CH1, frames: FRAMES_CH1, blockSize: BLOCK_SIZE_CH1, enc: ENC_CH1, events: EVENTS_CH1,
-  winText: '林海雪原的讨伐队被打垮了。小分队连夜南下，下一站：新京。',
+  winText: '这一带的封锁暂时松动。老沈收起路线图，小队连夜离开密营，转赴新京。',
+  /* Boss 战单独的背景（图还没出时自动用 battleBg）：村濑的装甲车只能开在林区公路上 */
+  bossBg: { captain: 'assets/bg/battle_road.jpg' },
 };

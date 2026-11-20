@@ -9,11 +9,11 @@ export const FEEL_MAX = 6; // 枪感上限
 export const MARK_MAX = 5; // 标尺上限
 
 export const KW_HS = {
-  '弹仓': '韩松只有一个弹仓（8 发），所有枪械牌都从这里扣子弹。',
-  '装填': '1 费，把弹仓装满。',
-  '拼刺': '弹仓空了，枪械牌改为拼刺：造成 5 伤害，牌上其他效果照常。',
+  '可用弹数': '韩松随手能打的子弹，最多 8 发，所有枪械牌都从这里扣。这是游戏抽象，真实各枪的弹容见图鉴「术语」。',
+  '装填': '1 费，把可用弹数补满。',
+  '拼刺': '子弹打光了，枪械牌改为拼刺：只造成 5 伤害，牌上其他效果不生效。',
   '标尺': '叠在敌人身上，最多 5 层。每层让狙击牌每发 +1 伤害。',
-  '枪感': '每打出一张枪械牌 +1（最多 6），回合结束 -1。冲锋枪牌和手枪牌每发伤害 + 枪感的一半。',
+  '枪感': '每打出一张枪械牌 +1（最多 6），回合结束 -1。每 2 点枪感，冲锋枪牌和手枪牌每发 +1 伤害。',
   '狙击牌': '标着「狙击」的枪械牌，吃标尺加成。',
   '冲锋枪牌': '标着「冲锋枪」的枪械牌，吃枪感加成。',
 };
@@ -48,7 +48,7 @@ export const CARDS_HS = {
     desc: (u, f) => `射击 1 发，${f(8)} 伤害，每层标尺再 +${V(u, 3, 4)}；消耗全部标尺。击杀返还 2 发子弹。` },
   h_ricochet: { name: '最后一发', type: 'atk', cost: [1, 1], rar: 'r', sch: '狙', tgt: 'one', gun: 1, last: 1,
     sh: u => ({ n: 1, d: V(u, 22, 28) }), extra: (G, u, t) => { if (t && !t.dead) G.mark(t, 1); },
-    desc: (u, f) => `弹仓刚好剩 1 发时才能打出：射击 1 发，${f(V(u, 22, 28))} 伤害；标尺 +1。` },
+    desc: (u, f) => `子弹刚好剩 1 发时才能打出：射击 1 发，${f(V(u, 22, 28))} 伤害；标尺 +1。` },
   h_shells: { name: '反器材', type: 'atk', cost: [2, 2], rar: 'r', sch: '狙', tgt: 'one', gun: 1,
     sh: u => ({ n: 1, d: V(u, 14, 18), ap: 1, pierce: 1 }), desc: (u, f) => `射击 1 发，${f(V(u, 14, 18))} 伤害；无视格挡和装甲，对装甲目标翻倍。` },
   echo: { name: '测距', type: 'skill', cost: [1, 1], rar: 'c', sch: '狙', tgt: 'one',
@@ -71,7 +71,7 @@ export const CARDS_HS = {
   h_twin2: { name: '抵近扫射', type: 'atk', cost: [2, 2], rar: 'u', sch: '冲', tgt: 'one', gun: 1,
     sh: u => ({ n: 4, d: V(u, 5, 7) }), desc: (u, f) => `射击 4 发，每发 ${f(V(u, 5, 7))} 伤害。` },
   h_medkit: { name: '火力全开', type: 'atk', cost: [2, 2], rar: 'r', sch: '冲', gun: 1,
-    sh: u => ({ mag: 1, d: V(u, 3, 4), rand: 1 }), desc: (u, f) => `打光弹仓：每发 ${f(V(u, 3, 4))} 伤害，随机打敌人。` },
+    sh: u => ({ mag: 1, d: V(u, 3, 4), rand: 1 }), desc: (u, f) => `打光所有子弹：每发 ${f(V(u, 3, 4))} 伤害，随机打敌人。` },
   h_drone: { name: '弹链', type: 'skill', cost: [1, 1], rar: 'c', sch: '冲',
     desc: u => `抽 ${V(u, 2, 3)}；枪感 +1。`, play: (G, u) => { G.draw(V(u, 2, 3)); G.feel(1); } },
   overload: { name: '枪管发烫', type: 'skill', cost: [0, 0], rar: 'c', sch: '冲',
@@ -86,11 +86,11 @@ export const CARDS_HS = {
   // —— 通用 ——
 
   hs_bayonet: { name: '空仓拼刺', type: 'atk', cost: [0, 0], rar: 'c', sch: '通', tgt: 'one',
-    desc: u => `造成 ${V(u, 7, 10)} 伤害；若弹仓为空，抽 1。`, play: (G, u, t) => { const e = G.ammo() === 0; G.melee(t, V(u, 7, 10)); if (e) G.draw(1); } },
+    desc: u => `造成 ${V(u, 7, 10)} 伤害；若子弹已打光，抽 1。`, play: (G, u, t) => { const e = G.ammo() === 0; G.melee(t, V(u, 7, 10)); if (e) G.draw(1); } },
   hs_spotter: { name: '观察手', type: 'skill', cost: [1, 1], rar: 'c', sch: '通', tgt: 'one',
     desc: u => `抽 ${V(u, 1, 2)}；标尺 +1；枪感 +1。`, play: (G, u, t) => { G.draw(V(u, 1, 2)); G.mark(t, 1); G.feel(1); } },
   expand: { name: '弹袋', type: 'power', cost: [1, 1], rar: 'u', sch: '通',
-    desc: u => `弹仓上限 +${V(u, 3, 5)}，并立刻多装 ${V(u, 3, 5)} 发。`, play: (G, u) => G.magUp(V(u, 3, 5)) },
+    desc: u => `可用弹数上限 +${V(u, 3, 5)}，并立刻多装 ${V(u, 3, 5)} 发。`, play: (G, u) => G.magUp(V(u, 3, 5)) },
   hs_depot: { name: '备用弹匣', type: 'power', cost: [2, 1], rar: 'u', sch: '通',
     desc: () => '装填不再花能量。', play: G => G.power('depot', 1) },
   // —— 缴获（不在奖励池，只从敌人或事件拿到） ——
@@ -153,7 +153,7 @@ function fire(B, d, u, t) {
   return { kill, shots };
 }
 const reloadCost = B => Math.max(0, (B.p.pw.depot || B.freeReload ? 0 : 1) + B.K.sum('reloadCost'));
-const cantReload = B => B.ammo >= B.cap ? '弹仓已满' : B.p.energy < reloadCost(B) ? '能量不够' : null;
+const cantReload = B => B.ammo >= B.cap ? '子弹已满' : B.p.energy < reloadCost(B) ? '能量不够' : null;
 
 export const MECH_HS = {
   init(B) { B.cap = MAG + B.K.sum('magBonus'); B.ammo = B.cap; B.p.feel = 0; },
@@ -161,7 +161,7 @@ export const MECH_HS = {
   turnEnd(B) { B.p.feel = Math.max(0, B.p.feel - 1); },
   /* 卡牌现在打出去是什么样：'shoot' 射击 / 'bayonet' 拼刺 / null 不是枪械牌 */
   mode(B, d) { return !d.gun ? null : B.ammo > 0 ? 'shoot' : 'bayonet'; },
-  cantPlay(B, d) { return d.last && B.ammo !== 1 ? '弹仓要刚好剩 1 发' : null; },
+  cantPlay(B, d) { return d.last && B.ammo !== 1 ? '子弹要刚好剩 1 发' : null; },
   /* 打出枪械牌 */
   playGun(B, d, u, t) {
     const K = B.K, res = { pre: d.pre ? d.pre(B.G, u, t) : 0 };
@@ -176,11 +176,11 @@ export const MECH_HS = {
       marks: e => (e ? e.marks : 0), ammo: () => B.ammo, mark: (e, n) => mark(B, e, n),
       addAmmo: n => { B.ammo = Math.min(B.cap, B.ammo + n); B.K.fx('hero', `子弹+${n}`, 'st'); },
       nextSniper: n => { B.p.nextSn += n; }, feel: n => addFeel(B, n),
-      magUp: n => { B.cap += n; B.ammo = Math.min(B.cap, B.ammo + n); B.K.fx('hero', `弹仓+${n}`, 'st'); },
+      magUp: n => { B.cap += n; B.ammo = Math.min(B.cap, B.ammo + n); B.K.fx('hero', `弹数上限+${n}`, 'st'); },
     };
   },
   /* 战斗界面右侧的按钮（以后别的角色可以放自己的按钮，比如田守义切换势） */
-  actions(B) { const why = cantReload(B); return [{ id: 'reload', key: 'R', label: why === '弹仓已满' ? '弹仓已满' : `装填 <small>${reloadCost(B)} 费</small>`, dis: why, hot: !why, urgent: !B.ammo && !why, sfx: 'reload' }]; },
+  actions(B) { const why = cantReload(B); return [{ id: 'reload', key: 'R', label: why === '子弹已满' ? '子弹已满' : `装填 <small>${reloadCost(B)} 费</small>`, dis: why, hot: !why, urgent: !B.ammo && !why, sfx: 'reload' }]; },
   act(B, id) {
     if (id !== 'reload' || cantReload(B)) return false;
     B.p.energy -= reloadCost(B); B.freeReload = 0; B.ammo = B.cap; B.K.fx('hero', '装填', 'st');
@@ -190,7 +190,7 @@ export const MECH_HS = {
   /* 韩松脚下的资源显示（纯 HTML 字符串） */
   info(B) {
     const pips = B.cap <= 16 ? Array.from({ length: B.cap }, (_, k) => `<i class="${k < B.ammo ? 'f' : ''}"></i>`).join('') : `<em class="mbar"><u style="width:${B.ammo / B.cap * 100}%"></u></em>`;
-    return { main: `<div class="ammo ${B.ammo ? '' : 'zero'}" data-k="弹仓"><span class="pips">${pips}</span><b>${B.ammo}/${B.cap}</b></div>`,
+    return { main: `<div class="ammo ${B.ammo ? '' : 'zero'}" data-k="可用弹数"><span class="pips">${pips}</span><b>${B.ammo}/${B.cap}</b></div>`,
       chips: `<b class="feelc" data-k="枪感">枪感 ${B.p.feel}${B.p.feel >= 2 ? `（+${Math.floor(B.p.feel / 2)}）` : ''}</b>`,
       powers: { scope: '瞄准镜', depot: '备用弹匣', rapid: '枪感训练', quick: '快换弹匣' } };
   },
@@ -199,34 +199,34 @@ export const MECH_HS = {
   /* 开枪动画用哪种枪声 */
   shotKind(d) { return ({ 狙: 'rifle', 冲: 'smg', 手: 'pistol' })[d.sch] || null; },
   rules: [
-    '<b>弹仓</b>：韩松只有一个弹仓（8 发），所有枪械牌都从这里扣子弹，每「射击 1 发」用掉 1 颗。',
-    '<b>装填</b>：「结束回合」上方的按钮，1 费，把弹仓装满。',
-    '<b>空仓拼刺</b>：弹仓空了，枪械牌自动变成拼刺，造成 5 伤害，牌上其他效果照常。',
+    '<b>可用弹数</b>：韩松随手能打的子弹，最多 8 发，所有枪械牌都从这里扣，每「射击 1 发」用掉 1 颗（游戏抽象，真实弹容见图鉴）。',
+    '<b>装填</b>：「结束回合」上方的按钮，1 费，把子弹补满。',
+    '<b>空仓拼刺</b>：子弹打光了，枪械牌自动变成拼刺，只造成 5 伤害，牌上其他效果不生效。',
     '<b>三种枪</b>：狙击牌 1 发高伤、省子弹；冲锋枪牌一次打好几发、耗弹快；手枪牌是便宜的小牌。',
     '<b>标尺</b>：叠在敌人身上，最多 5 层，每层让狙击牌每发 +1 伤害。',
-    '<b>枪感</b>：每打一张枪械牌 +1（最多 6），回合结束 -1；冲锋枪牌和手枪牌每发伤害 + 枪感的一半。',
+    '<b>枪感</b>：每打一张枪械牌 +1（最多 6），回合结束 -1；每 2 点枪感，冲锋枪牌和手枪牌每发 +1 伤害。',
   ],
   dbg: [['满弹', B => { B.ammo = B.cap; }], ['清空弹仓', B => { B.ammo = 0; }], ['枪感满', B => { B.p.feel = FEEL_MAX; }]],
 };
 
 /* 韩松专属教程（老沈说）：on 是触发时机——play 打出牌时、render 战斗画面刷新时；when 返回 true 才触发，每条只出现一次 */
 export const TUT_HS = [
+  /* lines（数组）= 老沈对话框；hint（一句话）= 顶上一行小字。战斗里只有「装填」用对话框 */
   { id: 'shot', on: 'play', when: (B, d, mode) => mode === 'shoot',
-    lines: ['韩松，你那杆枪弹仓里一共 8 发。打一发少一发，脚底下那排小格就是剩下的子弹。',
-      '牌上标着是啥枪：狙击一发打得狠还省子弹，冲锋枪一张牌打好几发、子弹也费得快，手枪是便宜的小牌。'] },
+    hint: '脚底下那排小格是剩下的子弹，最多 8 发。狙击省子弹，冲锋枪费子弹。' },
   { id: 'empty', on: 'render', when: B => B.ammo === 0,
-    lines: ['子弹打光了！点右边的「装填」把弹仓装满，平常要 1 点能量；你那条枪背带，每场头一回装填不要能量。',
-      '来不及装也不怕：弹仓空着时打枪牌，就是端起刺刀拼，固定 5 点伤害，牌上别的效果照样有。'] },
+    lines: ['子弹打光了！点右边的「装填」把子弹补满，平常要 1 点能量；你那条枪背带，每场头一回装填不要能量。',
+      '来不及装也行：子弹打光时打枪牌，就是端起刺刀拼，只有 5 点伤害，牌上别的效果都没了。能装就先装。'] },
   { id: 'feel', on: 'render', when: B => B.p.feel >= 2,
-    lines: ['枪感上来了。每打一张枪牌，枪感 +1；冲锋枪和手枪每发子弹多打枪感一半的伤害。回合结束会掉 1 点，手别停。'] },
+    hint: '枪感上来了：每 2 点枪感，冲锋枪和手枪每发多打 1 点。回合结束掉 1 点，手别停。' },
   { id: 'mark', on: 'render', when: B => B.en.some(e => !e.dead && e.marks > 0),
-    lines: ['敌人身上挂上「标尺」了——距离测准了。每层标尺，让狙击牌每发多打 1 点，最多 5 层。'] },
+    hint: '挂上「标尺」了：每层让狙击牌每发多打 1 点，最多 5 层。' },
 ];
 
 export const HANSONG = {
   id: 'hansong', name: '韩松', title: '神枪手', code: '雪貂', hp: 72,
   starter: ['note', 'note', 'note', 'note', 'defend', 'defend', 'defend', 'defend', 'shoot', 'barrage'],
-  startRelic: 'strap', mech: MECH_HS, kw: KW_HS, tut: TUT_HS, lang: { ja: 1, ru: 1 }, /* 语言：0 不会，1 听得懂几句，2 能说，3 精通 */
+  startRelic: 'strap', mech: MECH_HS, kw: KW_HS, tut: TUT_HS, lang: { ja: 1, ru: 0 }, /* 语言：0 不会，1 听得懂几句，2 能说，3 精通 */
   /* 美术：逐帧动画目录、画布信息（切图脚本算出）、枪口位置 */
   art: { dir: 'hansong', frames: true, still: 'hansong', fr: { cw: 389, ch: 291, ax: 205, sw: 182, sh: 287 }, muzzle: [128, 62], h: 250, hTouch: 235 },
 };

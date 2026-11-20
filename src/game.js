@@ -117,10 +117,10 @@ function available() {
 function topBar() {
   const items = Array.from({ length: ITEM_SLOTS }, (_, i) => { const id = R.items[i]; return id ? `<b class="itm" data-item="${i}" title="${esc(ITEMS[id].name)}">${ITEMS[id].icon}</b>` : '<b class="itm empty"></b>'; }).join('');
   return `<div id="top"><span class="hp">❤ ${R.hp}/${R.maxHp}</span>
-   <span class="tmp ${R.temp < 3 ? 'warn' : ''}" data-tip="体温：每走一格 -1，到密营回满。低于 3 时，战斗第一回合少抽 1 张；降到 0 后每走一格再失去 2 生命。">🌡 ${R.temp}/${TEMP_MAX}</span>
-   <span class="food ${R.food <= 0 ? 'warn' : ''}" data-tip="口粮：每走一格 -1，打赢战斗能缴获，也能拿去跟老乡换东西。口粮为 0 时，每走一格失去 3 生命。">🍞 ${R.food}</span>
+   <span class="tmp ${R.temp < 3 ? 'warn' : ''}" data-tip="体温：每走一格 -1，到密营回满。低于 3 时，战斗第一回合少抽 1 张（不掉血）。">🌡 ${R.temp}/${TEMP_MAX}</span>
+   <span class="food ${R.food <= 0 ? 'warn' : ''}" data-tip="口粮：每走 2 格吃 1 口（${(R.steps || 0) % 2 ? '下一格要吃' : '下一格不吃'}）。打赢战斗能缴获，也能拿去跟老乡换东西。断粮时，该吃的那一格改为失去 3 生命（最少留 1 点）。">🍞 ${R.food}${(R.steps || 0) % 2 ? '<small class="nxt">-1</small>' : ''}</span>
    <span class="fl">第 ${Math.max(1, R.floor)} 层</span>
-   <span class="intel" data-tip="情报：打赢地图上带「📜」的加强精英得到。集齐三份情报，才能走到真结局。">📜 ${R.intel || 0}/3</span>
+   <span class="intel" data-tip="情报：地图上带「📜」的加强精英身边有押运档案箱的敌人，3 回合内打倒它就得到情报。集齐三份情报，才能走到真结局。">📜 ${R.intel || 0}/3</span>
    <span class="items" title="背包">${items}</span>
    <span class="relics">${R.relics.map(id => `<b class="rel" data-rel="${id}" title="${esc(RELICS[id].name)}">${RELICS[id].icon}</b>`).join('')}</span>
    <i class="sp"></i><button class="tb" id="tbdeck">牌组 ${R.deck.length}</button><button class="tb" id="tbrule">规则</button><button class="tb" id="tbmenu">菜单</button></div>`;
@@ -158,12 +158,21 @@ const TUTQ = []; let tutOpen = false;
 /* 通用教程用 id；角色专属的用「角色:id」 */
 function teach(id, lines) {
   lines = lines || TUT[id]; if (!lines || !SET.tut || TUTDONE[id]) return;
-  TUTDONE[id] = 1; saveTut(); TUTQ.push(lines); if (!tutOpen) tutNext();
+  TUTDONE[id] = 1; saveTut();
+  if (typeof lines === 'string') return hint(lines); /* 一句话的：顶上一行小字，不打断 */
+  TUTQ.push(lines); if (!tutOpen) tutNext();
+}
+/* 一行小字提示（老沈头像 + 一句话），几秒后自己消失，点一下也能关 */
+function hint(t) {
+  stage.querySelectorAll('.lhint').forEach(x => x.remove());
+  const h = document.createElement('div'); h.className = 'lhint';
+  h.innerHTML = `<img src="${MENTOR.face}" alt=""><span><b>${MENTOR.name}</b>${esc(t)}</span>`;
+  h.onclick = () => h.remove(); stage.appendChild(h); setTimeout(() => h.remove(), 6500);
 }
 /* 角色专属教程：on = 'play' / 'render' */
 function teachChar(on, ...a) {
   if (!SET.tut || !R) return; const L = CHR().tut || [];
-  for (const t of L) if (t.on === on && !TUTDONE[R.char + ':' + t.id] && t.when(B, ...a)) teach(R.char + ':' + t.id, t.lines);
+  for (const t of L) if (t.on === on && !TUTDONE[R.char + ':' + t.id] && t.when(B, ...a)) teach(R.char + ':' + t.id, t.lines || t.hint);
 }
 function tutNext() {
   const lines = TUTQ.shift(); if (!lines) { tutOpen = false; return; }
@@ -184,7 +193,7 @@ let SEEN = {}; try { SEEN = JSON.parse(localStorage.getItem('ithq_codex') || '{}
 const saveSeen = () => { try { localStorage.setItem('ithq_codex', JSON.stringify(SEEN)); } catch (e) {} };
 function see(...keys) { let ch = 0; for (const k of keys) if (k && !SEEN[k]) { SEEN[k] = 1; ch = 1; } if (ch) saveSeen(); }
 const MOVE_TX = m => m.i === 'atk' ? `${m.d}${m.x ? '×' + m.x : ''} 伤害${m.weak ? `，虚弱 ${m.weak}` : ''}${m.blk ? `，格挡 ${m.blk}` : ''}`
-  : m.i === 'reload' ? `装弹，这回合不攻击${m.blk ? `（格挡 ${m.blk}）` : ''}` : m.i === 'charge' ? `蓄力，下回合 ${m.next} 伤害` : m.i === 'flee' ? '逃跑'
+  : m.i === 'reload' ? `装弹，这回合不攻击${m.blk ? `（格挡 ${m.blk}）` : ''}` : m.i === 'charge' ? `蓄力，下回合 ${m.next} 伤害` : m.i === 'flee' ? (m.tx || '离开战场')
   : m.i === 'def' ? `格挡 ${m.blk}` : [m.all ? `全体力量 +${m.all}` : '', m.str ? `力量 +${m.str}` : '', m.summon ? `叫来${ENEMIES[m.summon].name}` : '', m.weak ? `给你虚弱 ${m.weak}` : '', m.vuln ? `给你易伤 ${m.vuln}` : '', m.allBlk ? `全体格挡 ${m.allBlk}` : '', m.blk ? `格挡 ${m.blk}` : ''].filter(Boolean).join('，');
 const enemyImg = d => d.frames ? `assets/enemies/${d.frames}/idle0.png` : '';
 const portraitOf = d => `assets/portraits/${d.key === 'captain' ? 'captain' : d.key}.png`;
@@ -218,9 +227,9 @@ function codex(tab = 'people') {
     if (!e) return `<p class="no">${tab === 'hero' ? '东北抗日联军在白山黑水间坚持了十四年。这一页记的是真实的英烈；游戏里的其他人物都是虚构的。<br><br>点左边的名字看生平。' : '点左边的条目看详情。'}</p>`;
     if (!open(e)) return `<div class="pic lk">${tab === 'card' ? '<div class="cback">？</div>' : tab === 'relic' || tab === 'item' ? `<b class="big">${e.d.icon}</b>` : `<img src="${enemyImg(e.d)}" alt="">`}</div><h3>？？？</h3><p class="no">${tab === 'enemy' || tab === 'boss' ? '在战斗中第一次遇到后解锁。' : tab === 'card' ? '在战利品、老乡那里见过或拿到后解锁。' : '第一次拿到后解锁。'}</p>`;
     if (tab === 'enemy' || tab === 'boss') { const d = e.d;
-      return `<div class="pic"><img src="${portraitOf(d)}" alt="" onerror="this.src='${enemyImg(d)}'"></div><h3>${d.name}</h3><span class="tg2">${d.boss ? '首领' : d.elite ? '精英' : '敌人'} · 生命 ${d.hp[0] === d.hp[1] ? d.hp[0] : d.hp.join('–')}${d.armor ? ` · 装甲 ${d.armor}` : ''}${d.ammo ? ` · 弹仓 ${d.ammo}` : ''}</span>
-        <h4>行 动</h4><ul>${Object.values(d.moves).map(m => `<li><b>${m.t}</b>：${MOVE_TX(m)}</li>`).join('')}</ul>${HIST[d.key] ? `<h4>史 实</h4><p class="hist">${HIST[d.key]}</p>` : ''}`; }
-    if (tab === 'card') { const d = e.d; return `<div class="pic cards">${cardHTML({ id: d.id, up: 0 })}${cardHTML({ id: d.id, up: 1 })}</div><p class="no">左：原版　右：升级后</p><span class="tg2">${RAR[d.rar] || ''} · ${TYPE[d.type] || ''}${d.sch ? ' · ' + (SCH[d.sch] || '') : ''}</span>`; }
+      return `<div class="pic"><img src="${portraitOf(d)}" alt="" onerror="this.src='${enemyImg(d)}'"></div><h3>${d.name}</h3><span class="tg2">${d.boss ? '首领' : d.elite ? '精英' : '敌人'} · 生命 ${d.hp[0] === d.hp[1] ? d.hp[0] : d.hp.join('–')}${d.armor ? ` · 装甲 ${d.armor}` : ''}${d.ammo && (d.elite || d.boss || d.showAmmo) ? ` · 弹数 ${d.ammo}` : ''}</span>
+        <h4>行 动</h4><ul>${Object.values(d.moves).map(m => `<li><b>${typeof m.t === 'function' ? m.t({ t: 0 }) : m.t}</b>：${MOVE_TX(m)}</li>`).join('')}</ul>${HIST[d.key] ? `<h4>史 实</h4><p class="hist">${HIST[d.key]}</p>` : ''}`; }
+    if (tab === 'card') { const d = e.d; return `<div class="pic cards">${cardHTML({ id: d.id, up: 0 })}${cardHTML({ id: d.id, up: 1 })}</div><p class="no">左：原版　右：升级后</p><span class="tg2">${RAR[d.rar] || ''} · ${TYPE[d.type] || ''}${d.sch ? ' · ' + (SCH[d.sch] || '') : ''}</span>${HIST[d.id] ? `<h4>史 实</h4><p class="hist">${HIST[d.id]}</p>` : ''}`; }
     if (tab === 'relic' || tab === 'item') { const d = e.d, id = d.id; return `<div class="pic"><b class="big huge">${d.icon}</b></div><h3>${d.name}</h3><span class="tg2">${tab === 'relic' ? `随身物品 · ${RARN[d.rar] || ''}${d.ch ? ' · 韩松专用' : ''}` : '背包用品'}</span><h4>效 果</h4><p>${d.desc}</p>${HIST[id] ? `<h4>史 实</h4><p class="hist">${HIST[id]}</p>` : ''}`; }
     if (tab === 'people') { const p = e.p; return `<div class="pic">${p.img ? `<img src="${p.img}" alt="">` : '<div class="pph big">立绘制作中</div>'}</div><h3>${p.n}</h3><span class="tg2">${p.sub} · ${p.play}</span><h4>出 身</h4><p>${p.from}</p><h4>伤 疤</h4><p>${p.wound}</p><h4>性 子</h4><p>${p.heart}</p><h4>语 言</h4><p class="hist">${p.lang}</p><p class="no">人物为虚构。</p>`; }
     if (tab === 'term') return `<h3>${e.n}</h3><span class="tg2">术语 · ${e.g}</span><p>${e.t}</p>`;
@@ -287,13 +296,14 @@ function showPile(t, cards, onPick, sub = '') {
 }
 function rules() {
   const L = ['每回合 3 能量，抽 5 张。打出卡牌要花能量。', ...CHR().mech.rules,
-    '<b>敌人装弹</b>：会开枪的敌人脚下也有弹仓，打空了下回合要装弹，那回合不攻击。',
+    '<b>敌人换弹</b>：敌人头上写着「装弹」时，那回合不攻击。机枪组、精英和首领脚下显示剩余弹数。',
+    '<b>伪满军士气</b>：同伴倒下，伪满军会「动摇」；动摇 2 层就溃逃。有日军或伪满警察队长督战时不逃。',
     '<b>装甲</b>：每次受到的伤害减去装甲值。穿甲弹、反器材无视装甲。',
-    '<b>体温</b>：每走一格 -1，到密营回满；低于 3 时战斗第一回合少抽 1 张；为 0 时每走一格再失去 2 生命。',
-    '<b>口粮</b>：每走一格 -1，打赢战斗能缴获，也能跟老乡换东西；为 0 时每走一格失去 3 生命。',
+    '<b>体温</b>：每走一格 -1，到密营回满；低于 3 时战斗第一回合少抽 1 张（不掉血）。',
+    '<b>口粮</b>：每走 2 格吃 1 口，打赢战斗能缴获，也能跟老乡换东西；断粮时该吃的那一格失去 3 生命（饿不死，最少留 1 点）。',
     '<b>随身物品</b>：一直生效的被动效果。精英、物资埋藏点、老乡那里能拿到。',
     `<b>背包</b>：一次性用品，最多 ${ITEM_SLOTS} 件，点顶栏的格子使用。`,
-    '<b>情报</b>：打赢带「📜」的加强精英得到。集齐三份，才能走到真结局。',
+    '<b>情报</b>：带「📜」的加强精英身边有一个押运档案箱的敌人，3 回合内把它打倒才能拿到情报；集齐三份，才能走到真结局。',
     '<b>缴获</b>：打赢后可能缴获敌人的枪，以卡牌的形式加入牌组。'];
   overlay(`<div class="panel rules"><h2>规则</h2>${L.map(x => `<p>· ${x}</p>`).join('')}
   <p class="sub">电脑快捷键：数字键出牌，${CHR().mech.actions ? 'R 装填，' : ''}E 结束回合，Esc 取消，M 静音。</p>
@@ -325,9 +335,9 @@ function settings() {
   o.querySelector('#s_x').onclick = () => o.remove();
 }
 const INTRO = [
-  { img: 'assets/story/s1_river.jpg', t: '1944 年冬。东北抗日联军的一支小分队，在苏联境内整训之后，趁着夜色越过冰封的江面，潜回东北。' },
-  { img: 'assets/story/s2_camp.jpg', t: '密营的灶火边，老沈摊开手绘的地图。他们的最终目标是长春——伪满洲国所谓的「新京」，关东军司令部就在那里。' },
-  { img: 'assets/story/s3_depart.jpg', t: '第一站，是长白山北麓的林海雪原。日伪讨伐队正在搜山。神枪手韩松，代号「雪貂」，走在队伍最前面。' }];
+  { img: 'assets/story/s1_river.jpg', t: '1940 年冬，东北抗联余部分批越境入苏整训；1942 年编为教导旅。1944 年冬，一支六人小分队趁着夜色越过冰封的江面，潜回东北。' },
+  { img: 'assets/story/s2_camp.jpg', t: '辗转月余，到了吉东山地，接上了密营。灶火边，老沈摊开手绘的地图：最终目标是长春——伪满洲国所谓的「新京」，关东军司令部就在那里。' },
+  { img: 'assets/story/s3_depart.jpg', t: '下一程，向长白山北麓的林海雪原转进。日伪讨伐队正在搜山。神枪手韩松，代号「雪貂」，走在队伍最前面。' }];
 /* 各章结尾的插画（第一章：沿着铁路向新京去） */
 const OUTRO = { 1: 'assets/story/s4_south.jpg' };
 /* 战役总图：开局和每章结束时显示。地名用代码叠在图上（不让 AI 画字） */
@@ -372,12 +382,12 @@ function mapScreen() {
   for (const nd of R.map[ROWS - 1]) if (nd) lines += ln(nodeX(nd), mapY(nd), BOSS_X, BOSS_Y, false);
   for (const row of R.map) for (const nd of row) if (nd) {
     const isAv = av.includes(nd), done = R.path.some(p => p.r === nd.r && p.c === nd.c), cur = R.pos && R.pos.r === nd.r && R.pos.c === nd.c, hide = rflag('hideMap') && !done;
-    nodes += `<div class="node pic ${isAv ? 'av' : ''} ${done ? 'done' : ''} ${cur ? 'cur' : ''}" style="left:${nodeX(nd)}px;top:${mapY(nd)}px" data-r="${nd.r}" data-c="${nd.c}">${nodeIcon(hide ? 'event' : nd.type)}${nd.strong && !hide && !done ? '<i class="nintel" title="加强精英：打赢得到一份情报">📜</i>' : ''}${cur ? '<img class="curflag" src="assets/ui/node_cur.png" alt="">' : ''}</div>`;
+    nodes += `<div class="node pic ${isAv ? 'av' : ''} ${done ? 'done' : ''} ${cur ? 'cur' : ''}" style="left:${nodeX(nd)}px;top:${mapY(nd)}px" data-r="${nd.r}" data-c="${nd.c}">${nodeIcon(hide ? 'event' : nd.type)}${nd.strong && !hide && !done ? '<i class="nintel" title="加强精英：有人押运档案箱，3 回合内打倒他才能拿到情报">📜</i>' : ''}${cur ? '<img class="curflag" src="assets/ui/node_cur.png" alt="">' : ''}</div>`;
   }
   nodes += `<div class="node boss ${NODE_ART ? 'pic' : ''} ${av[0] === 'boss' ? 'av' : ''}" style="left:${BOSS_X}px;top:${BOSS_Y}px">${NODE_ART ? nodeIcon('boss') : '讨伐队<br>据点'}</div><div class="maplab" style="left:${BOSS_X}px;top:${BOSS_Y - 82}px">${ENEMIES[bossKey()].name}</div>
    <div class="maplab start" style="left:${M.w / 2}px;top:${Math.round(M.h * .93)}px">${M.startLabel}</div>`;
   view.innerHTML = `${topBar()}<div id="map"><div id="mapin" style="width:${M.w}px;height:${H}px;background-image:url(${M.img})"><svg width="${M.w}" height="${H}">${lines}</svg>${nodes}</div></div>
-   <div id="legend"><div class="lgt">图例</div>${Object.keys(NODE).map(k => `<div><b class="pic">${nodeIcon(k)}</b>${NODE[k][1]}</div>`).join('')}<div><b class="pic">${nodeIcon('boss')}</b>讨伐队据点</div><div><b class="pic nint">📜</b>加强精英（情报）</div><div class="lg2"><i class="redl"></i>走过的路线<br>每走一格：体温 -1，口粮 -1</div></div>`;
+   <div id="legend"><div class="lgt">图例</div>${Object.keys(NODE).map(k => `<div><b class="pic">${nodeIcon(k)}</b>${NODE[k][1]}</div>`).join('')}<div><b class="pic">${nodeIcon('boss')}</b>讨伐队据点</div><div><b class="pic nint">📜</b>加强精英（情报）</div><div class="lg2"><i class="redl"></i>走过的路线<br>每走一格体温 -1，每两格口粮 -1</div></div>`;
   bindTop();
   const m = $('#map'), y = R.pos ? mapY(R.map[R.pos.r][R.pos.c]) : H; m.scrollTop = Math.max(0, y - m.clientHeight + 200);
   teach('map'); if (!rflag('hideMap') && R.map.flat().some(n => n && n.strong)) teach('intel'); if (R.temp < 3) teach('cold'); if (R.food <= 0) teach('hunger');
@@ -391,9 +401,11 @@ function mapScreen() {
 /* 走一格：消耗体温和口粮，返回 false 表示倒下了 */
 function walk() {
   const msg = []; R.steps = (R.steps || 0) + 1;
-  if (R.food > 0) R.food--; else { R.hp -= 3; msg.push('没有口粮，饿着肚子赶路：生命 -3'); }
+  /* 口粮每 2 格吃 1 口；断粮时那一格掉 3 血，但饿不死（最少留 1） */
+  if (R.steps % 2 === 0) { if (R.food > 0) R.food--; else { R.hp = Math.max(1, R.hp - 3); msg.push('没有口粮，饿着肚子赶路：生命 -3'); } }
+  /* 体温每格 -1，只影响「冷开局」（战斗第一回合少抽 1 张），不掉血 */
   const loss = R.relics.some(id => RELICS[id].walkTemp) ? Math.min(...R.relics.filter(id => RELICS[id].walkTemp).map(id => RELICS[id].walkTemp(R))) : 1;
-  if (R.temp > 0) R.temp = Math.max(0, R.temp - loss); else if (!rflag('noFreezeDmg')) { R.hp -= 2; msg.push('冻得失去知觉：生命 -2'); }
+  R.temp = Math.max(0, R.temp - loss);
   if (msg.length) say(msg.join('；'));
   if (R.hp > 0) teach('walk');
   if (R.hp <= 0) { R.hp = 0; endScreen(false, '倒在了风雪里'); return false; }
@@ -457,7 +469,7 @@ const LIHUI = { captain: 'assets/portraits/captain_lihui.png' };
 function bossTalk(key, done) {
   const L = BOSS_TALK[key]; if (!L || (R.talked || []).includes(key)) return done();
   R.talked = [...(R.talked || []), key]; save(); let k = 0; const d = ENEMIES[key]; $('#dbg')?.remove();
-  view.innerHTML = `<div class="bg battle" style="background-image:url(${CH().battleBg})"></div>`;
+  view.innerHTML = `<div class="bg battle" style="background-image:${CH().bossBg && CH().bossBg[key] ? `url(${CH().bossBg[key]}), ` : ''}url(${CH().battleBg})"></div>`;
   const o = document.createElement('div'); o.className = 'overlay tutov btalk';
   o.innerHTML = `<div class="tutl hero"><img src="assets/portraits/${CHR().art.dir}.png" alt=""></div><div class="tutr"><img src="${LIHUI[key] || `assets/portraits/${key}.png`}" alt=""></div>
     <div class="tutbox"><b class="tutn"></b><p class="tutt"></p><span class="tutc"></span><button class="tutskip">跳过</button></div>`;
@@ -466,6 +478,7 @@ function bossTalk(key, done) {
   o.onclick = ev => { if (ev.target.closest('.tutskip')) { o.remove(); return done(); } k++; if (k >= L.length) { o.remove(); done(); } else show(); };
   show(); stage.appendChild(o);
 }
+const battleBgCss = () => { const k = B && B.kind === 'boss' && B.en.find(e => e.d.boss), b = k && CH().bossBg && CH().bossBg[k.key]; return b ? `url(${b}), url(${CH().battleBg})` : `url(${CH().battleBg})`; };
 function battle(enc, kind, strong) {
   const bk = kind === 'boss' && enc.find(k => ENEMIES[k].boss);
   if (bk && BOSS_TALK[bk] && !(R.talked || []).includes(bk) && !battle.talking) { battle.talking = 1; return bossTalk(bk, () => { battle.talking = 0; battle(enc, kind, strong); }); }
@@ -486,13 +499,13 @@ function enemyHTML(e) {
   return `<div class="unit enemy ${tg ? 'tg' : ''} ${e.dead ? 'dead' : ''} ${d.frames ? '' : 'noanim'}" data-eid="${e.id}">
     <div class="intent">${it ? `<i class="ii ii-${it.i}">${ICON[it.i]}</i>${it.text}<small>${it.name}</small>` : ''}</div>
     ${d.frames ? frameBox(efr(e)[0], efr(e)[1], enemySrc(e), '', d.name) : `<div class="sprw">${d.art ? `<img class="spr art still" src="${enemySrc(e)}" style="height:${d.artH}px" alt="${d.name}" draggable="false">` : `<div class="spr blk ${d.boss ? 'bossb' : ''}" style="width:${w}px;height:${h}px;background:${d.col}">${label}</div>`}<i class="shd"></i></div>`}
-    <div class="uinfo">${barHTML(e.hp, e.max, e.block)}${e.ammo != null && !e.dead ? `<div class="eammo ${e.ammo ? '' : 'zero'}" data-k="敌人弹仓">${Array.from({ length: e.d.ammo }, (_, k) => `<i class="${k < e.ammo ? 'f' : ''}"></i>`).join('')}${e.ammo ? '' : '<b>空</b>'}</div>` : ''}<div class="badges">${e.armor ? `<b class="arm" data-k="装甲">🛡 装甲 ${e.armor}</b>` : ''}${B.mech.enemyChips ? B.mech.enemyChips(e) : ''}${stsHTML(e.st)}</div></div></div>`;
+    <div class="uinfo">${barHTML(e.hp, e.max, e.block)}${e.ammo != null && !e.dead && (d.elite || d.boss || d.showAmmo) ? `<div class="eammo ${e.ammo ? '' : 'zero'}" data-k="敌人弹仓">${Array.from({ length: e.d.ammo }, (_, k) => `<i class="${k < e.ammo ? 'f' : ''}"></i>`).join('')}${e.ammo ? '' : '<b>空</b>'}</div>` : ''}<div class="badges">${e.armor ? `<b class="arm" data-k="装甲">🛡 装甲 ${e.armor}</b>` : ''}${d.intel && !e.dead ? '<b class="arm intelc" data-k="档案箱">📜 档案箱</b>' : ''}${B.mech.enemyChips ? B.mech.enemyChips(e) : ''}${stsHTML(e.st)}</div></div></div>`;
 }
 /* 血条：格挡是左边的蓝色圆圈（同旧游戏） */
 function barHTML(hp, max, blk) {
   return `<div class="hpw">${blk ? `<b class="blkv">${blk}</b>` : ''}<div class="bar ${blk ? 'blk' : ''}"><i style="width:${Math.max(0, hp) / max * 100}%"></i><span>${Math.max(0, hp)}/${max}</span></div></div>`;
 }
-const STN = { weak: ['虚弱', '#c8a0ff'], vuln: ['易伤', '#ff9a6a'], str: ['力量', '#ff6a5a'] };
+const STN = { weak: ['虚弱', '#c8a0ff'], vuln: ['易伤', '#ff9a6a'], str: ['力量', '#ff6a5a'], shaken: ['动摇', '#e8c86a'] };
 const stsHTML = st => Object.entries(st).filter(([k]) => STN[k]).map(([k, n]) => `<b class="st" style="color:${STN[k][1]};border-color:${STN[k][1]}" data-k="${STN[k][0]}">${STN[k][0]} ${n}</b>`).join('');
 /* 主角脚下的资源（角色模块提供：韩松是弹仓和枪感），右侧按钮（韩松是装填） */
 function heroInfoHTML() {
@@ -516,7 +529,7 @@ function render() {
     return cardHTML(c, `inhand ${sel ? 'sel' : ''} ${off ? 'off' : ''}`, `data-i="${i}" style="left:${x0 + i * gap}px;transform:translateY(${sel ? -100 : dy}px) rotate(${sel ? 0 : rot}deg);z-index:${sel ? 60 : i + 1}"`);
   }).join('');
   const inc = E.incoming(B);
-  view.innerHTML = `<div class="bg battle" style="background-image:url(${CH().battleBg})"></div>${topBar()}
+  view.innerHTML = `<div class="bg battle" style="background-image:${battleBgCss()}"></div>${topBar()}
    <div id="hero" class="unit" data-eid="hero"><div class="intent"></div>${(A => A.frames ? frameBox(A.dir, TOUCH ? A.hTouch : A.h, heroSrc(), '', CHR().name) : `<div class="sprw"><img class="spr art still" src="${heroSrc()}" style="height:${TOUCH ? A.hTouch : A.h}px" alt="${CHR().name}" draggable="false"><i class="shd"></i></div>`)(HERO_ART())}
     <div class="uinfo">${barHTML(R.hp, R.maxHp, B.p.block)}${heroInfoHTML()}${inc ? `<div class="inc ${inc > B.p.block ? 'low' : 'ok'}">受到 ${Math.max(0, inc - B.p.block)}</div>` : ''}</div></div>
    <div id="enemies">${B.en.filter(e => !(e.dead && Date.now() - e.deadAt > 1400)).map(enemyHTML).join('')}</div>
@@ -535,10 +548,10 @@ function render() {
     if (!TOUCH) { el.onmouseenter = () => kwShow(el); el.onmouseleave = kwHide; }
   });
   view.querySelectorAll('.enemy').forEach(el => el.onclick = ev => { ev.stopPropagation(); clickEnemy(el.dataset.eid); });
-  view.querySelectorAll('.badges b[data-k], .ammo[data-k], .eammo[data-k]').forEach(el => el.onclick = ev => { ev.stopPropagation(); const k = el.dataset.k; tipBox(`<b>${k}</b>：${KW[k] || ({ 力量: '每次攻击伤害增加等同层数。', 敌人弹仓: '会开枪的敌人也有弹仓，每开一轮枪少一格；打空了下回合要「装弹」，那回合不会攻击。' })[k] || ''}`); });
+  view.querySelectorAll('.badges b[data-k], .ammo[data-k], .eammo[data-k]').forEach(el => el.onclick = ev => { ev.stopPropagation(); const k = el.dataset.k; tipBox(`<b>${k}</b>：${KW[k] || ({ 力量: '每次攻击伤害增加等同层数。', 敌人弹仓: '机枪组、精英和首领脚下显示剩余弹数，每开一轮枪少一格；打空了下回合要「装弹」，那回合不会攻击。', 动摇: '伪满军军心不稳：同伴倒下一个就 +1，到 2 层就溃逃。有日军或伪满警察队长督战时不逃。', 档案箱: '他背着装情报的档案箱，3 回合后就撤走。撤走之前打倒他，才能拿到这份情报。' })[k] || ''}`); });
   view.querySelector('.bg').onclick = () => { kwHide(); if (B.sel >= 0) { B.sel = -1; render(); } };
   fitEnemies(); flushFx(); dbgPanel();
-  see(...B.en.map(e => 'e:' + e.key)); if (!B.busy && !B.over) { teachChar('render'); if (B.en.some(e => !e.dead && e.d.moves[e.move] && e.d.moves[e.move].i === 'reload')) teach('ereload'); }
+  see(...B.en.map(e => 'e:' + e.key)); if (!B.busy && !B.over) { teachChar('render'); if (B.en.some(e => !e.dead && e.d.moves[e.move] && e.d.moves[e.move].i === 'reload')) teach('ereload'); if (B.en.some(e => !e.dead && e.st.shaken)) teach('shaken'); if (B.en.some(e => !e.dead && e.d.intel)) teach('escort'); }
 }
 /* 关键词说明框：贴在牌的旁边 */
 function kwShow(el) {
@@ -581,7 +594,7 @@ async function play(i, tid) {
   if (mode === 'shoot') heroAct('shoot');
   else if (mode === 'bayonet') { heroAct('stab'); setTimeout(() => motion('hero', 'dash'), 0); audio.stab(); }
   B.anim = 0; render(); flushMsgs();
-  if (mode === 'bayonet') say('弹仓空了，端起刺刀！', 1500);
+  if (mode === 'bayonet') say('子弹打光了，端起刺刀！', 1500);
   await checkEnd();
 }
 function flyCard(el, type) {
@@ -618,12 +631,12 @@ async function checkEnd() {
   const r = E.result(B); if (!r) return false;
   B.busy = 1; await sleep(800);
   if (r === 'lose') { heroAct('down'); audio.lose(); await sleep(900); const k = B.en.find(e => !e.dead && (e.d.boss || e.d.elite)) || B.en.find(e => !e.dead) || B.en[0]; R.killer = k ? k.d.name : ''; endScreen(false, `倒在了${CH().name}第 ${Math.max(1, R.floor)} 层`); return true; }
-  const kind = B.kind, en = B.en, strong = B.strong; B.over = 'win'; audio.win(); E.endBattle(B, true);
+  const kind = B.kind, en = B.en, strong = B.strong, gotIntel = !!(B.strong && B.intelGot); B.over = 'win'; audio.win(); E.endBattle(B, true);
   R.kills = (R.kills || 0) + en.filter(e => e.dead && !e.fled).length; if (kind === 'elite') R.elites = (R.elites || 0) + 1; if (kind === 'boss') R.bosses = (R.bosses || 0) + 1;
   R.relics.forEach(id => { const r = RELICS[id]; if (r.fightWon) r.fightWon(R); });
-  if (strong) { R.intel = (R.intel || 0) + 1; }
-  if (kind === 'boss') { R.hp = Math.max(1, R.hp); B = null; R.food += 3; R.pending = { t: 'loot', kind: 'boss', food: 3, list: [], relic: rollRelic({ r: 100 }), cards: rollCards(3, 'boss'), then: { t: 'bossrelic', opts: rollBossRelics() } }; save(); return lootScreen(), true; }
-  winRewards(kind, en, strong); return true;
+  if (gotIntel) { R.intel = (R.intel || 0) + 1; }
+  if (kind === 'boss') { R.hp = Math.max(1, R.hp); B = null; R.food += 3; R.pending = { t: 'loot', kind: 'boss', food: 3, list: [], cards: rollCards(3, 'boss'), then: { t: 'bossrelic', opts: rollBossRelics() } }; save(); return lootScreen(), true; }
+  winRewards(kind, en, strong, gotIntel); return true;
 }
 
 // ---------- 拖动出牌（移植自旧游戏）：手机只拖动，电脑点击和拖动都可以 ----------
@@ -722,7 +735,8 @@ function rollCards(n, elite) {
   return out.map(id => mk(id));
 }
 /* 随身物品：按稀有度抽，只出当前角色能用的、还没有的 */
-const relicPool = rar => Object.values(RELICS).filter(r => r.rar === rar && (!r.ch || r.ch === R.char) && !has(r.id));
+let POOL_SU = 1; /* 0 = 从日伪军身上缴获，不出苏联物品 */
+const relicPool = rar => Object.values(RELICS).filter(r => r.rar === rar && (!r.ch || r.ch === R.char) && !has(r.id) && (POOL_SU || !r.su));
 function rollRelic(w = { c: 50, u: 33, r: 17 }) {
   for (let k = 0; k < 20; k++) { let x = Math.random() * 100, rar = 'c'; for (const [r, p] of Object.entries(w)) { x -= p; if (x <= 0) { rar = r; break; } }
     const p = relicPool(rar); if (p.length) return pickOne(p).id; }
@@ -730,12 +744,12 @@ function rollRelic(w = { c: 50, u: 33, r: 17 }) {
 }
 const rollBossRelics = () => { const p = relicPool('boss'); const out = []; while (out.length < 3 && p.length) out.push(p.splice(Math.floor(Math.random() * p.length), 1)[0].id); return out; };
 const rollItem = () => pickOne(Object.keys(ITEMS));
-function winRewards(kind, en, strong) {
+function winRewards(kind, en, strong, gotIntel) {
   const food = kind === 'elite' ? 2 : 1; R.food += food;
   const list = [];
   for (const e of en) if (!e.fled && e.d.loot && Math.random() < e.d.lootP && !list.includes(e.d.loot)) list.push(e.d.loot);
-  const relic = kind === 'elite' ? rollRelic() : null, item = Math.random() < (kind === 'elite' ? .5 : .4) ? rollItem() : null;
-  B = null; R.pending = { t: 'loot', list, kind, food, strong, relic, item, cards: rollCards(3, kind === 'elite') }; save();
+  POOL_SU = 0; const relic = kind === 'elite' ? rollRelic() : null; POOL_SU = 1; const item = Math.random() < (kind === 'elite' ? .5 : .4) ? rollItem() : null;
+  B = null; R.pending = { t: 'loot', list, kind, food, strong, intel: gotIntel, relic, item, cards: rollCards(3, kind === 'elite') }; save();
   lootScreen();
 }
 /* 战利品：先选牌，再逐个处理缴获的武器。进度存在 R.pending 里，刷新页面不会丢也不会重抽 */
@@ -746,7 +760,7 @@ function lootScreen() {
   view.innerHTML = `<div class="bg ${P.kind === 'boss' ? 'ev' : 'battle dim'}"></div>${topBar()}`; bindTop();
   if (P.cards) {
     view.insertAdjacentHTML('beforeend', `<div class="panel loot"><h2>${P.kind === 'boss' ? '击溃了讨伐队！' : P.kind === 'elite' ? '打退了精英！' : '战斗胜利'}</h2>
-     <p>缴获口粮 +${P.food || 1}${P.strong ? '　📜 得到一份情报' : ''}</p>${P.relicShown ? `<p class="gain">得到随身物品：${RELICS[P.relicShown].icon} <b>${RELICS[P.relicShown].name}</b>　<small>${RELICS[P.relicShown].desc}</small></p>` : ''}${P.itemShown ? `<p class="gain">缴获背包用品：${ITEMS[P.itemShown].icon} <b>${ITEMS[P.itemShown].name}</b>${R.items.includes(P.itemShown) ? '' : '（背包满了，没拿）'}</p>` : ''}<p class="sub">${P.kind === 'boss' ? '选一张稀有牌加入牌组：' : '选一张牌加入牌组：'}</p><div class="row">${P.cards.map((c, i) => cardHTML(c, '', `data-k="${i}"`)).join('')}</div>
+     <p>缴获口粮 +${P.food || 1}${P.strong ? (P.intel ? '　📜 抢下了档案箱，得到一份情报' : '　档案箱被带走了，这份情报没拿到') : ''}</p>${P.relicShown ? `<p class="gain">得到随身物品：${RELICS[P.relicShown].icon} <b>${RELICS[P.relicShown].name}</b>　<small>${RELICS[P.relicShown].desc}</small></p>` : ''}${P.itemShown ? `<p class="gain">缴获背包用品：${ITEMS[P.itemShown].icon} <b>${ITEMS[P.itemShown].name}</b>${R.items.includes(P.itemShown) ? '' : '（背包满了，没拿）'}</p>` : ''}<p class="sub">${P.kind === 'boss' ? '选一张稀有牌加入牌组：' : '选一张牌加入牌组：'}</p><div class="row">${P.cards.map((c, i) => cardHTML(c, '', `data-k="${i}"`)).join('')}</div>
      <button class="btn ghost" id="l_skip">不要牌</button></div>`); bindTop();
     const next = () => { delete P.cards; save(); lootScreen(); };
     view.querySelectorAll('.loot .card').forEach(el => el.onclick = () => { const c = P.cards[+el.dataset.k]; R.deck.push(c); tip('加入牌组：' + CARDS[c.id].name); next(); });
@@ -782,23 +796,27 @@ function upgradePick(done) {
 }
 
 // ---------- 事件（章节文件里的事件池；一局里不重复） ----------
+/* 敬畏：看得见的事件标记，只影响以后的事件分支，不改战斗数值。选完当场老沈说一句 */
+const AWE_UP = ['山里的规矩，守着不吃亏。', '老辈人信这个。咱不全信，可也得敬着。'];
+const AWE_DN = ['冲撞了。往后走道儿，留点神。', '咱不信这个，可山里人信。往后碰上他们，话得想好了说。'];
 function eventScreen(force) {
   teach('event');
   const pool = CH().events.filter(e => !(R.seenEv || []).includes(e.id)), ev = (force && CH().events.find(e => e.id === force)) || pickOne(pool.length ? pool : CH().events);
   R.seenEv = [...(R.seenEv || []), ev.id]; save(); refreshScreen = () => {};
-  let fightEnc = null; const waits = [];
+  let fightEnc = null, aweN = 0, aweLine = ''; const waits = [];
   const G = { rng: Math.random, foodN: () => R.food, food: n => { R.food = Math.max(0, R.food + n); }, temp: n => { R.temp = Math.max(0, Math.min(TEMP_MAX, R.temp + n)); },
     hp: n => { R.hp = Math.min(R.maxHp, R.hp + n); }, heal: n => { R.hp = Math.min(R.maxHp, R.hp + n); }, maxHp: n => { R.maxHp += n; R.hp += n; },
     upgrade: () => waits.push('up'), removeCard: () => waits.push('rm'), addCard: id => R.deck.push(mk(id)), fight: enc => { fightEnc = enc; },
-    relic: id => gainRelic(id || rollRelic()), item: id => gainItem(id || rollItem()), hasRelic: id => has(id), awe: n => { R.awe = (R.awe || 0) + n; }, lang: k => (CHR().lang || {})[k] || 0, char: R.char, hasItem: () => R.items.length > 0, loseItem: () => R.items.splice(Math.floor(Math.random() * R.items.length), 1) };
+    relic: id => gainRelic(id || rollRelic()), item: id => gainItem(id || rollItem()), hasRelic: id => has(id), awe: (n, line) => { R.awe = (R.awe || 0) + n; aweN += n; if (line) aweLine = line; }, lang: k => (CHR().lang || {})[k] || 0, char: R.char, hasItem: () => R.items.length > 0, loseItem: () => R.items.splice(Math.floor(Math.random() * R.items.length), 1) };
   const draw = () => {
-    view.innerHTML = `<div class="bg ev"></div>${topBar()}<div class="panel evp"><h2>${ev.title}</h2><p>${ev.text}</p><div class="col">${ev.opts.map((o, i) => { const ok = !o.need || o.need(G); return `<button class="btn opt" data-o="${i}" ${ok ? '' : 'disabled'}>${o.t}${ok ? '' : '（条件不够）'}</button>`; }).join('')}</div></div>`;
+    view.innerHTML = `<div class="bg ev"></div>${topBar()}<div class="panel evp"><h2>${ev.title}</h2><p>${ev.text}</p><div class="col">${ev.opts.map((o, i) => { const ok = !o.need || o.need(G); return `<button class="btn opt" data-o="${i}" ${ok ? '' : 'disabled'}>${o.t}${String(o.f).includes('awe(') ? '<small class="awetag">⛩ 敬畏</small>' : ''}${ok ? '' : '（条件不够）'}</button>`; }).join('')}</div></div>`;
     bindTop();
     view.querySelectorAll('[data-o]').forEach(b => b.onclick = () => {
       const msg = ev.opts[+b.dataset.o].f(G); save();
       const after = () => { if (R.hp <= 0) { R.hp = 0; return endScreen(false, `倒在了${CH().name}里`); } if (fightEnc) { R.pending = { t: 'fight', enc: fightEnc }; save(); return battle(fightEnc, 'fight'); } mapScreen(); };
       const cont = () => { const w = waits.shift(); if (w === 'up') return upgradePick(() => cont()); if (w === 'rm') return removePick(() => cont()); after(); };
-      if (msg) { view.querySelector('.evp').innerHTML = `<h2>${ev.title}</h2><p>${msg}</p><button class="btn" id="ev_ok">继续</button>`; bindTop(); $('#ev_ok').onclick = cont; } else cont();
+      const aweP = aweN ? `<p class="awe">⛩ 敬畏 ${aweN > 0 ? '+' : ''}${aweN}（现在 ${R.awe}）<br><b>${MENTOR.name}</b>：「${aweLine || (aweN > 0 ? AWE_UP : AWE_DN)[Math.floor(Math.random() * 2)]}」</p>` : '';
+      if (msg) { view.querySelector('.evp').innerHTML = `<h2>${ev.title}</h2><p>${msg}</p>${aweP}<button class="btn" id="ev_ok">继续</button>`; bindTop(); $('#ev_ok').onclick = cont; } else cont();
     });
   };
   refreshScreen = draw; draw();

@@ -17,9 +17,8 @@ export function sum(B, ev, ...a) { let s = 0; for (const r of relicsOf(B)) if (t
 const flag = (B, k) => relicsOf(B).some(r => r[k]);
 
 function mkEnemy(B, key, strong) {
-  const d = ENEMIES[key]; let hp = ri(B.rng, d.hp[0], d.hp[1]); if (strong) hp = Math.round(hp * 1.3);
+  const d = ENEMIES[key]; const hp = ri(B.rng, d.hp[0], d.hp[1]);
   const e = { id: 'e' + (B.eid++), key, d, hp, max: hp, block: 0, st: {}, armor: d.armor || 0, marks: 0, t: 0, phase: 1, ammo: d.ammo || null };
-  if (strong) e.st.str = 2;
   e.move = d.ai(e, B, B.rng); return e;
 }
 
@@ -29,7 +28,8 @@ export function startBattle(R, keys, kind, rng, opt = {}) {
     p: { energy: 0, block: 0, st: {}, pw: {} } };
   B.char = CHARS[R.char || 'hansong']; B.mech = B.char.mech;
   B.K = { fx: (w, t, c) => fx(B, w, t, c), hitEnemy: (e, a, p) => hitEnemy(B, e, a, p), atkMod: (e, d, sh) => atkMod(B, e, d, sh), alive: () => alive(B), drawCards: n => drawCards(B, n), sum: (ev, ...a) => sum(B, ev, ...a) };
-  B.en = keys.map(k => mkEnemy(B, k, opt.strong && ENEMIES[k].elite));
+  /* 加强精英：多一个押运档案箱的敌人，3 回合内不打倒就带着情报撤走 */
+  B.en = [...keys, ...(opt.strong && ENEMIES.escort ? ['escort'] : [])].map(k => mkEnemy(B, k));
   B.draw = shuffle(R.deck.map(c => ({ ...c })), rng);
   B.G = mkG(B);
   B.mech.init(B);
@@ -81,7 +81,15 @@ function hitEnemy(B, e, amt, pierce) {
   if (amt > 0 && e.d.onHurt) e.d.onHurt(e, B.G);
   return amt;
 }
-function kill(B, e) { e.dead = 1; e.hp = 0; e.marks = 0; e.deadAt = Date.now(); B.R.kills = (B.R.kills || 0) + 1; trigger(B, 'kill', e); }
+function kill(B, e) { e.dead = 1; e.hp = 0; e.marks = 0; e.deadAt = Date.now(); B.R.kills = (B.R.kills || 0) + 1; if (e.d.intel) B.intelGot = 1; trigger(B, 'kill', e); morale(B); }
+/* 士气（伪满军）：同伴倒下一个「动摇」+1；动摇到 2 就溃逃——但有日军（或伪满警察队长）督战时不逃 */
+export const supervised = B => alive(B).some(x => x.d.sup);
+function morale(B) {
+  for (const x of alive(B)) if (x.d.morale) {
+    addSt(x, 'shaken', 1); fx(B, x.id, '动摇', 'st');
+    if (x.st.shaken >= 2 && !supervised(B)) x.move = 'flee';
+  }
+}
 
 /* 你的攻击：虚弱、易伤、装甲 */
 function atkMod(B, e, d, sh = {}) {
@@ -98,7 +106,8 @@ export function playCard(B, i, tid) {
   let t = tid ? B.en.find(e => e.id === tid && !e.dead) : null;
   if (d.tgt === 'one' && !t) { const a = alive(B); if (!a.length) return false; t = a[0]; }
   B.p.energy -= cardCost(B, c); B.hand.splice(i, 1);
-  if (d.gun && B.mech.playGun) { B.p.firstGunPlayed = 1; const res = B.mech.playGun(B, d, u, t); if (d.extra) d.extra(B.G, u, t, res); }
+  /* 空仓拼刺：只造成固定拼刺伤害，牌上其他效果不生效（标了 dry 的牌除外），免得空着枪比有子弹还划算 */
+  if (d.gun && B.mech.playGun) { B.p.firstGunPlayed = 1; const res = B.mech.playGun(B, d, u, t); if (d.extra && (!res.bayonet || d.dry)) d.extra(B.G, u, t, res); }
   else if (d.play) d.play(B.G, u, t);
   if (d.type !== 'power') (d.ex ? B.exh : B.disc).push(c); /* 能力牌打出后本场移出牌组 */
   trigger(B, 'cardPlayed', d);
@@ -141,7 +150,8 @@ export function endPlayerTurn(B) {
 
 /* 敌人意图：用于显示 */
 export function intentOf(B, e) {
-  const m = e.d.moves[e.move]; if (!m) return { i: 'unk', text: '?' };
+  const m0 = e.d.moves[e.move]; if (!m0) return { i: 'unk', text: '?' };
+  const m = typeof m0.t === 'function' ? { ...m0, t: m0.t(e) } : m0; /* 名字可以随回合变（如「后撤：还剩 2 回合」） */
   if (m.i === 'atk') { const n = enemyDmg(B, e, m.d); return { i: 'atk', text: m.x ? `${n}×${m.x}` : `${n}`, name: m.t, dmg: n * (m.x || 1) }; }
   if (m.i === 'charge') return { i: 'charge', text: `下回合 ${m.next}`, name: m.t };
   return { i: m.i, text: '', name: m.t };
@@ -164,7 +174,7 @@ export function enemyAct(B, e) {
   const m = e.d.moves[e.move];
   if (m.i === 'reload') { e.ammo = e.d.ammo; fx(B, e.id, '装弹', 'st'); }
   if (m.shot && e.ammo != null) e.ammo = Math.max(0, e.ammo - 1);
-  if (m.i === 'flee') { e.dead = 1; e.fled = 1; e.deadAt = Date.now(); fx(B, e.id, '逃跑了', 'st'); return; }
+  if (m.i === 'flee') { e.dead = 1; e.fled = 1; e.deadAt = Date.now(); fx(B, e.id, e.d.intel ? '带着档案箱撤走了' : '溃逃了', 'st'); if (e.d.intel) B.intelLost = 1; morale(B); return; }
   if (m.d) for (let k = 0; k < (m.x || 1) && !B.over; k++) hitPlayer(B, enemyDmg(B, e, m.d));
   if (m.blk) { e.block += m.blk; fx(B, e.id, '+' + m.blk, 'blk'); }
   if (m.allBlk) alive(B).forEach(x => { if (x !== e) { x.block += m.allBlk; fx(B, x.id, '+' + m.allBlk, 'blk'); } });
@@ -174,7 +184,8 @@ export function enemyAct(B, e) {
   if (m.vuln) { addSt(B.p, 'vuln', m.vuln); fx(B, 'hero', `易伤+${m.vuln}`, 'st'); }
   if (m.summon && alive(B).length < 4) { const n = mkEnemy(B, m.summon); B.en.splice(B.en.indexOf(e), 0, n); fx(B, n.id, '增援', 'st'); }
   for (const k of ['weak', 'vuln']) if (e.st[k]) addSt(e, k, -1);
-  if (!e.dead) { e.last = e.move; e.t++; e.move = e.ammo === 0 ? 'reload' : e.d.ai(e, B, B.rng); }
+  /* 下回合干什么在这里就定好（意图照此显示，不会临时变卦）：打空了先换弹，溃逃优先 */
+  if (!e.dead) { e.last = e.move; e.t++; const nx = e.d.ai(e, B, B.rng); e.move = nx === 'flee' ? 'flee' : e.ammo === 0 ? 'reload' : nx; }
 }
 
 export function result(B) {
