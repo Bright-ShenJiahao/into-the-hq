@@ -561,7 +561,7 @@ const SZ = () => (B && deepMode() ? (TOUCH ? .84 : .76) : 1);
 const ROW_FRONT = new Set(['dog', 'cav', 'kendo', 'kensei', 'ronin', 'spy', 'shadow', 'echo', 'tombkeeper', 'mask', 'armorcar', 'ski']);
 const ROW_BACK = new Set(['mg', 'hmg', 'mortar', 'sniper', 'gun', 'radio', 'medic', 'supply', 'surgeon', 'officer', 'informer', 'sapper', 'pcap', 'sergeant', 'agent', 'depotchief', 'jpcop']);
 const rowOf = e => (e.d.boss && e.key !== 'it') || e.d.civ || e.d.intel || ROW_BACK.has(e.key) ? 2 : ROW_FRONT.has(e.key) ? 0 : 1;
-const DEPTH = { up: [0, 95, 185], upT: [0, 58, 112], sc: [1, .88, .78] };
+const DEPTH = { up: [0, 85, 165], upT: [0, 54, 104], sc: [1, .88, .78] };
 
 /* 敌人的位置：夹在主角和右侧按钮之间。2.5D 背景上按前中后三排站成一团；放不下就整体等比缩小 */
 function fitEnemies() {
@@ -569,7 +569,7 @@ function fitEnemies() {
   const W = stage.offsetWidth || 1280, L = hero.offsetLeft + hero.offsetWidth + (TOUCH ? 10 : 30), R = btn ? W - btn.offsetLeft + (TOUCH ? 6 : 16) : 240;
   box.style.left = L + 'px'; box.style.right = R + 'px'; box.style.transform = ''; box.style.scale = '';
   const deep = deepMode(); box.classList.toggle('deep', deep); hero.classList.toggle('deep', deep);
-  if (!deep) { const need = box.scrollWidth, have = box.clientWidth; if (need > have + 2) box.style.transform = `scale(${Math.max(.6, have / need).toFixed(3)})`; return; }
+  if (!deep) { hero.style.translate = ''; const need = box.scrollWidth, have = box.clientWidth; if (need > have + 2) box.style.transform = `scale(${Math.max(.6, have / need).toFixed(3)})`; return; }
   /* 每个敌人第一次出场时定下排和排里的次序，之后不挪（倒下的留空位，增援的排到所在那排的末尾） */
   for (const e of B.en) if (e.row == null) { e.row = rowOf(e); e.ri = B.en.filter(x => x !== e && x.row === e.row).length; }
   const us = [...box.children], w = box.clientWidth, up = TOUCH ? DEPTH.upT : DEPTH.up;
@@ -589,10 +589,14 @@ function fitEnemies() {
   let x = 0; const xs = [];
   items.forEach((t, k) => { if (k) { const p = items[k - 1], ov = p.r === t.r ? .94 : .84; x += (p.wd + t.wd) / 2 * ov; } xs.push(x); });
   const L0 = xs[0] - items[0].wd / 2, R0 = xs[xs.length - 1] + items[items.length - 1].wd / 2, span = R0 - L0;
-  const off = (w - span) / 2 - L0;
+  /* 整团偏右放（离主角远一点，中间留出交火的空地），但不超出右边界 */
+  const off = Math.max((w - span) / 2, Math.min(w - span, (w - span) * .8)) - L0;
   items.forEach((t, k) => { const u = t.u, cx = xs[k] + off;
     u.dataset.depth = t.r; u.style.left = (cx - u.offsetWidth / 2) + 'px'; u.style.bottom = (up[t.r] + (t.e.ri % 2) * (TOUCH ? 8 : 16)) + 'px'; });
-  if (span > w) box.style.scale = Math.max(.6, w / span).toFixed(3);
+  const k = span > w ? Math.max(.6, w / span) : 1; if (k < 1) box.style.scale = k.toFixed(3);
+  /* 主角的脚站在敌人最前排和最后排的中线上（图上就是左右对着中间） */
+  const rows = items.map(t => up[t.r] + (t.e.ri % 2) * (TOUCH ? 8 : 16)), mid = (Math.min(...rows) + Math.max(...rows)) / 2;
+  const base = TOUCH ? 10 : 28; hero.style.translate = `0 ${-(base + mid * k)}px`;
 }
 addEventListener('resize', () => { if (B && !B.over) fitEnemies(); });
 /* 侦明（沈知秋）：弹出牌堆顶几张，点选要弃掉的，确定 */
