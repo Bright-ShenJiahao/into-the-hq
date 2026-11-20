@@ -47,7 +47,7 @@ export const ENEMIES_CH3 = {
     moves: { burn: { t: '往炉子里扔档案', i: 'def', blk: 7 }, shoot: { t: '射击', i: 'atk', d: 9 } },
     ai: e => (e.t % 2 ? 'shoot' : 'burn') },
   /* 加强精英里那个：3 回合内不打倒，「拟销毁目录」就烧完了（第三份证据） */
-  escort3: { name: '烧目录的宪兵', hp: [20, 22], col: '#5a4a30', frames: 'burner', pic: 'burner', artH: 240, intel: 1, fleeTx: '把最后一页扔进了炉子',
+  escort3: { name: '烧目录的宪兵', hp: [20, 22], col: '#5a4a30', frames: 'escort3', noAtk: 1, artH: 240, intel: 1, fleeTx: '把最后一页扔进了炉子',
     moves: { back: { t: e => `烧目录（${3 - e.t} 回合后烧完）`, i: 'def', blk: 5 }, flee: { t: '烧完了', i: 'flee', tx: '第 3 回合把目录烧完' } },
     ai: e => (e.t >= 2 ? 'flee' : 'back') },
   sapper: { name: '爆破工兵', hp: [20, 24], col: '#5a5040', frames: 'sapper', artH: 170,
@@ -114,7 +114,7 @@ export const ENEMIES_CH3 = {
 Object.entries(ENEMIES_CH3).forEach(([k, d]) => { d.key = k; });
 
 /* 帧图尺寸（切图脚本算出来的：画布宽高、脚底锚点、站立姿势宽高） */
-export const FRAMES_CH3 = { sapper: { cw: 432, ch: 187, ax: 248, sw: 267, sh: 158 }, kguard: { cw: 404, ch: 293, ax: 156, sw: 140, sh: 274 },
+export const FRAMES_CH3 = { escort3: { cw: 415, ch: 280, ax: 169, sw: 253, sh: 277 }, sapper: { cw: 432, ch: 187, ax: 248, sw: 267, sh: 158 }, kguard: { cw: 404, ch: 293, ax: 156, sw: 140, sh: 274 },
   shrineguard: { cw: 468, ch: 190, ax: 220, sw: 301, sh: 187 }, burner: { cw: 453, ch: 199, ax: 232, sw: 117, sh: 197 },
   shadow: { cw: 371, ch: 207, ax: 238, sw: 198, sh: 203 }, echo: { cw: 392, ch: 208, ax: 261, sw: 112, sh: 206 },
   mask: { cw: 475, ch: 207, ax: 299, sw: 228, sh: 205 }, it: { cw: 560, ch: 183, ax: 328, sw: 450, sh: 170 },

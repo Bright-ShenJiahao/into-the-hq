@@ -44,7 +44,7 @@ export const ENEMIES_CH1 = {
     moves: { flare: { t: '打信号弹', i: 'debuff', weak: 2, allBlk: 6 }, dogs: { t: '放狗', i: 'buff', summon: 'dog', blk: 10 }, pistol: { t: '南部手枪', i: 'atk', d: 6, x: 2, shot: 1 }, saber: { t: '军刀劈砍', i: 'atk', d: 16 }, reload: { t: '压子弹', i: 'reload', blk: 8 } },
     ai: (e, B) => e.t === 0 ? 'flare' : (B.en.filter(x => !x.dead && x.key === 'dog').length < 2 && e.last !== 'dogs') ? 'dogs' : e.last === 'pistol' ? 'saber' : 'pistol' },
   /* 加强精英战里多出来的押运兵：背着档案箱（情报），3 回合后撤走。暂时借用日军步兵的图 */
-  escort: { name: '押运档案箱的日军', hp: [20, 22], col: '#6d6a3c', frames: 'inf', artH: 240, intel: 1, sup: 1,
+  escort: { name: '押运档案箱的日军', hp: [20, 22], col: '#6d6a3c', frames: 'escort', noAtk: 1, artH: 240, intel: 1, sup: 1,
     moves: { back: { t: e => `后撤（${3 - e.t} 回合后撤走）`, i: 'def', blk: 5 }, flee: { t: '带着档案箱撤走', i: 'flee', tx: '第 3 回合带着档案箱撤走，情报就没了' } },
     ai: e => e.t >= 2 ? 'flee' : 'back' },
   /* —— 讨伐队的各兵种（还没出图，先用色块） —— */
@@ -73,7 +73,7 @@ export const ENEMIES_CH1 = {
 
 Object.entries(ENEMIES_CH1).forEach(([k, d]) => { d.key = k; });
 /* 逐帧动画的画布信息（切图脚本算出来的）：cw/ch 画布宽高，ax 脚底锚点 x，sw/sh 站立时人物宽高 */
-export const FRAMES_CH1 = { inf: { cw: 462, ch: 404, ax: 195, sw: 359, sh: 402 },
+export const FRAMES_CH1 = { escort: { cw: 402, ch: 315, ax: 171, sw: 179, sh: 313 }, inf: { cw: 462, ch: 404, ax: 195, sw: 359, sh: 402 },
   puppet: { cw: 555, ch: 396, ax: 278, sw: 274, sh: 394 }, dog: { cw: 635, ch: 211, ax: 360, sw: 384, sh: 153 }, mortar: { cw: 498, ch: 317, ax: 215, sw: 309, sh: 315 },
   mg: { cw: 521, ch: 216, ax: 271, sw: 393, sh: 206 }, sniper: { cw: 504, ch: 341, ax: 232, sw: 368, sh: 299 }, sergeant: { cw: 440, ch: 382, ax: 154, sw: 240, sh: 380 },
   captain_car: { cw: 312, ch: 222, ax: 149, sw: 281, sh: 208 }, captain_foot: { cw: 426, ch: 264, ax: 147, sw: 185, sh: 249 },

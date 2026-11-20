@@ -6,7 +6,7 @@
 /* ---------- 敌人 ---------- */
 // hide：意图显示「？」（便衣、伪装）；counter：架势，玩家这回合每次打到他，他就反击这么多伤害
 export const ENEMIES_CH2 = {
-  patrol: { name: '伪满巡警', hp: [16, 19], col: '#3a3f4a', frames: 'puppet', pic: 'puppet', artH: 235, morale: 1, ammo: 2,
+  patrol: { name: '伪满巡警', hp: [16, 19], col: '#3a3f4a', frames: 'patrol', artH: 235, morale: 1, ammo: 2,
     moves: { shoot: { t: '射击', i: 'atk', d: 6, shot: 1 }, baton: { t: '警棍', i: 'atk', d: 8 }, whistle: { t: '吹警笛', i: 'buff', summon: 'patrol', blk: 4 },
       reload: { t: '装弹', i: 'reload', blk: 5 }, flee: { t: '溃逃', i: 'flee', tx: '动摇到 2 层、又没人督战时，扔下警棍跑了' } },
     ai: (e, B) => {
@@ -14,26 +14,26 @@ export const ENEMIES_CH2 = {
       if (e.t === 0 && B.en.filter(x => !x.dead).length < 3) return 'whistle';
       return e.last === 'shoot' ? 'baton' : 'shoot';
     } },
-  kempei: { name: '日本宪兵', hp: [26, 30], col: '#5a5a3a', frames: 'inf', pic: 'inf', artH: 240, sup: 1, ammo: 2,
+  kempei: { name: '日本宪兵', hp: [26, 30], col: '#5a5a3a', frames: 'kempei', artH: 240, sup: 1, ammo: 2,
     moves: { halt: { t: '「站住！」', i: 'debuff', weak: 2 }, shoot: { t: '射击', i: 'atk', d: 9, shot: 1 }, reload: { t: '装弹', i: 'reload', blk: 6 } },
     ai: e => e.t === 0 ? 'halt' : 'shoot' },
-  spy: { name: '便衣特务', hp: [18, 22], col: '#2a2a2a', frames: 'puppet', pic: 'puppet', artH: 235,
+  spy: { name: '便衣特务', hp: [18, 22], col: '#2a2a2a', frames: 'spy', artH: 235,
     moves: { lurk: { t: '混在人群里', i: 'unk', hide: 1, blk: 6, str: 2 }, knife: { t: '掏枪偷袭', i: 'atk', d: 11 } },
     ai: e => e.t % 2 === 0 ? 'lurk' : 'knife' },
   /* —— 精英 —— */
-  kendo: { name: '剑道军官', hp: [70, 76], col: '#4a4a2a', frames: 'sergeant', pic: 'sergeant', artH: 250, elite: 1, sup: 1,
+  kendo: { name: '剑道军官', hp: [70, 76], col: '#4a4a2a', frames: 'kendo', artH: 250, elite: 1, sup: 1,
     moves: { stance: { t: '架势（这回合挨打就反击）', i: 'def', blk: 10, counter: 7 }, cut: { t: '劈砍', i: 'atk', d: 15 }, thrust: { t: '连续突刺', i: 'atk', d: 7, x: 2 } },
     ai: e => e.t % 3 === 0 ? 'stance' : e.t % 3 === 1 ? 'cut' : 'thrust' },
-  agent: { name: '关东军情报部特务', hp: [60, 66], col: '#3a2a2a', frames: 'pcap', pic: 'pcap', artH: 250, elite: 1, sup: 1, ammo: 2,
+  agent: { name: '关东军情报部特务', hp: [60, 66], col: '#3a2a2a', frames: 'agent', artH: 250, elite: 1, sup: 1, ammo: 2,
     moves: { cover: { t: '装成商人寒暄', i: 'unk', hide: 1, blk: 12 }, dossier: { t: '翻出你的档案', i: 'debuff', weak: 1, vuln: 2 },
       call: { t: '叫宪兵', i: 'buff', summon: 'kempei', blk: 6 }, shoot: { t: '勃朗宁手枪', i: 'atk', d: 7, x: 2, shot: 1 }, reload: { t: '压子弹', i: 'reload', blk: 8 } },
     ai: (e, B) => e.t === 0 ? 'cover' : e.t === 1 ? 'dossier' : (B.en.filter(x => !x.dead).length < 3 && e.last !== 'call') ? 'call' : e.last === 'shoot' ? 'cover' : 'shoot' },
   /* 加强精英战里押送「交接副本」的人：3 回合后撤走 */
-  escort2: { name: '押送公文包的特务', hp: [20, 22], col: '#2a2a2a', frames: 'puppet', pic: 'puppet', artH: 235, intel: 1,
+  escort2: { name: '押送公文包的特务', hp: [20, 22], col: '#2a2a2a', frames: 'escort2', noAtk: 1, artH: 235, intel: 1,
     moves: { back: { t: e => `后撤（${3 - e.t} 回合后撤走）`, i: 'def', blk: 5 }, flee: { t: '带着公文包撤走', i: 'flee', tx: '第 3 回合带着公文包钻进人群，情报就没了' } },
     ai: e => e.t >= 2 ? 'flee' : 'back' },
   /* —— 首领（每局随机一个） —— */
-  kirino: { name: '宪兵队特高课长·桐野', hp: [205, 205], col: '#3a3a2a', frames: 'kcap', pic: 'kcap', artH: 280, boss: 1, sup: 1, ammo: 2,
+  kirino: { name: '宪兵队特高课长·桐野', hp: [205, 205], col: '#3a3a2a', frames: 'kirino', artH: 330, boss: 1, sup: 1, ammo: 2,
     moves: { search: { t: '全城搜捕', i: 'buff', summon: 'kempei', blk: 10 }, interrogate: { t: '审讯口吻', i: 'debuff', weak: 2, vuln: 2 },
       pistol: { t: '南部手枪', i: 'atk', d: 7, x: 2, shot: 1 }, saber: { t: '军刀', i: 'atk', d: 18 }, curfew: { t: '宵禁令', i: 'buff', all: 2, blk: 12 },
       reload: { t: '压子弹', i: 'reload', blk: 8 } },
@@ -43,7 +43,7 @@ export const ENEMIES_CH2 = {
       if (B.en.filter(x => !x.dead).length < 2 && e.last !== 'search') return 'search';
       return e.last === 'pistol' ? 'saber' : 'pistol';
     } },
-  kuga: { name: '关东军情报部少佐·久我', hp: [190, 190], col: '#2a2a3a', frames: 'captain_foot', pic: 'captain', artH: 250, boss: 1, sup: 1,
+  kuga: { name: '关东军情报部少佐·久我', hp: [190, 190], col: '#2a2a3a', frames: 'kuga', artH: 325, boss: 1, sup: 1,
     moves: { mask: { t: '微笑寒暄', i: 'unk', hide: 1, blk: 15, str: 2 }, agents: { t: '暗号：动手', i: 'buff', summon: 'spy', blk: 8 },
       shot: { t: '暗处一枪', i: 'atk', d: 20 }, turn: { t: '「你的事，我都知道」', i: 'debuff', weak: 2, vuln: 2 } },
     ai: (e, B) => ['mask', B.en.filter(x => !x.dead).length < 3 ? 'agents' : 'turn', 'shot', 'turn'][e.t % 4] },
@@ -79,7 +79,7 @@ export const ENEMIES_CH2 = {
 };
 Object.entries(ENEMIES_CH2).forEach(([k, d]) => { d.key = k; });
 /* 帧图尺寸（切图脚本算出来的） */
-export const FRAMES_CH2 = { jpcop: { cw: 340, ch: 249, ax: 117, sw: 91, sh: 247 }, informer: { cw: 464, ch: 203, ax: 187, sw: 121, sh: 190 }, ronin: { cw: 398, ch: 241, ax: 130, sw: 136, sh: 239 }, kensei: { cw: 498, ch: 229, ax: 215, sw: 120, sh: 221 }, armorcar: { cw: 411, ch: 333, ax: 196, sw: 349, sh: 231 }, bureaucrat: { cw: 226, ch: 243, ax: 85, sw: 115, sh: 238 }, merchant: { cw: 205, ch: 244, ax: 98, sw: 167, sh: 232 }, exec: { cw: 228, ch: 283, ax: 80, sw: 129, sh: 281 } };
+export const FRAMES_CH2 = { spy: { cw: 356, ch: 245, ax: 161, sw: 74, sh: 243 }, escort2: { cw: 483, ch: 240, ax: 324, sw: 152, sh: 229 }, kirino: { cw: 532, ch: 394, ax: 166, sw: 122, sh: 385 }, kuga: { cw: 640, ch: 397, ax: 258, sw: 130, sh: 394 }, kendo: { cw: 410, ch: 265, ax: 180, sw: 254, sh: 226 }, agent: { cw: 452, ch: 259, ax: 238, sw: 123, sh: 257 }, kempei: { cw: 396, ch: 234, ax: 172, sw: 234, sh: 232 }, patrol: { cw: 367, ch: 254, ax: 112, sw: 143, sh: 238 }, jpcop: { cw: 340, ch: 249, ax: 117, sw: 91, sh: 247 }, informer: { cw: 464, ch: 203, ax: 187, sw: 121, sh: 190 }, ronin: { cw: 398, ch: 241, ax: 130, sw: 136, sh: 239 }, kensei: { cw: 498, ch: 229, ax: 215, sw: 120, sh: 221 }, armorcar: { cw: 411, ch: 333, ax: 196, sw: 349, sh: 231 }, bureaucrat: { cw: 226, ch: 243, ax: 85, sw: 115, sh: 238 }, merchant: { cw: 205, ch: 244, ax: 98, sw: 167, sh: 232 }, exec: { cw: 228, ch: 283, ax: 80, sw: 129, sh: 281 } };
 
 /* 遭遇池。第一章的敌人（dog、mg）也能直接用 */
 export const ENC_CH2 = {
