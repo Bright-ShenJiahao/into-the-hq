@@ -4,6 +4,10 @@
 // 加随身物品 / 背包用品：直接在 content/relics.js、content/items.js 里加。
 import { V, pick } from './content/util.js';
 import { HANSONG, CARDS_HS, KW_HS, BAYONET, MAG, FEEL_MAX } from './content/hansong.js';
+import { CHENMO, CARDS_CM, KW_CM } from './content/chenmo.js';
+import { TIAN, CARDS_TS, KW_TS } from './content/tian.js';
+import { ZHAO, CARDS_ZT, KW_ZT } from './content/zhao.js';
+import { SHEN, CARDS_SQ, KW_SQ } from './content/shen.js';
 import { CARDS_COMMON } from './content/common.js';
 import { CHAPTER1 } from './content/ch1.js';
 import { CHAPTER2 } from './content/ch2.js';
@@ -20,17 +24,17 @@ for (const [dir, tab] of [['relics', RELICS], ['items', ITEMS]]) for (const [id,
 }
 
 export const SAVE_VERSION = 2;
-export const CHARS = { hansong: HANSONG };
+export const CHARS = { hansong: HANSONG, chenmo: CHENMO, tian: TIAN, zhao: ZHAO, shen: SHEN }; /* 顺序就是选人界面的顺序；现在全部一开始就解锁 */
 export const CHAPTERS = [CHAPTER1, CHAPTER2]; /* 第三章做好后加在这里 */
-export const CARDS = { ...CARDS_COMMON, ...CARDS_HS };
+export const CARDS = { ...CARDS_COMMON, ...CARDS_HS, ...CARDS_CM, ...CARDS_TS, ...CARDS_ZT, ...CARDS_SQ };
 Object.entries(CARDS).forEach(([id, d]) => { d.id = id; });
 /* 所有章节的敌人合在一起（按 key 查） */
 export const ENEMIES = Object.assign({}, ...CHAPTERS.map(c => c.enemies));
-export const FRAMES = Object.assign({}, ...CHAPTERS.map(c => c.frames || {}), ...Object.values(CHARS).map(c => ({ [c.art.dir]: c.art.fr })));
+export const FRAMES = Object.assign({}, ...CHAPTERS.map(c => c.frames || {}), ...Object.values(CHARS).filter(c => c.art.dir).map(c => ({ [c.art.dir]: c.art.fr })));
 export const BLOCK_SIZE = Object.assign({}, ...CHAPTERS.map(c => c.blockSize || {}));
 
 export const KW = {
-  ...KW_HS,
+  ...KW_HS, ...KW_CM, ...KW_TS, ...KW_ZT, ...KW_SQ,
   '装甲': '每次受到的伤害减去装甲值。穿甲类牌无视装甲。',
   '格挡': '抵挡受到的伤害，你的回合开始时清零。',
   '虚弱': '造成的攻击伤害 -25%，每回合减 1 层。',
@@ -40,4 +44,4 @@ export const KW = {
 };
 export const TYPE = { atk: '攻击', skill: '技能', power: '能力' };
 export const RAR = { basic: '基础', c: '普通', u: '罕见', r: '稀有', loot: '缴获' };
-export const SCH = { 狙: '狙击', 冲: '冲锋枪', 手: '手枪', 通: '通用' };
+export const SCH = { 狙: '狙击', 冲: '冲锋枪', 手: '手枪', 刀: '留刀', 血: '放血', 怒: '怒', 守: '守', 爆: '爆破', 工: '工事', 侦: '侦察', 伏: '埋伏', 通: '通用' };

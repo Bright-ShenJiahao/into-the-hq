@@ -209,7 +209,7 @@ function codex(tab = 'people') {
   const lists = {
     enemy: () => Object.values(ENEMIES).filter(d => !d.boss).sort((a, b) => (a.elite || 0) - (b.elite || 0) || a.hp[0] - b.hp[0]).map(d => ({ k: 'e:' + d.key, d })),
     boss: () => Object.values(ENEMIES).filter(d => d.boss).map(d => ({ k: 'e:' + d.key, d })),
-    card: () => Object.values(CARDS).filter(d => !d.ch || d.ch === 'hansong').sort((a, b) => ['basic', 'c', 'u', 'r', 'loot'].indexOf(a.rar) - ['basic', 'c', 'u', 'r', 'loot'].indexOf(b.rar)).map(d => ({ k: 'c:' + d.id, d })),
+    card: () => Object.values(CARDS).sort((a, b) => ['basic', 'c', 'u', 'r', 'loot'].indexOf(a.rar) - ['basic', 'c', 'u', 'r', 'loot'].indexOf(b.rar)).map(d => ({ k: 'c:' + d.id, d })),
     relic: () => Object.values(RELICS).sort((a, b) => ['start', 'c', 'u', 'r', 'boss'].indexOf(a.rar) - ['start', 'c', 'u', 'r', 'boss'].indexOf(b.rar)).map(d => ({ k: 'r:' + d.id, d })),
     item: () => Object.values(ITEMS).map(d => ({ k: 'i:' + d.id, d })),
     term: () => [...Object.entries(KW).map(([n, t]) => ({ k: 't:' + n, g: '卡牌', n, t })), ...TERMS.map(([g, n, t]) => ({ k: 't:' + n, g, n, t }))],
@@ -272,8 +272,8 @@ const dsc = (c, f = x => x) => CARDS[c.id].desc(c.up, f);
 const kwOf = c => { const d = CARDS[c.id], s = dsc(c) + (d.sch === '狙' && d.gun ? '狙击牌' : '') + (d.sch === '冲' ? '冲锋枪牌' : '') + (d.sch === '冲' || d.sch === '手' ? '枪感' : '') + (d.ex ? '消耗' : '') + (d.type === 'power' ? '能力' : '') + (d.gun ? '拼刺' : ''); return Object.keys(KW).filter(k => s.includes(k)); };
 
 /* 卡牌插图：每张牌的 icon 写在内容文件里；同类卡共用一个图标（同旧游戏） */
-const ICON_NAME = { pistol: '手枪', rifle: '步枪', apround: '穿甲弹', helmet: '钢盔', scope: '准星', binoc: '望远镜', round: '子弹', breath: '屏息', wind: '风向', smg: '冲锋枪', casings: '弹壳', mg: '机枪', belt: '弹带', barrel: '枪管', mag: '弹匣', medkit: '急救包', bayonet: '刺刀', cover: '掩体' };
-const ICONS_READY = new Set(Object.keys(ICON_NAME)); /* 18 个图标都已出图 */
+const ICON_NAME = { pistol: '手枪', rifle: '步枪', apround: '穿甲弹', helmet: '钢盔', scope: '准星', binoc: '望远镜', round: '子弹', breath: '屏息', wind: '风向', smg: '冲锋枪', casings: '弹壳', mg: '机枪', belt: '弹带', barrel: '枪管', mag: '弹匣', medkit: '急救包', bayonet: '刺刀', cover: '掩体', grenade: '炸药', letter: '情报' };
+const ICONS_READY = new Set(Object.keys(ICON_NAME).filter(k => !['grenade', 'letter'].includes(k))); /* 新角色用的「炸药」「情报」图标还没出图，先显示文字 */
 function cardHTML(c, extra = '', attrs = '') {
   see('c:' + c.id); /* 见过的牌在图鉴里解锁 */
   const live0 = B && !B.over && extra.includes('inhand'), d = CARDS[c.id], cost = live0 ? E.cardCost(B, c) : d.cost[c.up ? 1 : 0], ic = d.icon || 'round';
@@ -328,7 +328,7 @@ function title() {
    <div class="trow"><button class="tbtn" id="t_new">新的一局</button>${s ? '<button class="tbtn" id="t_cont">继 续</button>' : ''}</div></div>
    <p class="tnote">最小可玩版 · 本作为虚构故事，除「英烈录」所记真实英烈外，人物均为虚构。</p>`;
   if (s) $('#t_cont').onclick = () => { R = s; resume(); };
-  $('#t_new').onclick = () => { if (s && !confirm('开始新的一局会覆盖当前进度，确定吗？')) return; newRun(); story(INTRO, () => campaign(0, mapScreen)); };
+  $('#t_new').onclick = () => { if (s && !confirm('开始新的一局会覆盖当前进度，确定吗？')) return; pickChar(c => { newRun(c); story(intro(), () => campaign(0, mapScreen)); }); };
   $('#t_rule').onclick = rules; $('#t_codex').onclick = () => codex(); $('#t_set').onclick = settings;
 }
 /* 设置：音效、画面震动、教程 */
@@ -341,6 +341,16 @@ function settings() {
   o.querySelector('#s_tutr').onclick = () => { resetTut(); tip('教程已重置，老沈会从头讲起'); };
   o.querySelector('#s_x').onclick = () => o.remove();
 }
+/* 选人：现在全部一开始就解锁 */
+function pickChar(done) {
+  const o = overlay(`<div class="panel charsel"><h2>选择出发的人</h2><div class="chars">${Object.values(CHARS).map(c => `<button class="charc" data-c="${c.id}">
+    <div class="cface">${c.art.dir ? `<img src="assets/portraits/${c.art.dir}.png" alt="">` : `<div class="faceph" style="background:${c.art.ph}">${c.name}</div>`}</div>
+    <b>${c.name}</b><small>${c.title || ''} · 生命 ${c.hp}</small><p>${c.blurb || ''}</p></button>`).join('')}</div><button class="btn ghost" id="cs_x">取消</button></div>`);
+  o.querySelectorAll('.charc').forEach(b => b.onclick = () => { o.remove(); done(b.dataset.c); });
+  o.querySelector('#cs_x').onclick = () => o.remove();
+}
+const INTRO_LEAD = { hansong: '神枪手韩松，代号「雪貂」', chenmo: '飞刀手陈默', tian: '使大刀的田守义', zhao: '老工兵赵铁山', shen: '侦察员沈知秋' };
+const intro = () => INTRO.map((x, i) => i === 2 ? { ...x, t: `下一程，向长白山北麓的林海雪原转进。日伪讨伐队正在搜山。${INTRO_LEAD[R.char] || CHR().name}，走在队伍最前面。` } : x);
 const INTRO = [
   { img: 'assets/story/s1_river.jpg', t: '1940 年冬，东北抗联余部分批越境入苏整训；1942 年编为教导旅。1944 年冬，一支六人小分队趁着夜色越过冰封的江面，潜回东北。' },
   { img: 'assets/story/s2_camp.jpg', t: '辗转月余，到了吉东山地，接上了密营。灶火边，老沈摊开手绘的地图：最终目标是长春——伪满洲国所谓的「新京」，关东军司令部就在那里。' },
@@ -454,6 +464,14 @@ function frameBox(key, dispH, src, cls, alt) {
 let hst = { n: 'idle', t: 0 };
 function heroAct(n) { if (hst.n === 'down') return; hst = { n, t: performance.now() }; }
 function frameOf(tab, st, reset) { const [c, ms, mode] = tab[st.n] || tab.idle; let k = Math.floor((performance.now() - st.t) / ms); if (k >= c) { if (mode === 1) k %= c; else if (mode === 2) k = c - 1; else { reset(); return [ 'idle', Math.floor(performance.now() / tab.idle[1]) % tab.idle[0] ]; } } return [st.n in tab ? st.n : 'idle', k]; }
+/* 还没出图的角色：用一块带名字的色块顶着 */
+function heroBox() {
+  const A = HERO_ART(), h = TOUCH ? A.hTouch : A.h;
+  if (A.frames) return frameBox(A.dir, h, heroSrc(), '', CHR().name);
+  if (!A.still) return `<div class="sprw"><div class="spr blk heroph" style="width:${Math.round(h * .42)}px;height:${h}px;background:${A.ph || '#444'}"><b>${CHR().name}</b><small>${CHR().title || ''}</small></div><i class="shd"></i></div>`;
+  return `<div class="sprw"><img class="spr art still" src="${heroSrc()}" style="height:${h}px" alt="${CHR().name}" draggable="false"><i class="shd"></i></div>`;
+}
+const heroFace = () => CHR().art.dir ? `<img src="assets/portraits/${CHR().art.dir}.png" alt="">` : `<div class="faceph" style="background:${CHR().art.ph || '#444'}">${CHR().name}</div>`;
 function heroSrc() { const A = HERO_ART(); if (!A.frames) return `assets/units/${A.still}.png`; const [n, k] = frameOf(HA, hst, () => { hst = { n: 'idle', t: performance.now() }; }); return `assets/${A.dir}/${n}${k}.png`; }
 function enemySrc(e) { if (!e.d.frames) return `assets/units/${e.d.art}.png`; const fk = efr(e)[0]; const st = e.anim || { n: e.dead ? 'down' : 'idle', t: 0 }; if (e.dead && st.n !== 'down') { e.anim = { n: 'down', t: performance.now() }; } const [n, k] = frameOf(EA, e.anim || st, () => { e.anim = null; }); return `assets/enemies/${fk}/${n}${k}.png`; }
 function epose(e, n) { e.anim = { n, t: performance.now() }; }
@@ -465,7 +483,7 @@ function preload(dir, tab) { if (PREDONE.has(dir)) return; PREDONE.add(dir); Obj
 /* 和旧游戏一样，每 80 毫秒刷新一次帧 */
 let lastT = 0;
 (function loop(t) { requestAnimationFrame(loop); if (!B || t - lastT < 80) return; lastT = t;
-  const h = view.querySelector('#hero .spr.art'); if (h) { const f = heroSrc(); if (!h.src.endsWith(f)) h.src = f; }
+  const h = view.querySelector('#hero .spr.art'); if (h && HERO_ART().frames) { const f = heroSrc(); if (!h.src.endsWith(f)) h.src = f; }
   view.querySelectorAll('.enemy .spr.art').forEach(im => { const e = B.en.find(x => x.id === im.closest('.enemy').dataset.eid); if (e) { const f = enemySrc(e); if (!im.src.endsWith(f)) im.src = f; } });
 })(0);
 function motion(who, cls) { const el = view.querySelector(`[data-eid="${who}"] .sprw`); if (el) { el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); } }
@@ -486,7 +504,7 @@ function bossTalk(key, done) {
   R.talked = [...(R.talked || []), key]; save(); let k = 0; const d = ENEMIES[key]; $('#dbg')?.remove();
   view.innerHTML = `<div class="bg battle" style="background-image:${CH().bossBg && CH().bossBg[key] ? `url(${CH().bossBg[key]}), ` : ''}url(${CH().battleBg})"></div>`;
   const o = document.createElement('div'); o.className = 'overlay tutov btalk';
-  o.innerHTML = `<div class="tutl hero"><img src="assets/portraits/${CHR().art.dir}.png" alt=""></div><div class="tutr"><img src="${LIHUI[key] || portraitOf(d)}" alt=""></div>
+  o.innerHTML = `<div class="tutl hero">${heroFace()}</div><div class="tutr"><img src="${LIHUI[key] || portraitOf(d)}" alt=""></div>
     <div class="tutbox"><b class="tutn"></b><p class="tutt"></p><span class="tutc"></span><button class="tutskip">跳过</button></div>`;
   const show = () => { const [w, t] = L[k]; o.classList.toggle('spk-hero', w === 'hero'); o.querySelector('.tutn').textContent = w === 'hero' ? CHR().name : d.name; o.querySelector('.tutt').textContent = t;
     o.querySelector('.tutc').textContent = k < L.length - 1 ? '▼ 点击继续' : '▼ 开战'; };
@@ -504,8 +522,20 @@ function battle(enc, kind, strong) {
   see(...enc.map(k => 'e:' + k)); render(); teach('battle'); if (lead) banner((kind === 'boss' ? '' : strong ? '加强精英：' : '精英：') + lead.name);
   flushMsgs();
 }
+/* 侦明（沈知秋）：弹出牌堆顶几张，点选要弃掉的，确定 */
+function scryUI() {
+  const k = B.scryQ[0], top = B.draw.slice(-k).reverse(), pick = new Set();
+  const o = document.createElement('div'); o.className = 'overlay scryov';
+  const draw = () => { o.innerHTML = `<div class="panel scryp"><h2>侦明 ${k}</h2><p class="hint">点牌把它弃掉（再点一下取消）。留下的按顺序放回牌堆顶，左边的先抽到。带【线索】的弃掉会触发。</p>
+    <div class="scryrow">${top.map(c => cardHTML(c, `${pick.has(c.uid) ? 'scryout' : ''}`, `data-u="${c.uid}"`)).join('')}</div>
+    <div class="row"><button class="btn" id="sc_all">全部弃掉</button><button class="btn big" id="sc_ok">确定${pick.size ? `（弃 ${pick.size} 张）` : '（全部留下）'}</button></div></div>`;
+    o.querySelectorAll('[data-u]').forEach(el => el.onclick = () => { const u = +el.dataset.u; pick.has(u) ? pick.delete(u) : pick.add(u); draw(); });
+    o.querySelector('#sc_all').onclick = () => { top.forEach(c => pick.add(c.uid)); draw(); };
+    o.querySelector('#sc_ok').onclick = () => { o.remove(); E.resolveScry(B, [...pick]); render(); flushMsgs(); checkEnd(); }; };
+  draw(); stage.appendChild(o);
+}
 function flushMsgs() { if (B && B.msgs.length) { say(B.msgs.join('\n'), 3600); B.msgs = []; } }
-const ICON = { atk: '⚔', def: '🛡', buff: '⬆', debuff: '⬇', charge: '⏳', flee: '🏃', reload: '🔄', unk: '？' };
+const ICON = { atk: '⚔', def: '🛡', buff: '⬆', debuff: '⬇', charge: '⏳', flee: '🏃', reload: '🔄', unk: '？', dazed: '💫' };
 
 function enemyHTML(e) {
   const d = e.d, [w, h] = BLOCK_SIZE[e.key] || [100, 160], it = e.dead ? null : E.intentOf(B, e);
@@ -520,7 +550,7 @@ function enemyHTML(e) {
 function barHTML(hp, max, blk) {
   return `<div class="hpw">${blk ? `<b class="blkv">${blk}</b>` : ''}<div class="bar ${blk ? 'blk' : ''}"><i style="width:${Math.max(0, hp) / max * 100}%"></i><span>${Math.max(0, hp)}/${max}</span></div></div>`;
 }
-const STN = { weak: ['虚弱', '#c8a0ff'], vuln: ['易伤', '#ff9a6a'], str: ['力量', '#ff6a5a'], shaken: ['动摇', '#e8c86a'], counter: ['架势', '#ff5a5a'] };
+const STN = { weak: ['虚弱', '#c8a0ff'], vuln: ['易伤', '#ff9a6a'], str: ['力量', '#ff6a5a'], shaken: ['动摇', '#e8c86a'], counter: ['架势', '#ff5a5a'], bleed: ['流血', '#ff4040'], para: ['麻痹', '#9ad0ff'], dazed: ['被打乱', '#aaa'] };
 const stsHTML = st => Object.entries(st).filter(([k]) => STN[k]).map(([k, n]) => `<b class="st" style="color:${STN[k][1]};border-color:${STN[k][1]}" data-k="${STN[k][0]}">${STN[k][0]} ${n}</b>`).join('');
 /* 主角脚下的资源（角色模块提供：韩松是弹仓和枪感），右侧按钮（韩松是装填） */
 function heroInfoHTML() {
@@ -545,7 +575,7 @@ function render() {
   }).join('');
   const inc = E.incoming(B);
   view.innerHTML = `<div class="bg battle" style="background-image:${battleBgCss()}"></div>${topBar()}
-   <div id="hero" class="unit" data-eid="hero"><div class="intent"></div>${(A => A.frames ? frameBox(A.dir, TOUCH ? A.hTouch : A.h, heroSrc(), '', CHR().name) : `<div class="sprw"><img class="spr art still" src="${heroSrc()}" style="height:${TOUCH ? A.hTouch : A.h}px" alt="${CHR().name}" draggable="false"><i class="shd"></i></div>`)(HERO_ART())}
+   <div id="hero" class="unit" data-eid="hero"><div class="intent"></div>${heroBox()}
     <div class="uinfo">${barHTML(R.hp, R.maxHp, B.p.block)}${heroInfoHTML()}${inc ? `<div class="inc ${inc > B.p.block ? 'low' : 'ok'}">受到 ${Math.max(0, inc - B.p.block)}</div>` : ''}</div></div>
    <div id="enemies">${B.en.filter(e => !(e.dead && Date.now() - e.deadAt > 1400)).map(enemyHTML).join('')}</div>
    <div id="energy" class="${B.p.energy ? '' : 'empty'}">${B.p.energy}/${E.ENERGY}</div>
@@ -555,6 +585,7 @@ function render() {
   bindTop();
   $('#endturn').onclick = endTurn; view.querySelectorAll('[data-act]').forEach(el => el.onclick = () => doAct(el.dataset.act));
   refreshScreen = render;
+  if (B.scryQ && B.scryQ.length && !view.querySelector('.scryov')) scryUI();
   $('#drawp').onclick = () => showPile('抽牌堆（顺序已打乱）', [...B.draw].sort((a, b) => a.id < b.id ? -1 : 1));
   $('#discp').onclick = () => showPile('弃牌堆', B.disc);
   $('#exhp').onclick = () => showPile('消耗', B.exh);
@@ -710,7 +741,7 @@ function flushFx() {
     const p = pos(f.who); if (!p) continue;
     if (f.cls === 'bul') {
       if (!hp) continue; const at = t; t += gap || 40; shotN++;
-      const A = HERO_ART(), k = hp.h / FRAMES[A.dir].sh, mx = A.frames ? hp.cx + A.muzzle[0] * k : hp.right - 8, my = hp.top + (A.frames ? A.muzzle[1] * k : hp.h * .27), ty = p.top + p.h * .4;
+      const A = HERO_ART(), k = A.frames ? hp.h / FRAMES[A.dir].sh : 1, mx = A.frames ? hp.cx + A.muzzle[0] * k : hp.right - 8, my = hp.top + (A.frames ? A.muzzle[1] * k : hp.h * .27), ty = p.top + p.h * .4;
       later(at, () => {
         audio.shot(kind || 'rifle');
         if (!(A.frames && kind === 'rifle')) add('muzzle', mx, my, 120); motion('hero', 'recoil'); /* 步枪的火光帧图里已经画了 */
