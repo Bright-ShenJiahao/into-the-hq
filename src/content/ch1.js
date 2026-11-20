@@ -184,7 +184,7 @@ export const CHAPTER1 = {
   nodes: { fight: 45, event: 22, elite: 16, rest: 12, shop: 5 }, fixed: { 0: 'fight', 4: 'shop', 8: 'treasure', 14: 'rest' }, /* 第 5 层固定老乡 */ earliest: 5, easyFights: 3,
   /* 底图上各区域的位置（按比例，换图不用改代码） */
   map: { img: 'assets/bg/map_ch1.jpg', w: 1000, h: 1779, startY: .865, endY: .175, bossX: .5, bossY: .092, xMin: .27, xMax: .73, startLabel: '▲ 向长白山北麓转进' },
-  battleBg: 'assets/bg/battle_snow25.jpg', enemies: ENEMIES_CH1, frames: FRAMES_CH1, blockSize: BLOCK_SIZE_CH1, enc: ENC_CH1, events: EVENTS_CH1,
+  battleBg: 'assets/bg/battle_snow25.jpg', battleBgs: ['assets/bg/battle_snow25.jpg', 'assets/bg/battle_river25.jpg', 'assets/bg/battle_lumber25.jpg'], enemies: ENEMIES_CH1, frames: FRAMES_CH1, blockSize: BLOCK_SIZE_CH1, enc: ENC_CH1, events: EVENTS_CH1,
   winText: '这一带的封锁暂时松动。老沈收起路线图，小队连夜离开密营，转赴新京。',
   /* Boss 战单独的背景（图还没出时自动用 battleBg）：村濑的装甲车只能开在林区公路上 */
   bossBg: { captain: 'assets/bg/battle_road25.jpg' },

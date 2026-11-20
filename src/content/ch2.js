@@ -192,8 +192,8 @@ export const CHAPTER2 = {
   res: 'sus', /* 用可疑度代替体温 */
   nodes: { fight: 42, event: 26, elite: 16, rest: 11, shop: 5 }, fixed: { 0: 'fight', 4: 'shop', 8: 'treasure', 14: 'rest' }, earliest: 5, easyFights: 3,
   /* 地图底图还没画：先借第一章的 */
-  map: { img: 'assets/bg/map_ch1.jpg', w: 1000, h: 1779, startY: .865, endY: .175, bossX: .5, bossY: .092, xMin: .27, xMax: .73, startLabel: '▲ 混进新京' },
-  battleBg: 'assets/bg/battle_city25.jpg', enemies: ENEMIES_CH2, frames: FRAMES_CH2, blockSize: {}, enc: ENC_CH2, events: EVENTS_CH2, places: PLACES_CH2,
+  map: { img: 'assets/bg/map_ch2.jpg', w: 1000, h: 1779, startY: .865, endY: .175, bossX: .5, bossY: .092, xMin: .27, xMax: .73, startLabel: '▲ 混进新京' },
+  battleBg: 'assets/bg/battle_city25.jpg', battleBgs: ['assets/bg/battle_city25.jpg', 'assets/bg/battle_platform25.jpg', 'assets/bg/battle_yard25.jpg'], enemies: ENEMIES_CH2, frames: FRAMES_CH2, blockSize: {}, enc: ENC_CH2, events: EVENTS_CH2, places: PLACES_CH2,
   escort: 'escort2', bossLabel: '追捕者',
   intro: [
     '1945 年春。德国投降的消息传到东北的时候，新京的大街上还挂着「日满一德一心」的标语。',

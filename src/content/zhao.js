@@ -152,5 +152,5 @@ export const ZHAO = {
   id: 'zhao', name: '赵铁山', title: '爆破手', hp: 78, blurb: '老工兵。给敌人装上炸药包等它炸，或者挖好工事硬扛。',
   starter: ['zt_spade', 'zt_spade', 'zt_spade', 'zt_spade', 'defend', 'defend', 'defend', 'defend', 'zt_pack', 'zt_dig'],
   startRelic: 'manual', mech: MECH_ZT, kw: KW_ZT, tut: TUT_ZT, lang: { ja: 1, ru: 1 },
-  art: { ph: '#3b4a33', h: 255, hTouch: 240 },
+  art: { dir: 'zhao', frames: true, fr: { cw: 331, ch: 321, ax: 194, sw: 158, sh: 319 }, h: 250, hTouch: 235 },
 };

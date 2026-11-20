@@ -135,5 +135,5 @@ export const TIAN = {
   id: 'tian', name: '田守义', title: '大刀', hp: 85, blurb: '站最前面硬碰硬。挨打攒血气，攒满了就突击。',
   starter: ['ts_chop', 'ts_chop', 'ts_chop', 'ts_chop', 'defend', 'defend', 'defend', 'defend', 'ts_guard', 'ts_risk'],
   startRelic: 'charm', mech: MECH_TS, kw: KW_TS, tut: TUT_TS, lang: { ja: 0, ru: 0, slang: 1 },
-  art: { ph: '#4a3a2a', h: 260, hTouch: 245 },
+  art: { dir: 'tian', frames: true, fr: { cw: 347, ch: 325, ax: 227, sw: 190, sh: 306 }, h: 258, hTouch: 243 },
 };

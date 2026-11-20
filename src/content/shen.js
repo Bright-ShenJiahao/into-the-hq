@@ -142,5 +142,5 @@ export const SHEN = {
   id: 'shen', name: '沈知秋', title: '侦察员', hp: 68, blurb: '交通员出身。先看清牌、看穿敌人，再在他们动手的时候埋伏。',
   starter: ['sq_shot', 'sq_shot', 'sq_shot', 'sq_shot', 'defend', 'defend', 'defend', 'defend', 'sq_look', 'sq_meet'],
   startRelic: 'diary', mech: MECH_SQ, kw: KW_SQ, tut: TUT_SQ, lang: { ja: 1, ru: 3 },
-  art: { ph: '#3a3346', h: 245, hTouch: 230 },
+  art: { dir: 'shen', frames: true, fr: { cw: 305, ch: 321, ax: 196, sw: 121, sh: 319 }, h: 240, hTouch: 226 },
 };

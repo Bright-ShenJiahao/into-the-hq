@@ -115,7 +115,7 @@ function genMap() {
 }
 const NODE = { fight: ['战', '战斗', '#8a4a32'], elite: ['精', '精英', '#7a1a1a'], event: ['?', '未知', '#3a5a7a'], rest: ['营', '密营', '#2f6a3a'], shop: ['乡', '老乡', '#8a6a2a'], treasure: ['藏', '物资埋藏点', '#5a4a3a'] };
 const NODE_ICONS = new Set(['fight', 'elite', 'event', 'rest', 'shop', 'treasure', 'cur', 'boss']); /* 已经出图的节点图标 */
-/* 章节地图：从下（江边起点）往上（讨伐队据点）走，同杀戮尖塔。位置全部按章节表里的比例算 */
+/* 章节地图：从下（江边起点）往上（讨伐队据点）走，同杀戮尖塔；第三章反过来从上往下钻。位置全部按章节表里的比例算 */
 const NODE_ART = true;
 const MAPD = () => CH().map;
 const nodeX = nd => { const m = MAPD(), cols = COLS; return Math.round(m.w * (m.xMin + (m.xMax - m.xMin) * nd.c / (cols - 1))) + (nd.jx || 0); };
@@ -246,7 +246,7 @@ function codex(tab = 'people') {
         <h4>行 动</h4><ul>${Object.values(d.moves).map(m => `<li><b>${typeof m.t === 'function' ? m.t({ t: 0 }) : m.t}</b>：${MOVE_TX(m)}</li>`).join('')}</ul>${HIST[d.key] ? `<h4>史 实</h4><p class="hist">${HIST[d.key]}</p>` : ''}`; }
     if (tab === 'card') { const d = e.d; return `<div class="pic cards">${cardHTML({ id: d.id, up: 0 })}${cardHTML({ id: d.id, up: 1 })}</div><p class="no">左：原版　右：升级后</p><span class="tg2">${RAR[d.rar] || ''} · ${TYPE[d.type] || ''}${d.sch ? ' · ' + (SCH[d.sch] || '') : ''}</span>${HIST[d.id] ? `<h4>史 实</h4><p class="hist">${HIST[d.id]}</p>` : ''}`; }
     if (tab === 'relic' || tab === 'item') { const d = e.d, id = d.id; return `<div class="pic"><b class="big huge">${d.icon}</b></div><h3>${d.name}</h3><span class="tg2">${tab === 'relic' ? `随身物品 · ${RARN[d.rar] || ''}${d.ch ? ' · 韩松专用' : ''}` : '背包用品'}</span><h4>效 果</h4><p>${d.desc}</p>${HIST[id] ? `<h4>史 实</h4><p class="hist">${HIST[id]}</p>` : ''}`; }
-    if (tab === 'people') { const p = e.p; return `<div class="pic">${p.img ? `<img src="${p.img}" alt="">` : '<div class="pph big">立绘制作中</div>'}</div><h3>${p.n}</h3><span class="tg2">${p.sub} · ${p.play}</span><h4>出 身</h4><p>${p.from}</p><h4>伤 疤</h4><p>${p.wound}</p><h4>性 子</h4><p>${p.heart}</p><h4>语 言</h4><p class="hist">${p.lang}</p><p class="no">人物为虚构。</p>`; }
+    if (tab === 'people') { const p = e.p; return `<div class="pic">${p.img ? `<img src="${p.big || p.img}" alt="">` : '<div class="pph big">立绘制作中</div>'}</div><h3>${p.n}</h3><span class="tg2">${p.sub} · ${p.play}</span><h4>出 身</h4><p>${p.from}</p><h4>伤 疤</h4><p>${p.wound}</p><h4>性 子</h4><p>${p.heart}</p><h4>语 言</h4><p class="hist">${p.lang}</p><p class="no">人物为虚构。</p>`; }
     if (tab === 'term') return `<h3>${e.n}</h3><span class="tg2">术语 · ${e.g}</span><p>${e.t}</p>`;
     if (tab === 'arch') return `<h3>${e.m.n}</h3><span class="tg2">${e.m.y}</span><p>${e.m.d}</p><p class="no">资料来源：${e.m.src}</p>`;
     return `<h3>${e.m.n}</h3><span class="tg2">${e.m.y}</span><p class="sub2">${e.m.t}</p><p>${e.m.d}</p><p class="no">资料来源：新华网、共产党员网、人民网等公开报道。</p>`;
@@ -404,7 +404,7 @@ function resume() {
 // ---------- 地图 ----------
 function mapScreen() {
   B = null; delete R.pending; save(); refreshScreen = mapScreen;
-  /* 第三章：理智 6 以下，只看得见往上两层（读了值班日志、跟了黄皮子就全看得见） */
+  /* 第三章：理智 6 以下，只看得见往前两层（读了值班日志、跟了黄皮子就全看得见） */
   const dark = SAN() && MAPD().dark && R.san <= 6 && !hasFlag('reveal');
   const av = available(), M = MAPD(), H = M.h, LC = '#6a4a2a', BOSS_X = Math.round(M.w * M.bossX), BOSS_Y = Math.round(M.h * M.bossY), ROWS = ROWSOF();
   let lines = '', nodes = '';
@@ -419,12 +419,12 @@ function mapScreen() {
     nodes += `<div class="node pic ${isAv ? 'av' : ''} ${done ? 'done' : ''} ${cur ? 'cur' : ''}" style="left:${nodeX(nd)}px;top:${mapY(nd)}px" data-r="${nd.r}" data-c="${nd.c}">${nodeIcon(hide ? 'event' : nd.type)}${nd.strong && !hide && !done ? '<i class="nintel" title="加强精英：有人押运档案箱，3 回合内打倒他才能拿到情报">📜</i>' : ''}${cur ? '<img class="curflag" src="assets/ui/node_cur.png" alt="">' : ''}</div>`;
   }
   nodes += `<div class="node boss ${NODE_ART ? 'pic' : ''} ${av[0] === 'boss' ? 'av' : ''}" style="left:${BOSS_X}px;top:${BOSS_Y}px">${NODE_ART ? nodeIcon('boss') : '讨伐队<br>据点'}</div><div class="maplab" style="left:${BOSS_X}px;top:${BOSS_Y - 82}px">${ENEMIES[bossKey()].name}</div>
-   <div class="maplab start" style="left:${M.w / 2}px;top:${Math.round(M.h * .93)}px">${M.startLabel}</div>`;
+   <div class="maplab start" style="left:${M.w / 2}px;top:${Math.round(M.h * (M.startLabelY || .93))}px">${M.startLabel}</div>`;
   view.innerHTML = `${topBar()}<div id="map" class="${SAN() ? 'under' : ''} ${dark ? 'dark' : ''}"><div id="mapin" style="width:${M.w}px;height:${H}px;background-image:url(${M.img})"><svg width="${M.w}" height="${H}">${lines}</svg>${nodes}</div></div>
    <div id="legend"><div class="lgt">图例</div>${Object.keys(NODE).map(k => `<div><b class="pic">${nodeIcon(k)}</b>${placeName(k)}</div>`).join('')}<div><b class="pic">${nodeIcon('boss')}</b>${CH().bossLabel || '讨伐队据点'}</div><div><b class="pic nint">📜</b>加强精英（情报）</div><div class="lg2"><i class="redl"></i>走过的路线<br>${SAN() ? `每两格口粮 -1；进了古墓每格理智 -1<br>现在：${CH().segName[segOf(R.pos ? R.pos.r : 0)]}` : SUS() ? '每两格口粮 -1；城里打仗会抬高可疑度' : '每走一格体温 -1，每两格口粮 -1'}</div></div>`;
   bindTop();
-  const m = $('#map'), y = R.pos ? mapY(R.map[R.pos.r][R.pos.c]) : H; m.scrollTop = Math.max(0, y - m.clientHeight + 200);
-  teach('map'); if (SAN() && dark) teach('dark'); if (!rflag('hideMap') && R.map.flat().some(n => n && n.strong)) teach('intel'); if (R.temp < 3) teach('cold'); if (R.food <= 0) teach('hunger');
+  const m = $('#map'), down = M.startY < M.endY, y = R.pos ? mapY(R.map[R.pos.r][R.pos.c]) : down ? 0 : H; m.scrollTop = Math.max(0, down ? y - 200 : y - m.clientHeight + 200); /* 第三章从上往下走 */
+  teach('map'); if (MAPD().startY < MAPD().endY) teach('mapdown'); if (SAN() && dark) teach('dark'); if (!rflag('hideMap') && R.map.flat().some(n => n && n.strong)) teach('intel'); if (R.temp < 3) teach('cold'); if (R.food <= 0) teach('hunger');
   view.querySelectorAll('.node.av').forEach(el => el.onclick = () => {
     if (el.classList.contains('boss')) { if (!walk()) return; R.floor++; return enterNode('boss'); }
     const nd = R.map[+el.dataset.r][+el.dataset.c]; if (!walk()) return;
@@ -485,6 +485,14 @@ function frameBox(key, dispH, src, cls, alt) {
   return `<div class="sprw" style="width:${Math.round(m.sw * k)}px;height:${dispH}px"><img class="spr art ${cls}" src="${src}" alt="${alt}" draggable="false" style="position:absolute;left:${Math.round((m.sw / 2 - m.ax) * k)}px;bottom:0;height:${Math.round(m.ch * k)}px;max-width:none"><i class="shd"></i></div>`;
 }
 let hst = { n: 'idle', t: 0 };
+/* 各人出牌时摆哪套动作。陈默：shoot＝甩飞刀，stab＝拔短刀划；田守义：shoot＝举刀劈，stab＝横刀冲上去扫；
+   赵铁山：shoot＝扔炸药包，stab＝挖雪垒掩体；沈知秋：shoot＝开枪，stab＝举望远镜、看纸条 */
+const POSE = {
+  chenmo: d => /飞|甩|袖|回旋|回手|手枪/.test(d.name) ? 'shoot' : d.type === 'atk' ? 'stab' : null,
+  tian: d => d.type === 'atk' ? (d.tgt === 'all' || /拖刀|刀山|拼到底/.test(d.name) ? 'stab' : 'shoot') : null,
+  zhao: d => d.type === 'atk' ? 'shoot' : d.type === 'skill' ? 'stab' : null,
+  shen: d => d.type === 'atk' ? 'shoot' : d.type === 'skill' ? 'stab' : null };
+const DASH = { chenmo: 1, tian: 1 }; /* 近身砍的人出攻击牌时往前冲一下 */
 function heroAct(n) { if (hst.n === 'down') return; hst = { n, t: performance.now() }; }
 function frameOf(tab, st, reset) { const [c, ms, mode] = tab[st.n] || tab.idle; let k = Math.floor((performance.now() - st.t) / ms); if (k >= c) { if (mode === 1) k %= c; else if (mode === 2) k = c - 1; else { reset(); return [ 'idle', Math.floor(performance.now() / tab.idle[1]) % tab.idle[0] ]; } } return [st.n in tab ? st.n : 'idle', k]; }
 /* 还没出图的角色：用一块带名字的色块顶着 */
@@ -535,23 +543,26 @@ function bossTalk(key, done) {
   o.onclick = ev => { if (ev.target.closest('.tutskip')) { o.remove(); return done(); } k++; if (k >= L.length) { o.remove(); done(); } else show(); };
   show(); stage.appendChild(o);
 }
+/* 普通战斗的背景：每场开局从这一章（第三章按段）的几张里随机挑一张 */
+const pickBg = () => { const C = CH(), v = C.segBg ? C.segBg[segOf(R.pos ? R.pos.r : 0)] : (C.battleBgs || C.battleBg); return Array.isArray(v) ? pickOne(v) : v; };
+const baseBg = () => (B && B.bg) || pickBg();
 const battleBgCss = () => { const k = B && B.kind === 'boss' && B.en.find(e => e.d.boss), b = k && CH().bossBg && CH().bossBg[k.key];
-  const base = CH().segBg ? CH().segBg[segOf(R.pos ? R.pos.r : 0)] : CH().battleBg; /* 第三章：防空壕、仓库、古墓各一张 */
+  const base = baseBg();
   return b ? `url(${b}), url(${base})` : `url(${base})`; };
 function battle(enc, kind, strong) {
   const bk = kind === 'boss' && enc.find(k => ENEMIES[k].boss);
   if (bk && BOSS_TALK[bk] && !(R.talked || []).includes(bk) && !battle.talking) { battle.talking = 1; return bossTalk(bk, () => { battle.talking = 0; battle(enc, kind, strong); }); }
   if (HERO_ART().frames) preload(HERO_ART().dir, HA);
   enc.forEach(k => { const d = ENEMIES[k]; if (d.frames) preload('enemies/' + d.frames, d.civ ? { idle: EA.idle, down: EA.down } : d.noAtk ? { idle: EA.idle, hurt: EA.hurt, down: EA.down } : EA); /* 平民只有待机和投降两套帧 */ if (d.frames2) preload('enemies/' + d.frames2, EA); });
-  B = E.startBattle(R, enc, kind, E.mulberry((Math.random() * 2 ** 31) | 0), { strong, escort: CH().escort }); B.sel = -1; B.busy = 0;
+  B = E.startBattle(R, enc, kind, E.mulberry((Math.random() * 2 ** 31) | 0), { strong, escort: CH().escort }); B.sel = -1; B.busy = 0; B.bg = pickBg();
   const lead = enc.map(k => ENEMIES[k]).find(d => d.boss || d.elite);
   see(...enc.map(k => 'e:' + k)); render(); teach('battle'); if (darkNow()) teach('ghostdark'); if (lead) banner((kind === 'boss' ? '' : strong ? '加强精英：' : '精英：') + lead.name);
   flushMsgs();
 }
 /* 战斗背景里哪些是 2.5D 的（斜上方往下看、地面铺满画面）：用这种背景时敌人分前后两排站 */
-const BG25 = new Set(['assets/bg/battle_snow25.jpg', 'assets/bg/battle_road25.jpg', 'assets/bg/battle_city25.jpg', 'assets/bg/battle_shelter25.jpg', 'assets/bg/battle_warehouse25.jpg', 'assets/bg/battle_tomb25.jpg']);
+const BG25 = new Set(['snow', 'road', 'river', 'lumber', 'city', 'platform', 'yard', 'shelter', 'culvert', 'warehouse', 'tomb'].map(k => `assets/bg/battle_${k}25.jpg`));
 function curBg() { const k = B && B.kind === 'boss' && B.en.find(e => e.d.boss), b = k && CH().bossBg && CH().bossBg[k.key];
-  return b || (CH().segBg ? CH().segBg[segOf(R.pos ? R.pos.r : 0)] : CH().battleBg); }
+  return b || baseBg(); }
 const deepMode = () => BG25.has(curBg());
 /* 前后两排的站位：[横向位置（0—1，从主角右边到右侧按钮之间）, 0 前排 / 1 后排] */
 /* 2.5D 背景上人物整体缩小一点，场地显得大 */
@@ -731,6 +742,7 @@ async function play(i, tid) {
   E.playCard(B, B.hand.indexOf(c), tid); teachChar('play', d, mode);
   B.shotKind = mode === 'shoot' && B.mech.shotKind ? B.mech.shotKind(d) : null;
   if (mode === 'shoot') heroAct('shoot');
+  else if (!mode && POSE[CHR().id]) { const ps = POSE[CHR().id](d); if (ps) { heroAct(ps); if (DASH[CHR().id] && d.type === 'atk' && !(ps === 'shoot' && CHR().id === 'chenmo')) setTimeout(() => motion('hero', 'dash'), 0); } }
   else if (mode === 'bayonet') { heroAct('stab'); setTimeout(() => motion('hero', 'dash'), 0); audio.stab(); }
   B.anim = 0; render(); flushMsgs();
   if (mode === 'bayonet') say('子弹打光了，端起刺刀！', 1500);

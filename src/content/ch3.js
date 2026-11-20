@@ -244,8 +244,8 @@ export const CHAPTER3 = {
   id: 3, name: '地下', season: '1945 年 8 月', rows: 15, cols: 5,
   res: 'san', /* 用理智代替可疑度 */
   nodes: { fight: 40, event: 32, elite: 14, rest: 10, shop: 4 }, fixed: { 0: 'fight', 4: 'shop', 8: 'treasure', 10: 'event', 14: 'rest' }, fixedEv: { 10: 'shaman' }, earliest: 5, easyFights: 2,
-  map: { img: 'assets/bg/map_ch1.jpg', w: 1000, h: 1779, startY: .865, endY: .175, bossX: .5, bossY: .092, xMin: .27, xMax: .73, startLabel: '▼ 钻进排水渠', dark: 1 },
-  battleBg: 'assets/bg/battle_shelter25.jpg', segBg: ['assets/bg/battle_shelter25.jpg', 'assets/bg/battle_warehouse25.jpg', 'assets/bg/battle_tomb25.jpg'], bossBg: { priest: 'assets/bg/battle_tomb25.jpg' },
+  map: { img: 'assets/bg/map_ch3.jpg', w: 1000, h: 1779, startY: .1, endY: .82, bossX: .5, bossY: .905, xMin: .25, xMax: .75, startLabel: '▼ 钻进排水渠', startLabelY: .045, dark: 1 }, /* 从上往下走：防空壕 → 仓库 → 古墓 */
+  battleBg: 'assets/bg/battle_shelter25.jpg', segBg: [['assets/bg/battle_shelter25.jpg', 'assets/bg/battle_culvert25.jpg'], 'assets/bg/battle_warehouse25.jpg', 'assets/bg/battle_tomb25.jpg'], bossBg: { priest: 'assets/bg/battle_tomb25.jpg' },
   under: 1, enemies: ENEMIES_CH3, frames: FRAMES_CH3, blockSize: {}, enc: ENC_CH3, segEnc: SEG_ENC, seg: SEG, segName: SEG_NAME,
   events: EVENTS_CH3, places: PLACES_CH3, escort: 'escort3', bossLabel: '最深处',
   intro: [
