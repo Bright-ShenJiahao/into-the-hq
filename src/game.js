@@ -573,18 +573,26 @@ function fitEnemies() {
   /* 每个敌人第一次出场时定下排和排里的次序，之后不挪（倒下的留空位，增援的排到所在那排的末尾） */
   for (const e of B.en) if (e.row == null) { e.row = rowOf(e); e.ri = B.en.filter(x => x !== e && x.row === e.row).length; }
   const us = [...box.children], w = box.clientWidth, up = TOUCH ? DEPTH.upT : DEPTH.up;
-  const cnt = [0, 1, 2].map(r => B.en.filter(e => e.row === r).length);
-  /* 同一排的人间距：按这一排最宽的人算，挨得近一点（有点重叠没关系） */
-  const wid = [0, 0, 0]; us.forEach(u => { const e = B.en.find(x => x.id === u.dataset.eid); if (e) wid[e.row] = Math.max(wid[e.row], u.offsetWidth * DEPTH.sc[e.row]); });
-  const cx = w * .5, shift = TOUCH ? 75 : 80; /* 越往后排越往右一点，看起来是站在前排身后 */
-  let lo = 1e9, hi = -1e9;
-  us.forEach(u => { const e = B.en.find(x => x.id === u.dataset.eid); if (!e) return; const r = e.row, k = cnt[r], gap = Math.max(80, wid[r] * 1.02);
-    const x = cx + (r - 1) * shift + (e.ri - (k - 1) / 2) * gap;
-    u.dataset.depth = r; u.style.left = (x - u.offsetWidth / 2) + 'px'; u.style.bottom = (up[r] + (e.ri % 2) * (TOUCH ? 6 : 12)) + 'px';
-    lo = Math.min(lo, x - u.offsetWidth * DEPTH.sc[r] / 2); hi = Math.max(hi, x + u.offsetWidth * DEPTH.sc[r] / 2); });
-  /* 超出左右边界：整团往里收，再不行就等比缩小 */
-  const span = hi - lo; if (span > w) box.style.scale = Math.max(.62, w / span).toFixed(3);
-  else if (lo < 0 || hi > w) { const dx = lo < 0 ? -lo : w - hi; us.forEach(u => { u.style.left = (parseFloat(u.style.left) + dx) + 'px'; }); }
+  /* 摆放原则：
+     1. 远近按兵种：前排近身的，中排端枪的，后排远程、指挥、首领、平民；越远站得越高、越小、越暗。
+     2. 前排离主角近（偏左），后排偏右，看起来是站在前排身后。
+     3. 不遮挡：从左到右排开，相邻两人身子最多叠一小条（同一排 6%，前后排 16%），血条和意图永远看得全。
+     4. 交错：同一排的人一高一低错开一点，不站成一条直线。
+     5. 整团居中，放不下就整体等比缩小，不挤到主角和按钮。
+     6. 位置一旦定下就不变，有人倒下留空位。 */
+  const items = B.en.filter(e => e.row != null).map(e => { const u = us.find(x => x.dataset.eid === e.id); return u && { e, u, r: e.row, wd: (u.querySelector('.sprw') || u).offsetWidth * DEPTH.sc[e.row] }; }).filter(Boolean);
+  const cnt = [0, 1, 2].map(r => items.filter(t => t.r === r).length);
+  /* 先按「排」定一个大概位置：前排在左，后排在右，同一排按次序 */
+  items.forEach(t => { t.key = t.r * 10 + t.e.ri - (cnt[t.r] > 1 ? 0 : 0); });
+  items.sort((a, b) => (a.r - b.r) || (a.e.ri - b.e.ri));
+  /* 再从左到右依次排开，保证相邻的人只叠一小条 */
+  let x = 0; const xs = [];
+  items.forEach((t, k) => { if (k) { const p = items[k - 1], ov = p.r === t.r ? .94 : .84; x += (p.wd + t.wd) / 2 * ov; } xs.push(x); });
+  const L0 = xs[0] - items[0].wd / 2, R0 = xs[xs.length - 1] + items[items.length - 1].wd / 2, span = R0 - L0;
+  const off = (w - span) / 2 - L0;
+  items.forEach((t, k) => { const u = t.u, cx = xs[k] + off;
+    u.dataset.depth = t.r; u.style.left = (cx - u.offsetWidth / 2) + 'px'; u.style.bottom = (up[t.r] + (t.e.ri % 2) * (TOUCH ? 8 : 16)) + 'px'; });
+  if (span > w) box.style.scale = Math.max(.6, w / span).toFixed(3);
 }
 addEventListener('resize', () => { if (B && !B.over) fitEnemies(); });
 /* 侦明（沈知秋）：弹出牌堆顶几张，点选要弃掉的，确定 */

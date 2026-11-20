@@ -162,7 +162,7 @@ i.echo{color:#b8a0d0}.fxn.heal{color:#7ee08a}.nohp.civ{color:#d8d0b0;line-height
 .unit .shd{position:absolute;left:50%;bottom:-10px;width:110%;height:26px;transform:translateX(-50%);background:radial-gradient(closest-side,rgba(0,0,0,.6),transparent);z-index:0}
 #hero{position:absolute;left:calc(180px + (var(--sw,1280px) - 1280px) / 4);bottom:232px}
 #enemies{position:absolute;right:240px;bottom:232px;display:flex;align-items:flex-end;justify-content:center;gap:20px;transform-origin:50% 100%}
-#enemies.deep{display:block;height:2px;transform-origin:50% 100%;translate:0 -28px}.touch #enemies.deep{translate:0 -10px}#enemies.deep .unit.enemy{position:absolute;bottom:0;z-index:3}
+#enemies.deep{display:block;height:2px;transform-origin:50% 100%;translate:0 -28px}.touch #enemies.deep{translate:0 -10px}#enemies.deep .unit.enemy{position:absolute;bottom:0;z-index:3}#enemies.deep .unit.enemy .uinfo,#enemies.deep .unit.enemy .intent{position:relative;z-index:20}
 #enemies.deep .unit.enemy[data-depth="1"]{scale:.86;transform-origin:50% 100%;z-index:2}#enemies.deep .unit.enemy[data-depth="1"] .spr{filter:drop-shadow(0 4px 4px rgba(0,0,0,.35)) brightness(.92)}
 #enemies.deep .unit.enemy[data-depth="2"]{scale:.74;transform-origin:50% 100%;z-index:1}#enemies.deep .unit.enemy[data-depth="2"] .spr{filter:drop-shadow(0 4px 4px rgba(0,0,0,.35)) brightness(.84)}
 #hero.deep{translate:0 -70px}.touch #hero.deep{translate:0 -34px}
