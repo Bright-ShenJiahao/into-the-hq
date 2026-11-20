@@ -127,5 +127,5 @@ export const CHENMO = {
   id: 'chenmo', name: '陈默', title: '飞刀手', hp: 66, blurb: '飞刀无声。刀留在身上越打越硬，扔出去让敌人流血。',
   starter: ['cm_cut', 'cm_cut', 'cm_cut', 'cm_cut', 'defend', 'defend', 'defend', 'defend', 'cm_draw', 'cm_flick'],
   startRelic: 'legknife', mech: MECH_CM, kw: KW_CM, tut: TUT_CM, lang: { ja: 3, ru: 2 },
-  art: { dir: 'chenmo', frames: true, fr: { cw: 360, ch: 315, ax: 202, sw: 125, sh: 313 }, h: 252, hTouch: 237 },
+  art: { dir: 'chenmo', frames: true, fr: { cw: 339, ch: 334, ax: 179, sw: 121, sh: 332 }, h: 252, hTouch: 237 },
 };
