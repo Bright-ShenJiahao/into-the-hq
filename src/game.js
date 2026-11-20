@@ -490,7 +490,7 @@ let hst = { n: 'idle', t: 0 };
 const POSE = {
   chenmo: d => /飞|甩|袖|回旋|回手|手枪/.test(d.name) ? 'shoot' : d.type === 'atk' ? 'stab' : null,
   tian: d => d.type === 'atk' ? (d.tgt === 'all' || /拖刀|刀山|拼到底/.test(d.name) ? 'stab' : 'shoot') : null,
-  zhao: d => d.type === 'atk' ? 'shoot' : d.type === 'skill' ? 'stab' : null,
+  zhao: d => /锹/.test(d.name) ? 'stab' : d.type === 'atk' ? 'shoot' : d.type === 'skill' ? 'stab' : null, /* 工兵锹：用挖雪那套动作，再往前冲一下＝抡锹砸过去 */
   shen: d => d.type === 'atk' ? 'shoot' : d.type === 'skill' ? 'stab' : null };
 const DASH = { chenmo: 1, tian: 1 }; /* 近身砍的人出攻击牌时往前冲一下 */
 function heroAct(n) { if (hst.n === 'down') return; hst = { n, t: performance.now() }; }
@@ -742,7 +742,7 @@ async function play(i, tid) {
   E.playCard(B, B.hand.indexOf(c), tid); teachChar('play', d, mode);
   B.shotKind = mode === 'shoot' && B.mech.shotKind ? B.mech.shotKind(d) : null;
   if (mode === 'shoot') heroAct('shoot');
-  else if (!mode && POSE[CHR().id]) { const ps = POSE[CHR().id](d); if (ps) { heroAct(ps); if (DASH[CHR().id] && d.type === 'atk' && !(ps === 'shoot' && CHR().id === 'chenmo')) setTimeout(() => motion('hero', 'dash'), 0); } }
+  else if (!mode && POSE[CHR().id]) { const ps = POSE[CHR().id](d); if (ps) { heroAct(ps); if (d.type === 'atk' && (DASH[CHR().id] && !(ps === 'shoot' && CHR().id === 'chenmo') || CHR().id === 'zhao' && ps === 'stab')) setTimeout(() => motion('hero', 'dash'), 0); } }
   else if (mode === 'bayonet') { heroAct('stab'); setTimeout(() => motion('hero', 'dash'), 0); audio.stab(); }
   B.anim = 0; render(); flushMsgs();
   if (mode === 'bayonet') say('子弹打光了，端起刺刀！', 1500);
