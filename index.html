@@ -23,7 +23,25 @@ button{font-family:inherit;cursor:pointer}
 .tbg.pic{background:#1a2430 url(assets/bg/battle_snow.jpg) center/cover no-repeat}.tbg.pic::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,rgba(8,10,14,.75),rgba(8,10,14,.15) 60%,rgba(8,10,14,.35))}
 .unit .spr.art{display:block;position:relative;z-index:1;filter:drop-shadow(0 4px 4px rgba(0,0,0,.35))}
 .sprw.hitf{animation:hitf .32s}@keyframes hitf{0%,100%{translate:0;filter:none}25%{translate:-8px 0;filter:brightness(1.8) sepia(.6) hue-rotate(-30deg)}70%{translate:6px 0}}
-.bg.rest{background:linear-gradient(#1c1a14,#3a2a18)}.bg.ev{background:linear-gradient(#1a2430,#2e3c48)}
+.bg.rest{background:#1c1a14 url(assets/bg/rest_dugout.jpg) center/cover}.bg.ev{background:#1a2430 url(assets/bg/ev_forest.jpg) center/cover}
+.bg.shop{background:#2a2e34 url(assets/bg/shop_village.jpg) center/cover}.bg.treasure{background:#1a2430 url(assets/bg/treasure_tree.jpg) center/cover}
+.bg.rest::after,.bg.ev::after,.bg.shop::after,.bg.treasure::after{background:radial-gradient(ellipse 60% 70% at 50% 52%,rgba(5,8,12,.35),rgba(5,8,12,.7))}
+.bg.battle.dim::after{background:rgba(6,8,12,.6)}
+.stimg{position:absolute;inset:0;background:#0b0e14 center/cover no-repeat;animation:stzoom 14s ease-out both}@keyframes stzoom{from{transform:scale(1.06)}to{transform:scale(1)}}
+.stbar{position:absolute;left:0;right:0;bottom:0;padding:26px 60px 26px;background:linear-gradient(transparent,rgba(4,6,10,.85) 30%);color:#f0e6d0;font-size:25px;line-height:1.75}
+.stbar p{max-width:1100px;margin:0 auto 12px;text-shadow:0 2px 4px #000}.stbar .row{justify-content:flex-end;max-width:1100px;margin:0 auto}
+.touch .stbar{font-size:32px;padding:20px 40px}
+.btalk .tutl.hero img{max-height:300px;transform:scaleX(-1)}.btalk .tutl{opacity:.55;transition:opacity .2s}.btalk.spk-hero .tutl{opacity:1}.btalk .tutr{opacity:1;transition:opacity .2s}.btalk.spk-hero .tutr{opacity:.55}
+.btalk .tutr{position:absolute;right:40px;bottom:0;height:560px;display:flex;align-items:flex-end;pointer-events:none}.btalk .tutr img{max-height:560px;max-width:440px;object-fit:contain;filter:drop-shadow(0 0 12px rgba(0,0,0,.7))}
+.btalk .tutbox{margin:0 420px 30px 330px}.btalk .tutn{background:#3a1010}.btalk.spk-hero .tutn{background:#1f3a2a}
+.touch .btalk .tutbox{margin:0 340px 24px 290px}.touch .btalk .tutr{height:520px}.touch .btalk .tutr img{max-height:520px;max-width:360px}
+.tbg.endwin{position:absolute;inset:0;background:url(assets/story/s4_south.jpg) center/cover}.tbg.endlose{position:absolute;inset:0;background:url(assets/bg/ev_forest.jpg) center/cover;filter:grayscale(.6)}
+.tbg.endwin::after,.tbg.endlose::after{content:'';position:absolute;inset:0;background:rgba(4,6,10,.62)}
+.endw2{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:14px;width:900px;color:#f0e6d0}
+.endw2 .endsub{font-size:21px;text-align:center;line-height:1.7}.endw2 .endsub b{color:#ffe0a0}
+.endgrid{display:flex;gap:30px;align-items:flex-start;background:rgba(12,10,8,.7);border:1px solid rgba(200,170,110,.5);border-radius:10px;padding:18px 26px}
+.endbag{width:380px;text-align:left}.endbag h4{margin:0 0 6px;color:#c8a870;font-size:16px;letter-spacing:3px}.erel{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:14px}.erel b img.ico{width:40px;height:40px}.erel b{font-size:30px}.edeck{font-size:15px;line-height:1.6;color:#d8ccb0}
+.touch .endw2{zoom:1.15}
 .tbg{position:absolute;inset:0;background:linear-gradient(160deg,#1a2430,#3a4650 60%,#c8d0d6)}.tbg.dark{background:linear-gradient(#0e1216,#1e262c)}
 /* 顶栏 */
 #top{position:absolute;left:0;right:0;top:0;height:48px;background:rgba(8,10,12,.86);border-bottom:2px solid #5a4a30;display:flex;align-items:center;gap:20px;padding:0 16px;font-size:18px;z-index:20;white-space:nowrap}
