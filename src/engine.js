@@ -29,7 +29,8 @@ export function startBattle(R, keys, kind, rng, opt = {}) {
   B.char = CHARS[R.char || 'hansong']; B.mech = B.char.mech;
   B.K = { fx: (w, t, c) => fx(B, w, t, c), hitEnemy: (e, a, p) => hitEnemy(B, e, a, p), atkMod: (e, d, sh) => atkMod(B, e, d, sh), alive: () => alive(B), drawCards: n => drawCards(B, n), sum: (ev, ...a) => sum(B, ev, ...a) };
   /* 加强精英：多一个押运档案箱的敌人，3 回合内不打倒就带着情报撤走 */
-  B.en = [...keys, ...(opt.strong && ENEMIES.escort ? ['escort'] : [])].map(k => mkEnemy(B, k));
+  const esc = opt.escort || 'escort';
+  B.en = [...keys, ...(opt.strong && ENEMIES[esc] ? [esc] : [])].map(k => mkEnemy(B, k));
   B.draw = shuffle(R.deck.map(c => ({ ...c })), rng);
   B.G = mkG(B);
   B.mech.init(B);
@@ -78,6 +79,8 @@ function hitEnemy(B, e, amt, pierce) {
   if (!pierce) { const u = Math.min(e.block, amt); e.block -= u; amt -= u; }
   e.hp -= amt; fx(B, e.id, amt ? '-' + amt : '格挡', amt ? 'dmg' : 'blk');
   if (e.hp <= 0) { kill(B, e); return amt; }
+  /* 架势（剑道军官）：这回合每次打到他，他就反击 */
+  if (e.st.counter && !B.over) { fx(B, e.id, '居合反击', 'st'); hitPlayer(B, e.st.counter); }
   if (amt > 0 && e.d.onHurt) e.d.onHurt(e, B.G);
   return amt;
 }
@@ -152,6 +155,7 @@ export function endPlayerTurn(B) {
 export function intentOf(B, e) {
   const m0 = e.d.moves[e.move]; if (!m0) return { i: 'unk', text: '?' };
   const m = typeof m0.t === 'function' ? { ...m0, t: m0.t(e) } : m0; /* 名字可以随回合变（如「后撤：还剩 2 回合」） */
+  if (m.hide) return { i: 'unk', text: '', name: '意图不明' }; /* 便衣、伪装：看不出要干什么 */
   if (m.i === 'atk') { const n = enemyDmg(B, e, m.d); return { i: 'atk', text: m.x ? `${n}×${m.x}` : `${n}`, name: m.t, dmg: n * (m.x || 1) }; }
   if (m.i === 'charge') return { i: 'charge', text: `下回合 ${m.next}`, name: m.t };
   return { i: m.i, text: '', name: m.t };
@@ -170,7 +174,7 @@ function hitPlayer(B, amt) {
 /* 一个敌人行动（界面逐个调用，中间可以加动画） */
 export function enemyAct(B, e) {
   if (e.dead || B.over) return;
-  e.block = 0;
+  e.block = 0; delete e.st.counter;
   const m = e.d.moves[e.move];
   if (m.i === 'reload') { e.ammo = e.d.ammo; fx(B, e.id, '装弹', 'st'); }
   if (m.shot && e.ammo != null) e.ammo = Math.max(0, e.ammo - 1);
@@ -182,6 +186,7 @@ export function enemyAct(B, e) {
   if (m.all) alive(B).forEach(x => { addSt(x, 'str', m.all); fx(B, x.id, `力量+${m.all}`, 'st'); });
   if (m.weak) { addSt(B.p, 'weak', m.weak); fx(B, 'hero', `虚弱+${m.weak}`, 'st'); }
   if (m.vuln) { addSt(B.p, 'vuln', m.vuln); fx(B, 'hero', `易伤+${m.vuln}`, 'st'); }
+  if (m.counter) { e.st.counter = m.counter; fx(B, e.id, '架势', 'st'); }
   if (m.summon && alive(B).length < 4) { const n = mkEnemy(B, m.summon); B.en.splice(B.en.indexOf(e), 0, n); fx(B, n.id, '增援', 'st'); }
   for (const k of ['weak', 'vuln']) if (e.st[k]) addSt(e, k, -1);
   /* 下回合干什么在这里就定好（意图照此显示，不会临时变卦）：打空了先换弹，溃逃优先 */

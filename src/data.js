@@ -6,6 +6,7 @@ import { V, pick } from './content/util.js';
 import { HANSONG, CARDS_HS, KW_HS, BAYONET, MAG, FEEL_MAX } from './content/hansong.js';
 import { CARDS_COMMON } from './content/common.js';
 import { CHAPTER1 } from './content/ch1.js';
+import { CHAPTER2 } from './content/ch2.js';
 import { RELICS } from './content/relics.js';
 import { ITEMS, ITEM_SLOTS } from './content/items.js';
 export { V, pick, RELICS, ITEMS, ITEM_SLOTS, BAYONET, MAG, FEEL_MAX };
@@ -20,7 +21,7 @@ for (const [dir, tab] of [['relics', RELICS], ['items', ITEMS]]) for (const [id,
 
 export const SAVE_VERSION = 2;
 export const CHARS = { hansong: HANSONG };
-export const CHAPTERS = [CHAPTER1]; /* 第二章、第三章做好后加在这里 */
+export const CHAPTERS = [CHAPTER1, CHAPTER2]; /* 第三章做好后加在这里 */
 export const CARDS = { ...CARDS_COMMON, ...CARDS_HS };
 Object.entries(CARDS).forEach(([id, d]) => { d.id = id; });
 /* 所有章节的敌人合在一起（按 key 查） */

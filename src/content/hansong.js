@@ -139,7 +139,7 @@ function fire(B, d, u, t) {
     const a = K.alive(); if (!a.length) break;
     let tg = x === 'rand' ? a[Math.floor(B.rng() * a.length)] : x;
     if (!tg || tg.dead) { if (sh.all) continue; tg = a[0]; } /* 目标死了，剩下的子弹打下一个 */
-    B.ammo--; shots++;
+    B.ammo--; shots++; B.noise = (B.noise || 0) + 1; /* 第二章：枪声会抬高可疑度 */
     const mk = tg === t ? marks0 : tg.marks;
     let dmg = sh.d + flat + (sniper ? mk * (1 + pm) : 0);
     if (sh.exe && tg.hp < tg.max * sh.exe) dmg *= 2;
