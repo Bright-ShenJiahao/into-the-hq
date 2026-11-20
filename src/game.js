@@ -549,7 +549,7 @@ function battle(enc, kind, strong) {
   flushMsgs();
 }
 /* 战斗背景里哪些是 2.5D 的（斜上方往下看、地面铺满画面）：用这种背景时敌人分前后两排站 */
-const BG25 = new Set(['assets/bg/battle_snow25.jpg']);
+const BG25 = new Set(['assets/bg/battle_snow25.jpg', 'assets/bg/battle_road25.jpg', 'assets/bg/battle_city25.jpg', 'assets/bg/battle_shelter25.jpg', 'assets/bg/battle_warehouse25.jpg', 'assets/bg/battle_tomb25.jpg']);
 function curBg() { const k = B && B.kind === 'boss' && B.en.find(e => e.d.boss), b = k && CH().bossBg && CH().bossBg[k.key];
   return b || (CH().segBg ? CH().segBg[segOf(R.pos ? R.pos.r : 0)] : CH().battleBg); }
 const deepMode = () => BG25.has(curBg());
@@ -571,7 +571,7 @@ function fitEnemies() {
   if (B.slotAlt == null) B.slotAlt = !!(SLOTS_ALT[n] && B.en.some(e => (e.d.boss || e.d.elite) && SLOTS[n][e.slot] && SLOTS[n][e.slot][1] === 1));
   const S = (B.slotAlt && SLOTS_ALT[n]) || SLOTS[n] || Array.from({ length: n }, (_, i) => [(i + .5) / n, i % 2]);
   let need = 0;
-  us.forEach(u => { const e = B.en.find(x => x.id === u.dataset.eid), [f, d] = S[e ? e.slot : 0] || [.5, 0]; u.classList.toggle('back', !!d); u.style.left = (f * w - u.offsetWidth / 2) + 'px'; u.style.bottom = d ? (TOUCH ? 46 : 62) + 'px' : '0'; need += u.offsetWidth * (d ? .84 : 1); });
+  us.forEach(u => { const e = B.en.find(x => x.id === u.dataset.eid), [f, d] = S[e ? e.slot : 0] || [.5, 0]; u.classList.toggle('back', !!d); u.style.left = (f * w - u.offsetWidth / 2) + 'px'; u.style.bottom = d ? (TOUCH ? 64 : 92) + 'px' : '0'; need += u.offsetWidth * (d ? .84 : 1); });
   need *= n >= 3 ? .78 : 1; /* 前后排可以叠一点 */
   if (need > w) box.style.scale = Math.max(.62, w / need).toFixed(3);
 }

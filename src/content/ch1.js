@@ -187,5 +187,5 @@ export const CHAPTER1 = {
   battleBg: 'assets/bg/battle_snow25.jpg', enemies: ENEMIES_CH1, frames: FRAMES_CH1, blockSize: BLOCK_SIZE_CH1, enc: ENC_CH1, events: EVENTS_CH1,
   winText: '这一带的封锁暂时松动。老沈收起路线图，小队连夜离开密营，转赴新京。',
   /* Boss 战单独的背景（图还没出时自动用 battleBg）：村濑的装甲车只能开在林区公路上 */
-  bossBg: { captain: 'assets/bg/battle_road.jpg' },
+  bossBg: { captain: 'assets/bg/battle_road25.jpg' },
 };
