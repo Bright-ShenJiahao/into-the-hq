@@ -2,7 +2,7 @@
 import { CARDS, ENEMIES, CHARS, CHAPTERS, RELICS, ITEMS, ITEM_SLOTS, FRAMES, BLOCK_SIZE, KW, TYPE, RAR, SCH, BAYONET, SAVE_VERSION } from './data.js';
 import * as E from './engine.js';
 import { createAudio } from './audio.js';
-import { MENTOR, TUT, HIST, TERMS, MARTYRS } from './content/codex.js';
+import { MENTOR, TUT, HIST, TERMS, MARTYRS, PEOPLE } from './content/codex.js';
 const audio = createAudio();
 let SET = { shake: 1, tut: 1 }; try { Object.assign(SET, JSON.parse(localStorage.getItem('ithq_set') || '{}')); } catch (e) {}
 const saveSet = () => { try { localStorage.setItem('ithq_set', JSON.stringify(SET)); } catch (e) {} };
@@ -188,9 +188,9 @@ const MOVE_TX = m => m.i === 'atk' ? `${m.d}${m.x ? '×' + m.x : ''} 伤害${m.w
   : m.i === 'def' ? `格挡 ${m.blk}` : [m.all ? `全体力量 +${m.all}` : '', m.str ? `力量 +${m.str}` : '', m.summon ? `叫来${ENEMIES[m.summon].name}` : '', m.weak ? `给你虚弱 ${m.weak}` : '', m.vuln ? `给你易伤 ${m.vuln}` : '', m.allBlk ? `全体格挡 ${m.allBlk}` : '', m.blk ? `格挡 ${m.blk}` : ''].filter(Boolean).join('，');
 const enemyImg = d => d.frames ? `assets/enemies/${d.frames}/idle0.png` : '';
 const portraitOf = d => `assets/portraits/${d.key === 'captain' ? 'captain' : d.key}.png`;
-function codex(tab = 'enemy') {
+function codex(tab = 'people') {
   let sel = null; const o = document.createElement('div'); o.className = 'overlay codex'; stage.appendChild(o);
-  const TABS = [['enemy', '敌人'], ['boss', '首领'], ['card', '卡牌'], ['relic', '随身物品'], ['item', '背包'], ['term', '术语'], ['hero', '英烈录']];
+  const TABS = [['people', '人物'], ['enemy', '敌人'], ['boss', '首领'], ['card', '卡牌'], ['relic', '随身物品'], ['item', '背包'], ['term', '术语'], ['hero', '英烈录']];
   const lists = {
     enemy: () => Object.values(ENEMIES).filter(d => !d.boss).sort((a, b) => (a.elite || 0) - (b.elite || 0) || a.hp[0] - b.hp[0]).map(d => ({ k: 'e:' + d.key, d })),
     boss: () => Object.values(ENEMIES).filter(d => d.boss).map(d => ({ k: 'e:' + d.key, d })),
@@ -199,8 +199,9 @@ function codex(tab = 'enemy') {
     item: () => Object.values(ITEMS).map(d => ({ k: 'i:' + d.id, d })),
     term: () => [...Object.entries(KW).map(([n, t]) => ({ k: 't:' + n, g: '卡牌', n, t })), ...TERMS.map(([g, n, t]) => ({ k: 't:' + n, g, n, t }))],
     hero: () => MARTYRS.map(m => ({ k: 'h:' + m.n, m })),
+    people: () => PEOPLE.map(p => ({ k: 'p:' + p.id, p })),
   };
-  const open = e => tab === 'term' || tab === 'hero' || SEEN[e.k] || DEBUG && SEEN.__all;
+  const open = e => tab === 'term' || tab === 'hero' || tab === 'people' || SEEN[e.k] || DEBUG && SEEN.__all;
   const RARN = { start: '初始', c: '普通', u: '罕见', r: '稀有', boss: 'Boss' };
   const cell = e => {
     const ok = open(e);
@@ -208,6 +209,7 @@ function codex(tab = 'enemy') {
     if (tab === 'card') return `<div class="cd cc ${ok ? '' : 'lk'}" data-k="${e.k}">${ok ? cardHTML({ id: e.d.id, up: 0 }) : '<div class="cback">？</div>'}</div>`;
     if (tab === 'relic' || tab === 'item') return `<div class="cd ic ${ok ? '' : 'lk'}" data-k="${e.k}"><b class="big">${e.d.icon}</b><span>${ok ? e.d.name : '？？？'}</span></div>`;
     if (tab === 'term') return `<div class="cd tm" data-k="${e.k}"><i>${e.g}</i><b>${e.n}</b></div>`;
+    if (tab === 'people') return `<div class="cd pp" data-k="${e.k}">${e.p.img ? `<img src="${e.p.img}" alt="">` : '<div class="pph">立绘<br>制作中</div>'}<span>${e.p.n}</span><i class="tg ${e.p.play === '可玩' ? 'ok' : ''}">${e.p.play}</i></div>`;
     return `<div class="cd tm hero" data-k="${e.k}"><i>${e.m.y}</i><b>${e.m.n}</b></div>`;
   };
   const detail = e => {
@@ -218,6 +220,7 @@ function codex(tab = 'enemy') {
         <h4>行 动</h4><ul>${Object.values(d.moves).map(m => `<li><b>${m.t}</b>：${MOVE_TX(m)}</li>`).join('')}</ul>${HIST[d.key] ? `<h4>史 实</h4><p class="hist">${HIST[d.key]}</p>` : ''}`; }
     if (tab === 'card') { const d = e.d; return `<div class="pic cards">${cardHTML({ id: d.id, up: 0 })}${cardHTML({ id: d.id, up: 1 })}</div><p class="no">左：原版　右：升级后</p><span class="tg2">${RAR[d.rar] || ''} · ${TYPE[d.type] || ''}${d.sch ? ' · ' + (SCH[d.sch] || '') : ''}</span>`; }
     if (tab === 'relic' || tab === 'item') { const d = e.d, id = d.id; return `<div class="pic"><b class="big huge">${d.icon}</b></div><h3>${d.name}</h3><span class="tg2">${tab === 'relic' ? `随身物品 · ${RARN[d.rar] || ''}${d.ch ? ' · 韩松专用' : ''}` : '背包用品'}</span><h4>效 果</h4><p>${d.desc}</p>${HIST[id] ? `<h4>史 实</h4><p class="hist">${HIST[id]}</p>` : ''}`; }
+    if (tab === 'people') { const p = e.p; return `<div class="pic">${p.img ? `<img src="${p.img}" alt="">` : '<div class="pph big">立绘制作中</div>'}</div><h3>${p.n}</h3><span class="tg2">${p.sub} · ${p.play}</span><h4>出 身</h4><p>${p.from}</p><h4>伤 疤</h4><p>${p.wound}</p><h4>性 子</h4><p>${p.heart}</p><h4>语 言</h4><p class="hist">${p.lang}</p><p class="no">人物为虚构。</p>`; }
     if (tab === 'term') return `<h3>${e.n}</h3><span class="tg2">术语 · ${e.g}</span><p>${e.t}</p>`;
     return `<h3>${e.m.n}</h3><span class="tg2">${e.m.y}</span><p class="sub2">${e.m.t}</p><p>${e.m.d}</p><p class="no">资料来源：新华网、共产党员网、人民网等公开报道。</p>`;
   };
@@ -776,15 +779,15 @@ function upgradePick(done) {
 }
 
 // ---------- 事件（章节文件里的事件池；一局里不重复） ----------
-function eventScreen() {
+function eventScreen(force) {
   teach('event');
-  const pool = CH().events.filter(e => !(R.seenEv || []).includes(e.id)), ev = pickOne(pool.length ? pool : CH().events);
+  const pool = CH().events.filter(e => !(R.seenEv || []).includes(e.id)), ev = (force && CH().events.find(e => e.id === force)) || pickOne(pool.length ? pool : CH().events);
   R.seenEv = [...(R.seenEv || []), ev.id]; save(); refreshScreen = () => {};
   let fightEnc = null; const waits = [];
   const G = { rng: Math.random, foodN: () => R.food, food: n => { R.food = Math.max(0, R.food + n); }, temp: n => { R.temp = Math.max(0, Math.min(TEMP_MAX, R.temp + n)); },
     hp: n => { R.hp = Math.min(R.maxHp, R.hp + n); }, heal: n => { R.hp = Math.min(R.maxHp, R.hp + n); }, maxHp: n => { R.maxHp += n; R.hp += n; },
     upgrade: () => waits.push('up'), removeCard: () => waits.push('rm'), addCard: id => R.deck.push(mk(id)), fight: enc => { fightEnc = enc; },
-    relic: id => gainRelic(id || rollRelic()), item: id => gainItem(id || rollItem()), hasItem: () => R.items.length > 0, loseItem: () => R.items.splice(Math.floor(Math.random() * R.items.length), 1) };
+    relic: id => gainRelic(id || rollRelic()), item: id => gainItem(id || rollItem()), hasRelic: id => has(id), awe: n => { R.awe = (R.awe || 0) + n; }, lang: k => (CHR().lang || {})[k] || 0, char: R.char, hasItem: () => R.items.length > 0, loseItem: () => R.items.splice(Math.floor(Math.random() * R.items.length), 1) };
   const draw = () => {
     view.innerHTML = `<div class="bg ev"></div>${topBar()}<div class="panel evp"><h2>${ev.title}</h2><p>${ev.text}</p><div class="col">${ev.opts.map((o, i) => { const ok = !o.need || o.need(G); return `<button class="btn opt" data-o="${i}" ${ok ? '' : 'disabled'}>${o.t}${ok ? '' : '（条件不够）'}</button>`; }).join('')}</div></div>`;
     bindTop();
@@ -897,7 +900,7 @@ function dbgPanel() {
   if (!DEBUG) return; $('#dbg')?.remove(); const d = document.createElement('div'); d.id = 'dbg';
   const btns = B && !B.over ? [['胜利', () => { E.alive(B).forEach(e => { e.hp = 0; e.dead = 1; e.deadAt = Date.now(); }); render(); checkEnd(); }], ...(B.mech.dbg || []).map(([t, f]) => [t, () => { f(B); render(); }]),
     ['+能量', () => { B.p.energy += 3; render(); }], ['抽牌', () => { E.drawCards(B, 3); render(); }], ['给牌', () => showPile('给一张牌（加入手牌）', Object.keys(CARDS).map(id => ({ id, up: 0, uid: uidN++ })), c => { B.hand.push(c); render(); })], ['满血', () => { R.hp = R.maxHp; render(); }]]
-    : R ? [['去Boss', () => { R.pos = { r: ROWSOF() - 1, c: R.map[ROWSOF() - 1].findIndex(Boolean) }; mapScreen(); }], ['满血', () => { R.hp = R.maxHp; mapScreen(); }], ['口粮+5', () => { R.food += 5; mapScreen(); }], ['体温0', () => { R.temp = 0; mapScreen(); }], ['精英战', () => { const enc = pickOne(CH().enc.elite); R.pending = { t: 'elite', enc }; battle(enc, 'elite'); }], ['加强精英', () => { const enc = pickOne(CH().enc.elite); R.pending = { t: 'elite', enc, strong: true }; battle(enc, 'elite', true); }], ['犬机狙', () => battle(['dog', 'mg', 'sniper'], 'fight')], ['重机枪', () => battle(['inf', 'hmg'], 'elite')], ['警察队长', () => battle(['puppet', 'pcap', 'puppet'], 'elite')], ['柏木', () => battle(['dog', 'kcap', 'dog'], 'boss')], ['Boss战', () => { bossKey(); R.pending = { t: 'boss', enc: R.bossEnc }; battle(R.bossEnc, 'boss'); }], ['换Boss', () => { R.boss = null; bossKey(); mapScreen(); }], ['章节结尾', () => { R.pending = { t: 'actend' }; actEnd(); }], ['阵亡', () => { R.killer = '讨伐队长 · 村濑'; endScreen(false, `倒在了${CH().name}第 ${Math.max(1, R.floor)} 层`); }], ['老乡', () => enterNode('shop')], ['埋藏点', () => enterNode('treasure')], ['事件', () => enterNode('event')], ['给物品', () => { R.relics.push(...Object.keys(RELICS).filter(id => !has(id) && RELICS[id].rar !== 'boss' && (!RELICS[id].ch || RELICS[id].ch === R.char)).slice(0, 4)); mapScreen(); }], ['给背包', () => { R.items = Object.keys(ITEMS).slice(0, ITEM_SLOTS); mapScreen(); }]] : [];
+    : R ? [['去Boss', () => { R.pos = { r: ROWSOF() - 1, c: R.map[ROWSOF() - 1].findIndex(Boolean) }; mapScreen(); }], ['满血', () => { R.hp = R.maxHp; mapScreen(); }], ['口粮+5', () => { R.food += 5; mapScreen(); }], ['体温0', () => { R.temp = 0; mapScreen(); }], ['精英战', () => { const enc = pickOne(CH().enc.elite); R.pending = { t: 'elite', enc }; battle(enc, 'elite'); }], ['加强精英', () => { const enc = pickOne(CH().enc.elite); R.pending = { t: 'elite', enc, strong: true }; battle(enc, 'elite', true); }], ['犬机狙', () => battle(['dog', 'mg', 'sniper'], 'fight')], ['重机枪', () => battle(['inf', 'hmg'], 'elite')], ['警察队长', () => battle(['puppet', 'pcap', 'puppet'], 'elite')], ['柏木', () => battle(['dog', 'kcap', 'dog'], 'boss')], ['Boss战', () => { bossKey(); R.pending = { t: 'boss', enc: R.bossEnc }; battle(R.bossEnc, 'boss'); }], ['换Boss', () => { R.boss = null; bossKey(); mapScreen(); }], ['章节结尾', () => { R.pending = { t: 'actend' }; actEnd(); }], ['阵亡', () => { R.killer = '讨伐队长 · 村濑'; endScreen(false, `倒在了${CH().name}第 ${Math.max(1, R.floor)} 层`); }], ['老乡', () => enterNode('shop')], ['埋藏点', () => enterNode('treasure')], ['事件', () => enterNode('event')], ['逃兵', () => eventScreen('deserter')], ['黄皮子', () => eventScreen('weasel')], ['保家仙', () => eventScreen('baojiaxian')], ['给物品', () => { R.relics.push(...Object.keys(RELICS).filter(id => !has(id) && RELICS[id].rar !== 'boss' && (!RELICS[id].ch || RELICS[id].ch === R.char)).slice(0, 4)); mapScreen(); }], ['给背包', () => { R.items = Object.keys(ITEMS).slice(0, ITEM_SLOTS); mapScreen(); }]] : [];
   btns.forEach(([t, f]) => { const b = document.createElement('button'); b.textContent = t; b.onclick = ev => { ev.stopPropagation(); f(); }; d.appendChild(b); });
   if (btns.length) stage.appendChild(d);
 }
