@@ -489,7 +489,7 @@ function heroAct(n) { if (hst.n === 'down') return; hst = { n, t: performance.no
 function frameOf(tab, st, reset) { const [c, ms, mode] = tab[st.n] || tab.idle; let k = Math.floor((performance.now() - st.t) / ms); if (k >= c) { if (mode === 1) k %= c; else if (mode === 2) k = c - 1; else { reset(); return [ 'idle', Math.floor(performance.now() / tab.idle[1]) % tab.idle[0] ]; } } return [st.n in tab ? st.n : 'idle', k]; }
 /* 还没出图的角色：用一块带名字的色块顶着 */
 function heroBox() {
-  const A = HERO_ART(), h = TOUCH ? A.hTouch : A.h;
+  const A = HERO_ART(), h = Math.round((TOUCH ? A.hTouch : A.h) * SZ());
   if (A.frames) return frameBox(A.dir, h, heroSrc(), '', CHR().name);
   if (!A.still) return `<div class="sprw"><div class="spr blk heroph" style="width:${Math.round(h * .42)}px;height:${h}px;background:${A.ph || '#444'}"><b>${CHR().name}</b><small>${CHR().title || ''}</small></div><i class="shd"></i></div>`;
   return `<div class="sprw"><img class="spr art still" src="${heroSrc()}" style="height:${h}px" alt="${CHR().name}" draggable="false"><i class="shd"></i></div>`;
@@ -554,25 +554,33 @@ function curBg() { const k = B && B.kind === 'boss' && B.en.find(e => e.d.boss),
   return b || (CH().segBg ? CH().segBg[segOf(R.pos ? R.pos.r : 0)] : CH().battleBg); }
 const deepMode = () => BG25.has(curBg());
 /* 前后两排的站位：[横向位置（0—1，从主角右边到右侧按钮之间）, 0 前排 / 1 后排] */
-const SLOTS = { 1: [[.45, 0]], 2: [[.28, 0], [.74, 0]], 3: [[.16, 0], [.5, 1], [.84, 0]], 4: [[.1, 1], [.36, 0], [.64, 1], [.9, 0]] };
-/* 精英、首领要站前排：落在后排时换成前后颠倒的这一套 */
-const SLOTS_ALT = { 3: [[.18, 1], [.5, 0], [.82, 1]], 4: [[.1, 0], [.36, 1], [.64, 0], [.9, 1]] };
+/* 2.5D 背景上人物整体缩小一点，场地显得大 */
+const SZ = () => (B && deepMode() ? (TOUCH ? .84 : .76) : 1);
+/* 站位：[横向位置（0—1，从主角右边到右侧按钮之间）, 远近：0 最近 / 1 中间 / 2 最远]。远的站得高、小、暗 */
+const SLOTS = { 1: [[.5, 1]], 2: [[.3, 0], [.72, 2]], 3: [[.2, 0], [.55, 2], [.86, 1]], 4: [[.1, 1], [.4, 2], [.62, 0], [.9, 2]] };
+const DEPTH = { up: [0, 105, 205], upT: [0, 52, 100], sc: [1, .86, .74] };
+
 /* 敌人的位置：夹在主角和右侧按钮之间。2.5D 背景上分前后排（后排高一点、小一点、暗一点）；放不下就整体等比缩小 */
 function fitEnemies() {
   const box = view.querySelector('#enemies'), hero = view.querySelector('#hero'), btn = view.querySelector('#endturn'); if (!box || !hero) return;
   const W = stage.offsetWidth || 1280, L = hero.offsetLeft + hero.offsetWidth + (TOUCH ? 10 : 30), R = btn ? W - btn.offsetLeft + (TOUCH ? 6 : 16) : 240;
   box.style.left = L + 'px'; box.style.right = R + 'px'; box.style.transform = ''; box.style.scale = '';
-  const deep = deepMode(); box.classList.toggle('deep', deep);
+  const deep = deepMode(); box.classList.toggle('deep', deep); hero.classList.toggle('deep', deep);
   if (!deep) { const need = box.scrollWidth, have = box.clientWidth; if (need > have + 2) box.style.transform = `scale(${Math.max(.6, have / need).toFixed(3)})`; return; }
   /* 每个敌人第一次出场时占一个位子，之后不挪（倒下的留空位，增援的补到下一个位子） */
   if (B.slotN == null) B.slotN = 0;
   for (const e of B.en) if (e.slot == null) e.slot = B.slotN++;
   const us = [...box.children], n = Math.max(1, B.slotN), w = box.clientWidth;
-  if (B.slotAlt == null) B.slotAlt = !!(SLOTS_ALT[n] && B.en.some(e => (e.d.boss || e.d.elite) && SLOTS[n][e.slot] && SLOTS[n][e.slot][1] === 1));
-  const S = (B.slotAlt && SLOTS_ALT[n]) || SLOTS[n] || Array.from({ length: n }, (_, i) => [(i + .5) / n, i % 2]);
+  const S = SLOTS[n] || Array.from({ length: n }, (_, i) => [(i + .5) / n, i % 3]);
+  /* 精英、首领站最近的位子：第一次排位时和原来站最近位子的人换一下 */
+  if (!B.slotFix) { B.slotFix = 1; const near = S.findIndex(x => x[1] === 0), big = B.en.find(e => e.d.boss || e.d.elite);
+    if (near >= 0 && big && S[big.slot] && S[big.slot][1] !== 0) { const o = B.en.find(e => e.slot === near); if (o) o.slot = big.slot; big.slot = near; }
+    /* 平民站最远的位子（躲在后面） */
+    for (const c of B.en.filter(e => e.d.civ)) { if (!S[c.slot] || S[c.slot][1] === 2) continue; const far = B.en.find(e => !e.d.civ && S[e.slot] && S[e.slot][1] === 2); if (far) [far.slot, c.slot] = [c.slot, far.slot]; } }
   let need = 0;
-  us.forEach(u => { const e = B.en.find(x => x.id === u.dataset.eid), [f, d] = S[e ? e.slot : 0] || [.5, 0]; u.classList.toggle('back', !!d); u.style.left = (f * w - u.offsetWidth / 2) + 'px'; u.style.bottom = d ? (TOUCH ? 64 : 92) + 'px' : '0'; need += u.offsetWidth * (d ? .84 : 1); });
-  need *= n >= 3 ? .78 : 1; /* 前后排可以叠一点 */
+  us.forEach(u => { const e = B.en.find(x => x.id === u.dataset.eid), [f, d] = S[e ? e.slot : 0] || [.5, 0];
+    u.dataset.depth = d; u.style.left = (f * w - u.offsetWidth / 2) + 'px'; u.style.bottom = (TOUCH ? DEPTH.upT : DEPTH.up)[d] + 'px'; need += u.offsetWidth * DEPTH.sc[d]; });
+  need *= n >= 3 ? .7 : 1; /* 远近错开，可以叠一点 */
   if (need > w) box.style.scale = Math.max(.62, w / need).toFixed(3);
 }
 addEventListener('resize', () => { if (B && !B.over) fitEnemies(); });
@@ -608,7 +616,7 @@ function enemyHTML(e) {
   const label = e.key === 'captain' ? (e.phase === 2 ? '村濑' : '装甲车') : d.name;
   return `<div class="unit enemy ${tg ? 'tg' : ''} ${e.dead ? 'dead' : ''} ${d.frames ? '' : 'noanim'} ${d.ghost ? 'ghost' : ''} ${dk ? 'dk' : ''}" data-eid="${e.id}">
     <div class="intent" ${it && it.name.includes('（') ? `title="${it.name}"` : ''}>${it ? `<i class="ii ii-${it.i}">${ICON[it.i]}</i>${it.text}<small>${it.name.split('（')[0]}</small>` : ''}</div>
-    ${d.frames ? frameBox(efr(e)[0], efr(e)[1], enemySrc(e), '', d.name) : `<div class="sprw">${d.art ? `<img class="spr art still" src="${enemySrc(e)}" style="height:${d.artH}px" alt="${d.name}" draggable="false">` : `<div class="spr blk ${d.boss ? 'bossb' : ''}" style="width:${w}px;height:${h}px;background:${d.col}">${dk ? '' : label}</div>`}<i class="shd"></i></div>`}
+    ${d.frames ? frameBox(efr(e)[0], Math.round(efr(e)[1] * SZ()), enemySrc(e), '', d.name) : `<div class="sprw">${d.art ? `<img class="spr art still" src="${enemySrc(e)}" style="height:${d.artH}px" alt="${d.name}" draggable="false">` : `<div class="spr blk ${d.boss ? 'bossb' : ''}" style="width:${w}px;height:${h}px;background:${d.col}">${dk ? '' : label}</div>`}<i class="shd"></i></div>`}
     <div class="uinfo">${dk ? `<div class="dkname">？？？</div>` : d.civ ? `<div class="nohp civ">平民 · 不能攻击<br>打倒护着他的人，他就投降</div>` : d.nohp ? `<div class="nohp">${e.block ? `<b class="blkv">${e.block}</b>` : ''}打不动 · 只能用仪式封回去</div>` : barHTML(e.hp, e.max, e.block)}${e.ammo != null && !e.dead && (d.elite || d.boss || d.showAmmo) ? `<div class="eammo ${e.ammo ? '' : 'zero'}" data-k="敌人弹仓">${Array.from({ length: e.d.ammo }, (_, k) => `<i class="${k < e.ammo ? 'f' : ''}"></i>`).join('')}${e.ammo ? '' : '<b>空</b>'}</div>` : ''}<div class="badges">${e.armor ? `<b class="arm" data-k="装甲">🛡 装甲 ${e.armor}</b>` : ''}${d.intel && !e.dead ? '<b class="arm intelc" data-k="档案箱">📜 档案箱</b>' : ''}${B.mech.enemyChips ? B.mech.enemyChips(e) : ''}${stsHTML(e.st)}</div></div></div>`;
 }
 /* 血条：格挡是左边的蓝色圆圈（同旧游戏） */
