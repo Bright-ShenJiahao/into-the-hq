@@ -556,32 +556,35 @@ const deepMode = () => BG25.has(curBg());
 /* 前后两排的站位：[横向位置（0—1，从主角右边到右侧按钮之间）, 0 前排 / 1 后排] */
 /* 2.5D 背景上人物整体缩小一点，场地显得大 */
 const SZ = () => (B && deepMode() ? (TOUCH ? .84 : .76) : 1);
-/* 站位：[横向位置（0—1，从主角右边到右侧按钮之间）, 远近：0 最近 / 1 中间 / 2 最远]。远的站得高、小、暗 */
-const SLOTS = { 1: [[.5, 1]], 2: [[.3, 0], [.72, 2]], 3: [[.2, 0], [.55, 2], [.86, 1]], 4: [[.1, 1], [.4, 2], [.62, 0], [.9, 2]] };
-const DEPTH = { up: [0, 105, 205], upT: [0, 52, 100], sc: [1, .86, .74] };
+/* 站阵型：前排（离你近、站得低）是冲在前面的——狗、骑兵、近身的；中排是端枪的兵；
+   后排（远、站得高、小一点、暗一点）是机枪、炮、狙击、通信卫生这些，还有军官、首领、押档案的、平民 */
+const ROW_FRONT = new Set(['dog', 'cav', 'kendo', 'kensei', 'ronin', 'spy', 'shadow', 'echo', 'tombkeeper', 'mask', 'armorcar', 'ski']);
+const ROW_BACK = new Set(['mg', 'hmg', 'mortar', 'sniper', 'gun', 'radio', 'medic', 'supply', 'surgeon', 'officer', 'informer', 'sapper', 'pcap', 'sergeant', 'agent', 'depotchief', 'jpcop']);
+const rowOf = e => (e.d.boss && e.key !== 'it') || e.d.civ || e.d.intel || ROW_BACK.has(e.key) ? 2 : ROW_FRONT.has(e.key) ? 0 : 1;
+const DEPTH = { up: [0, 95, 185], upT: [0, 58, 112], sc: [1, .88, .78] };
 
-/* 敌人的位置：夹在主角和右侧按钮之间。2.5D 背景上分前后排（后排高一点、小一点、暗一点）；放不下就整体等比缩小 */
+/* 敌人的位置：夹在主角和右侧按钮之间。2.5D 背景上按前中后三排站成一团；放不下就整体等比缩小 */
 function fitEnemies() {
   const box = view.querySelector('#enemies'), hero = view.querySelector('#hero'), btn = view.querySelector('#endturn'); if (!box || !hero) return;
   const W = stage.offsetWidth || 1280, L = hero.offsetLeft + hero.offsetWidth + (TOUCH ? 10 : 30), R = btn ? W - btn.offsetLeft + (TOUCH ? 6 : 16) : 240;
   box.style.left = L + 'px'; box.style.right = R + 'px'; box.style.transform = ''; box.style.scale = '';
   const deep = deepMode(); box.classList.toggle('deep', deep); hero.classList.toggle('deep', deep);
   if (!deep) { const need = box.scrollWidth, have = box.clientWidth; if (need > have + 2) box.style.transform = `scale(${Math.max(.6, have / need).toFixed(3)})`; return; }
-  /* 每个敌人第一次出场时占一个位子，之后不挪（倒下的留空位，增援的补到下一个位子） */
-  if (B.slotN == null) B.slotN = 0;
-  for (const e of B.en) if (e.slot == null) e.slot = B.slotN++;
-  const us = [...box.children], n = Math.max(1, B.slotN), w = box.clientWidth;
-  const S = SLOTS[n] || Array.from({ length: n }, (_, i) => [(i + .5) / n, i % 3]);
-  /* 精英、首领站最近的位子：第一次排位时和原来站最近位子的人换一下 */
-  if (!B.slotFix) { B.slotFix = 1; const near = S.findIndex(x => x[1] === 0), big = B.en.find(e => e.d.boss || e.d.elite);
-    if (near >= 0 && big && S[big.slot] && S[big.slot][1] !== 0) { const o = B.en.find(e => e.slot === near); if (o) o.slot = big.slot; big.slot = near; }
-    /* 平民站最远的位子（躲在后面） */
-    for (const c of B.en.filter(e => e.d.civ)) { if (!S[c.slot] || S[c.slot][1] === 2) continue; const far = B.en.find(e => !e.d.civ && S[e.slot] && S[e.slot][1] === 2); if (far) [far.slot, c.slot] = [c.slot, far.slot]; } }
-  let need = 0;
-  us.forEach(u => { const e = B.en.find(x => x.id === u.dataset.eid), [f, d] = S[e ? e.slot : 0] || [.5, 0];
-    u.dataset.depth = d; u.style.left = (f * w - u.offsetWidth / 2) + 'px'; u.style.bottom = (TOUCH ? DEPTH.upT : DEPTH.up)[d] + 'px'; need += u.offsetWidth * DEPTH.sc[d]; });
-  need *= n >= 3 ? .7 : 1; /* 远近错开，可以叠一点 */
-  if (need > w) box.style.scale = Math.max(.62, w / need).toFixed(3);
+  /* 每个敌人第一次出场时定下排和排里的次序，之后不挪（倒下的留空位，增援的排到所在那排的末尾） */
+  for (const e of B.en) if (e.row == null) { e.row = rowOf(e); e.ri = B.en.filter(x => x !== e && x.row === e.row).length; }
+  const us = [...box.children], w = box.clientWidth, up = TOUCH ? DEPTH.upT : DEPTH.up;
+  const cnt = [0, 1, 2].map(r => B.en.filter(e => e.row === r).length);
+  /* 同一排的人间距：按这一排最宽的人算，挨得近一点（有点重叠没关系） */
+  const wid = [0, 0, 0]; us.forEach(u => { const e = B.en.find(x => x.id === u.dataset.eid); if (e) wid[e.row] = Math.max(wid[e.row], u.offsetWidth * DEPTH.sc[e.row]); });
+  const cx = w * .5, shift = TOUCH ? 75 : 80; /* 越往后排越往右一点，看起来是站在前排身后 */
+  let lo = 1e9, hi = -1e9;
+  us.forEach(u => { const e = B.en.find(x => x.id === u.dataset.eid); if (!e) return; const r = e.row, k = cnt[r], gap = Math.max(80, wid[r] * 1.02);
+    const x = cx + (r - 1) * shift + (e.ri - (k - 1) / 2) * gap;
+    u.dataset.depth = r; u.style.left = (x - u.offsetWidth / 2) + 'px'; u.style.bottom = (up[r] + (e.ri % 2) * (TOUCH ? 6 : 12)) + 'px';
+    lo = Math.min(lo, x - u.offsetWidth * DEPTH.sc[r] / 2); hi = Math.max(hi, x + u.offsetWidth * DEPTH.sc[r] / 2); });
+  /* 超出左右边界：整团往里收，再不行就等比缩小 */
+  const span = hi - lo; if (span > w) box.style.scale = Math.max(.62, w / span).toFixed(3);
+  else if (lo < 0 || hi > w) { const dx = lo < 0 ? -lo : w - hi; us.forEach(u => { u.style.left = (parseFloat(u.style.left) + dx) + 'px'; }); }
 }
 addEventListener('resize', () => { if (B && !B.over) fitEnemies(); });
 /* 侦明（沈知秋）：弹出牌堆顶几张，点选要弃掉的，确定 */
