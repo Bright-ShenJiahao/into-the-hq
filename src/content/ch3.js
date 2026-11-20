@@ -36,42 +36,42 @@ Object.values(CARDS_CH3).forEach(d => { d.ch = 'ch3'; }); /* 不进任何人的�
 const priestOf = B => B.en.find(x => !x.dead && x.key === 'priest');
 export const ENEMIES_CH3 = {
   /* —— 防空壕 —— */
-  shrineguard: { name: '神庙卫兵', hp: [24, 28], col: '#4a4a30', frames: 'inf', pic: 'inf', artH: 240, sup: 1, ammo: 2,
+  shrineguard: { name: '神庙卫兵', hp: [24, 28], col: '#4a4a30', frames: 'shrineguard', artH: 240, sup: 1, ammo: 2,
     moves: { shoot: { t: '射击', i: 'atk', d: 8, shot: 1 }, stab: { t: '刺刀', i: 'atk', d: 11 }, reload: { t: '装弹', i: 'reload', blk: 6 } },
     ai: e => (e.last === 'shoot' ? 'stab' : 'shoot') },
-  kguard: { name: '神官的随行宪兵', hp: [64, 70], col: '#3a3a2a', frames: 'sergeant', pic: 'sergeant', artH: 250, elite: 1, sup: 1,
+  kguard: { name: '神官的随行宪兵', hp: [64, 70], col: '#3a3a2a', frames: 'kguard', artH: 245, elite: 1, sup: 1,
     moves: { guard: { t: '护住（全体格挡 +8）', i: 'def', allBlk: 8, blk: 10 }, saber: { t: '军刀', i: 'atk', d: 15 }, shoot: { t: '手枪连射', i: 'atk', d: 6, x: 2 } },
     ai: e => ['guard', 'saber', 'shoot'][e.t % 3] },
   /* —— 仓库 —— */
-  burner: { name: '烧档案的宪兵', hp: [22, 26], col: '#5a4a30', frames: 'inf', pic: 'inf', artH: 240, sup: 1,
+  burner: { name: '烧档案的宪兵', hp: [22, 26], col: '#5a4a30', frames: 'burner', artH: 240, sup: 1,
     moves: { burn: { t: '往炉子里扔档案', i: 'def', blk: 7 }, shoot: { t: '射击', i: 'atk', d: 9 } },
     ai: e => (e.t % 2 ? 'shoot' : 'burn') },
   /* 加强精英里那个：3 回合内不打倒，「拟销毁目录」就烧完了（第三份证据） */
-  escort3: { name: '烧目录的宪兵', hp: [20, 22], col: '#5a4a30', frames: 'inf', pic: 'inf', artH: 240, intel: 1, fleeTx: '把最后一页扔进了炉子',
+  escort3: { name: '烧目录的宪兵', hp: [20, 22], col: '#5a4a30', frames: 'burner', pic: 'burner', artH: 240, intel: 1, fleeTx: '把最后一页扔进了炉子',
     moves: { back: { t: e => `烧目录（${3 - e.t} 回合后烧完）`, i: 'def', blk: 5 }, flee: { t: '烧完了', i: 'flee', tx: '第 3 回合把目录烧完' } },
     ai: e => (e.t >= 2 ? 'flee' : 'back') },
-  sapper: { name: '爆破工兵', hp: [20, 24], col: '#5a5040', frames: 'mortar', pic: 'mortar', artH: 235,
+  sapper: { name: '爆破工兵', hp: [20, 24], col: '#5a5040', frames: 'sapper', artH: 170,
     moves: { plant: { t: '埋炸药', i: 'def', blk: 5 }, fuse: { t: '点引信（下回合爆炸）', i: 'charge', next: '爆炸', blk: 5 },
       blast: { t: '引爆（连同伙一起炸）', i: 'atk', d: 20, allHurt: 12 }, shoot: { t: '射击', i: 'atk', d: 7 } },
     ai: e => ['plant', 'fuse', 'blast'][e.t] || 'shoot' },
   /* —— 古墓（这些东西和古墓有关，和战争死难者无关） —— */
-  shadow: { name: '影子', hp: [18, 22], col: '#15151c', ghost: 1, dodge: .5, noBleed: 1,
+  shadow: { name: '影子', hp: [18, 22], col: '#15151c', frames: 'shadow', artH: 235, ghost: 1, dodge: .5, noBleed: 1,
     moves: { drift: { t: '……', i: 'unk', hide: 1, blk: 5 }, touch: { t: '贴过来', i: 'atk', d: 9, hide: 1 }, chill: { t: '冷', i: 'debuff', hide: 1, weak: 1, san: 1 } },
     ai: e => ['drift', 'touch', 'chill', 'touch'][e.t % 4] },
-  echo: { name: '回声', hp: [24, 28], col: '#1c1a22', ghost: 1, noBleed: 1,
+  echo: { name: '回声', hp: [24, 28], col: '#1c1a22', frames: 'echo', artH: 245, ghost: 1, noBleed: 1,
     moves: { listen: { t: '在听', i: 'def', blk: 8 }, mimic: { t: '学你（你上一下打出多少，它就打回多少）', i: 'atk', echo: 1 } },
     ai: e => (e.t % 2 ? 'mimic' : 'listen') },
-  tombkeeper: { name: '守墓的东西', hp: [48, 54], col: '#24201a', ghost: 1, noBleed: 1,
+  tombkeeper: { name: '守墓的东西', hp: [48, 54], col: '#24201a', frames: 'tombkeeper', artH: 230, noBleed: 1,
     moves: { stir: { t: '翻身（理智 -1）', i: 'def', blk: 14, san: 1 }, crush: { t: '压下来', i: 'atk', d: 18 } },
     ai: e => (e.t % 2 ? 'crush' : 'stir') },
-  mask: { name: '戴金属面具的东西', hp: [80, 86], col: '#2a2418', ghost: 1, elite: 1, noBleed: 1,
+  mask: { name: '戴金属面具的东西', hp: [80, 86], col: '#2a2418', frames: 'mask', artH: 265, ghost: 1, elite: 1, noBleed: 1,
     moves: { take: { t: '伸手（拿走你一张牌两回合）', i: 'debuff', steal: 1, blk: 8 }, claw: { t: '抓', i: 'atk', d: 8, x: 2 }, stare: { t: '面具在看你', i: 'debuff', san: 1, vuln: 2 } },
     ai: e => ['take', 'claw', 'stare', 'claw'][e.t % 4] },
   /* —— 首领：自称阴阳师的随军神官（虚构）。钉子用阵亡军官的军刀熔铸 —— */
-  nail: { name: '镇龙钉', hp: [16, 16], col: '#3a3a40', noKill: 1, noBleed: 1, hurtMul: B => ((B.R.relics || []).includes('hilt') ? 2 : 1),
+  nail: { name: '镇龙钉', hp: [16, 16], col: '#3a3a40', noAtk: 1, frames: 'nail', artH: 150, noKill: 1, noBleed: 1, hurtMul: B => ((B.R.relics || []).includes('hilt') ? 2 : 1),
     moves: { hold: { t: '镇（神官格挡 +6）', i: 'def', fn: (e, B) => { const p = priestOf(B); if (p) { p.block += 6; B.G.fx(p.id, '+6', 'blk'); } } } },
     ai: () => 'hold' },
-  priest: { name: '随军神官·鹫尾', hp: [170, 170], col: '#2a2a2a', frames: 'kcap', pic: 'kcap', artH: 280, boss: 1,
+  priest: { name: '随军神官·鹫尾', hp: [170, 170], col: '#2a2a2a', frames: 'priest', artH: 285, boss: 1,
     moves: { nail: { t: '钉下镇龙钉', i: 'buff', summon: 'nail', blk: 6 }, norito: { t: '祝词（每颗钉格挡 +8）', i: 'def', fn: (e, B) => { const n = B.en.filter(x => !x.dead && x.key === 'nail').length; if (n) { e.block += 8 * n; B.G.fx(e.id, '+' + 8 * n, 'blk'); } } },
       sword: { t: '神刀', i: 'atk', d: 16 }, curse: { t: '咒', i: 'debuff', weak: 2, san: 1 } },
     ai: (e, B) => {
@@ -89,11 +89,19 @@ export const ENEMIES_CH3 = {
       if ((B.R.awe || 0) >= 3) { G.block(15); B.msgs.push('一只黄皮子从你脚边窜过去，挡在了你前面。'); }
       if ((B.R.awe || 0) <= -3) { G.spawn('shadow'); B.msgs.push('山里的东西不帮你。黑暗里多了一个影子。'); }
     } },
-  it: { name: '它', hp: [999, 999], col: '#08080a', ghost: 1, boss: 1, immune: 1, nohp: 1, noKill: 1, sealTx: '沉回了地底',
+  it: { name: '它', hp: [999, 999], col: '#08080a', frames: 'it', artH: 170, ghost: 1, boss: 1, immune: 1, nohp: 1, noKill: 1, sealTx: '沉回了地底',
     moves: { press: { t: '压下来（理智 -1）', i: 'atk', d: 9, san: 1 }, whisper: { t: '低语（两张恐惧混进牌堆）', i: 'debuff', curse: 'fear', cn: 2, weak: 1 }, reach: { t: '伸过来', i: 'atk', d: 6, x: 2 } },
     ai: e => ['press', 'whisper', 'reach'][e.t % 3] },
 };
 Object.entries(ENEMIES_CH3).forEach(([k, d]) => { d.key = k; });
+
+/* 帧图尺寸（切图脚本算出来的：画布宽高、脚底锚点、站立姿势宽高） */
+export const FRAMES_CH3 = { sapper: { cw: 432, ch: 187, ax: 248, sw: 267, sh: 158 }, kguard: { cw: 454, ch: 203, ax: 132, sw: 110, sh: 199 },
+  shrineguard: { cw: 468, ch: 190, ax: 220, sw: 301, sh: 187 }, burner: { cw: 453, ch: 199, ax: 232, sw: 117, sh: 197 },
+  shadow: { cw: 371, ch: 207, ax: 238, sw: 198, sh: 203 }, echo: { cw: 392, ch: 208, ax: 261, sw: 112, sh: 206 },
+  mask: { cw: 475, ch: 207, ax: 299, sw: 228, sh: 205 }, it: { cw: 484, ch: 200, ax: 269, sw: 404, sh: 166 },
+  tombkeeper: { cw: 469, ch: 207, ax: 232, sw: 315, sh: 203 }, nail: { cw: 307, ch: 214, ax: 149, sw: 166, sh: 204 },
+  priest: { cw: 458, ch: 419, ax: 215, sw: 210, sh: 415 } };
 
 /* 遭遇池：按地图分段 */
 export const SEG_ENC = [
@@ -173,7 +181,7 @@ export const EVENTS_CH3 = [
       { t: '不碰', f: () => '你想起那个伤兵的话：自己人的刀。' },
     ] },
   /* —— 古墓（这里的东西和古墓有关，和战争死难者无关） —— */
-  { id: 'shaman', when: inSeg(2), title: '萨满老人', text: '黑暗里有鼓声。一个老人盘腿坐在墓道口，面前的神鼓蒙着兽皮，腰上挂着一圈铜铃。他是附近屯子的满族萨满。<br>「你们来晚了。」他说，「它已经醒了一半。」',
+  { id: 'shaman', when: inSeg(2), title: '萨满老人', pic: 'assets/portraits/shaman_lihui.png', text: '黑暗里有鼓声。一个老人盘腿坐在墓道口，面前的神鼓蒙着兽皮，腰上挂着一圈铜铃。他是附近屯子的满族萨满。<br>「你们来晚了。」他说，「它已经醒了一半。」',
     opts: [
       { t: '听他说完（理智 +3）', f: G => { G.san(3); G.flag('shaman'); return '「这墓比咱们都老。底下睡着的东西，没有名字，也不用有名字。那个日本神官往它身上钉钉子，以为能钉住，钉住了好使唤。」<br>「钉子钉不住它，只会把它扎醒。」<br>「到时候我敲鼓。你们照我说的做：鼓、铃、刀，一样一样来。别回头。」'; } },
       { t: '分他一口吃的（口粮 -2，理智 +3，⛩ 敬畏 +1）', need: G => G.foodN() >= 2, f: G => { G.food(-2); G.san(3); G.flag('shaman'); G.awe(1, '萨满这个词，本来的意思就是「知道」。听老人家的。'); return '老人接过去，先掰了一小块放在鼓边上，才吃剩下的。<br>「到时候我敲鼓。鼓、铃、刀，一样一样来。别回头。」'; } },
@@ -218,7 +226,8 @@ export const CHAPTER3 = {
   res: 'san', /* 用理智代替可疑度 */
   nodes: { fight: 40, event: 32, elite: 14, rest: 10, shop: 4 }, fixed: { 0: 'fight', 4: 'shop', 8: 'treasure', 10: 'event', 14: 'rest' }, fixedEv: { 10: 'shaman' }, earliest: 5, easyFights: 2,
   map: { img: 'assets/bg/map_ch1.jpg', w: 1000, h: 1779, startY: .865, endY: .175, bossX: .5, bossY: .092, xMin: .27, xMax: .73, startLabel: '▼ 钻进排水渠', dark: 1 },
-  battleBg: 'assets/bg/battle_road.jpg', under: 1, enemies: ENEMIES_CH3, frames: {}, blockSize: { it: [260, 300], nail: [60, 120] }, enc: ENC_CH3, segEnc: SEG_ENC, seg: SEG, segName: SEG_NAME,
+  battleBg: 'assets/bg/battle_shelter.jpg', segBg: ['assets/bg/battle_shelter.jpg', 'assets/bg/battle_warehouse.jpg', 'assets/bg/battle_tomb.jpg'], bossBg: { priest: 'assets/bg/battle_tomb.jpg' },
+  under: 1, enemies: ENEMIES_CH3, frames: FRAMES_CH3, blockSize: {}, enc: ENC_CH3, segEnc: SEG_ENC, seg: SEG, segName: SEG_NAME,
   events: EVENTS_CH3, places: PLACES_CH3, escort: 'escort3', bossLabel: '最深处',
   intro: [
     '1945 年 8 月 9 日，苏联对日宣战，苏军从三个方向越过边境。',
