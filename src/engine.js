@@ -9,7 +9,8 @@ const addSt = (u, k, n) => { u.st[k] = (u.st[k] || 0) + n; if (u.st[k] <= 0) del
 export const HAND_MAX = 10, ENERGY = 3, DRAW = 5;
 export const RITUAL = ['rt_drum', 'rt_bell', 'rt_knife'];
 
-export const alive = B => B.en.filter(e => !e.dead);
+/* 能打的敌人。平民（文官、商人、高管）不在里面：不能被选成目标、群攻也打不到，打倒护着他们的人就算赢 */
+export const alive = B => B.en.filter(e => !e.dead && !e.d.civ);
 const relicsOf = B => (B.R.relics || []).map(id => RELICS[id]).filter(Boolean);
 /* 触发点：让所有随身物品依次响应 */
 export function trigger(B, ev, ...a) { for (const r of relicsOf(B)) if (typeof r[ev] === 'function') r[ev](B.G, ...a); }
@@ -87,6 +88,8 @@ function hitEnemy(B, e, amt, pierce) {
   if (e.d.immune) { fx(B, e.id, '打不动', 'st'); return 0; }
   if (e.d.dodge && !e.dodged && amt > 0 && B.rng() < e.d.dodge) { e.dodged = 1; fx(B, e.id, '散开了', 'st'); return 0; }
   if (e.d.hurtMul) amt = Math.floor(amt * e.d.hurtMul(B));
+  /* 滑雪兵：刚打完一下就滑开，这一下躲掉 */
+  if (e.st.evade && amt > 0) { delete e.st.evade; fx(B, e.id, '滑开了', 'st'); return 0; }
   if (amt > 0) B.lastHit = amt;
   if (!pierce) { const u = Math.min(e.block, amt); e.block -= u; amt -= u; }
   e.hp -= amt; fx(B, e.id, amt ? '-' + amt : '格挡', amt ? 'dmg' : 'blk');
@@ -94,6 +97,11 @@ function hitEnemy(B, e, amt, pierce) {
   /* 架势（剑道军官）：这回合每次打到他，他就反击 */
   if (e.st.counter && !B.over) { fx(B, e.id, '居合反击', 'st'); hitPlayer(B, e.st.counter); }
   if (amt > 0 && e.d.onHurt) e.d.onHurt(e, B.G);
+  /* 浪人剑客：每挨一下就居合还一刀 */
+  if (e.d.riposte && !B.over && !e.dead) { fx(B, e.id, '居合', 'st'); hitPlayer(B, e.d.riposte); }
+  /* 步兵炮：蓄力时一回合挨够伤害就被打断 */
+  e.dmgT = (e.dmgT || 0) + amt;
+  if (e.d.interrupt && !e.dead && e.d.interrupt.moves.includes(e.move) && e.dmgT >= e.d.interrupt.at) { e.move = e.d.interrupt.to; fx(B, e.id, '被打断了', 'st'); }
   return amt;
 }
 function kill(B, e) { e.dead = 1; e.hp = 0; e.marks = 0; e.deadAt = Date.now(); if (!e.d.noKill) B.R.kills = (B.R.kills || 0) + 1; if (e.d.intel) B.intelGot = 1; trigger(B, 'kill', e); if (B.mech.onKill) B.mech.onKill(B, e); if (e.d.onDeath) e.d.onDeath(e, B, B.G); morale(B); }
@@ -119,7 +127,7 @@ export const supervised = B => alive(B).some(x => x.d.sup);
 function morale(B) {
   for (const x of alive(B)) if (x.d.morale) {
     addSt(x, 'shaken', 1); fx(B, x.id, '动摇', 'st');
-    if (x.st.shaken >= 2 && !supervised(B)) x.move = 'flee';
+    if (x.st.shaken >= (x.d.brittle ? 1 : 2) && !supervised(B)) x.move = 'flee'; /* 临时召集的老兵：同伴倒下一个就投降 */
   }
 }
 
@@ -243,7 +251,7 @@ function hitPlayer(B, amt, src) {
 /* 一个敌人行动（界面逐个调用，中间可以加动画） */
 export function enemyAct(B, e) {
   if (e.dead || B.over) return;
-  e.block = 0; delete e.st.counter; e.dodged = 0;
+  e.block = 0; delete e.st.counter; e.dodged = 0; e.dmgT = 0; delete e.st.evade;
   /* 流血先结算 */
   if (e.st.bleed) { const n = e.st.bleed; e.hp -= n; fx(B, e.id, '-' + n, 'dmg'); if (B.mech.onBleed) B.mech.onBleed(B, e, n);
     if (e.hp <= 0) { kill(B, e); return; } e.st.bleed = Math.max(0, n - (B.p.pw.bleedSlow ? 1 : 2)); if (!e.st.bleed) delete e.st.bleed; }
@@ -252,7 +260,7 @@ export function enemyAct(B, e) {
   const m = e.d.moves[e.move];
   if (m.i === 'reload') { e.ammo = e.d.ammo; fx(B, e.id, '装弹', 'st'); }
   if (m.shot && e.ammo != null) e.ammo = Math.max(0, e.ammo - 1);
-  if (m.i === 'flee') { e.dead = 1; e.fled = 1; e.deadAt = Date.now(); fx(B, e.id, e.d.fleeTx || (e.d.intel ? '带着档案箱撤走了' : '溃逃了'), 'st'); if (e.d.intel) B.intelLost = 1; morale(B); return; }
+  if (m.i === 'flee') { e.dead = 1; e.fled = 1; e.deadAt = Date.now(); fx(B, e.id, e.d.fleeTx || (e.d.intel ? '带着档案箱撤走了' : '溃逃了'), 'st'); if (e.d.intel) B.intelLost = 1; if (e.d.onFlee) e.d.onFlee(e, B, B.G); morale(B); return; }
   if (m.d) { for (let k = 0; k < (m.x || 1) && !B.over && !e.dead; k++) hitPlayer(B, enemyDmg(B, e, m.d), e); if (e.st.para) addSt(e, 'para', -1); }
   if (m.echo && !B.over) hitPlayer(B, enemyDmg(B, e, B.lastHit || 6), e); /* 回声：学你上一下打出的伤害 */
   if (m.allHurt) alive(B).forEach(x => { if (x !== e) { fx(B, x.id, '被炸到', 'st'); hitEnemy(B, x, m.allHurt, 1); } }); /* 爆破工兵：连同伙一起炸 */
@@ -261,6 +269,7 @@ export function enemyAct(B, e) {
     const pile = B.draw.length ? B.draw : B.disc; if (pile.length) { const c = pile.splice(pile.length - 1, 1)[0]; (B.taken = B.taken || []).push({ c, t: 2 }); fx(B, 'hero', `「${CARDS[c.id].name}」被拿走了`, 'st'); } }
   if (m.curse) { for (let k = 0; k < (m.cn || 1); k++) B.draw.splice(Math.floor(B.rng() * (B.draw.length + 1)), 0, { id: m.curse, up: 0, uid: 80000 + B.eid * 10 + k + B.turn * 100 }); fx(B, 'hero', `${CARDS[m.curse].name}混进了牌堆`, 'st'); }
   if (m.fn) m.fn(e, B, B.G);
+  if (m.evade) e.st.evade = 1;
   if (m.blk) { e.block += m.blk; fx(B, e.id, '+' + m.blk, 'blk'); }
   if (m.allBlk) alive(B).forEach(x => { if (x !== e) { x.block += m.allBlk; fx(B, x.id, '+' + m.allBlk, 'blk'); } });
   if (m.str) { addSt(e, 'str', m.str); fx(B, e.id, `力量+${m.str}`, 'st'); }
@@ -276,7 +285,7 @@ export function enemyAct(B, e) {
 
 export function result(B) {
   if (B.over) return B.over;
-  if (!alive(B).length) return (B.over = 'win');
+  if (!alive(B).length) { for (const e of B.en) if (!e.dead && e.d.civ) { e.dead = 1; e.fled = 1; e.deadAt = Date.now(); fx(B, e.id, '举手投降', 'st'); } return (B.over = 'win'); }
   return null;
 }
 /* 战斗结束（界面在结算前调用） */

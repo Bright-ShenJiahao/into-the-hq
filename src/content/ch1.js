@@ -47,6 +47,28 @@ export const ENEMIES_CH1 = {
   escort: { name: '押运档案箱的日军', hp: [20, 22], col: '#6d6a3c', frames: 'inf', artH: 240, intel: 1, sup: 1,
     moves: { back: { t: e => `后撤（${3 - e.t} 回合后撤走）`, i: 'def', blk: 5 }, flee: { t: '带着档案箱撤走', i: 'flee', tx: '第 3 回合带着档案箱撤走，情报就没了' } },
     ai: e => e.t >= 2 ? 'flee' : 'back' },
+  /* —— 讨伐队的各兵种（还没出图，先用色块） —— */
+  cav: { name: '伪满骑兵', hp: [24, 28], col: '#6a4a2a', morale: 1,
+    moves: { charge: { t: '骑兵冲锋', i: 'atk', d: 15 }, saber: { t: '马刀', i: 'atk', d: 7 }, flee: { t: '溃逃', i: 'flee', tx: '动摇到 2 层、又没人督战时，打马跑了' } },
+    ai: e => (e.t % 3 === 0 ? 'charge' : 'saber') },
+  radio: { name: '通信兵', hp: [16, 20], col: '#4e5a3a', sup: 1,
+    moves: { call: { t: '发报呼叫增援（下回合到）', i: 'buff', blk: 4 }, arrive: { t: '增援赶到', i: 'buff', summon: 'inf' }, shoot: { t: '射击', i: 'atk', d: 6 } },
+    ai: e => (e.t === 0 ? 'call' : e.t === 1 ? 'arrive' : 'shoot') },
+  supply: { name: '辎重兵', hp: [20, 24], col: '#5c5236', sup: 1,
+    moves: { resupply: { t: '分发弹药（同伴子弹装满，格挡 +5）', i: 'def', allBlk: 5, fn: (e, B) => B.en.forEach(x => { if (!x.dead && x.d.ammo) x.ammo = x.d.ammo; }) }, shoot: { t: '射击', i: 'atk', d: 6 } },
+    ai: e => (e.t % 2 === 0 ? 'resupply' : 'shoot'),
+    onDeath: (e, B) => { B.R.food = (B.R.food || 0) + 2; B.msgs.push('辎重兵的背囊里还有干粮：口粮 +2'); } },
+  medic: { name: '卫生兵', hp: [16, 18], col: '#5a5a48', sup: 1,
+    moves: { bandage: { t: '包扎（伤最重的同伴回 10 血）', i: 'buff', fn: (e, B, G) => { const w = B.en.filter(x => !x.dead && x !== e && x.hp < x.max).sort((a, b) => (b.max - b.hp) - (a.max - a.hp))[0]; if (w) { w.hp = Math.min(w.max, w.hp + 10); G.fx(w.id, '+10', 'heal'); } } },
+      cover: { t: '找掩护', i: 'def', blk: 8 } },
+    ai: (e, B) => (B.en.some(x => !x.dead && x !== e && x.hp < x.max) ? 'bandage' : 'cover') },
+  ski: { name: '滑雪兵', hp: [20, 23], col: '#c8ccd0', sup: 1,
+    moves: { strike: { t: '滑过来射击（打完就滑开：你下一下打不中）', i: 'atk', d: 9, evade: 1 }, glide: { t: '绕到侧面', i: 'def', blk: 6 } },
+    ai: e => (e.t % 2 ? 'glide' : 'strike') },
+  gun: { name: '步兵炮小队', hp: [62, 68], col: '#4a4a36', elite: 1, sup: 1, interrupt: { at: 15, moves: ['aim1', 'aim2'], to: 'stagger' },
+    moves: { aim1: { t: '架炮瞄准（这回合挨够 15 伤害就被打断）', i: 'charge', next: '开炮', blk: 8 }, aim2: { t: '装填炮弹（挨够 15 伤害就被打断）', i: 'charge', next: '开炮', blk: 8 },
+      fire: { t: '九二式步兵炮开炮', i: 'atk', d: 26 }, stagger: { t: '手忙脚乱', i: 'def', blk: 4 }, shoot: { t: '步枪射击', i: 'atk', d: 7 } },
+    ai: e => { if (e.last === 'stagger') e.cyc = 3; e.cyc = ((e.cyc == null ? -1 : e.cyc) + 1) % 4; return ['aim1', 'aim2', 'fire', 'shoot'][e.cyc]; } },
 };
 
 Object.entries(ENEMIES_CH1).forEach(([k, d]) => { d.key = k; });
@@ -57,14 +79,15 @@ export const FRAMES_CH1 = { inf: { cw: 462, ch: 404, ax: 195, sw: 359, sh: 402 }
   captain_car: { cw: 312, ch: 222, ax: 149, sw: 281, sh: 208 }, captain_foot: { cw: 426, ch: 264, ax: 147, sw: 185, sh: 249 },
   hmg: { cw: 433, ch: 230, ax: 179, sw: 424, sh: 228 }, pcap: { cw: 580, ch: 387, ax: 172, sw: 178, sh: 385 }, kcap: { cw: 450, ch: 376, ax: 246, sw: 118, sh: 374 } };
 /* 色块占位时的大小（还没出图的敌人） */
-export const BLOCK_SIZE_CH1 = {};
+export const BLOCK_SIZE_CH1 = { cav: [190, 175], gun: [210, 150], ski: [100, 160] };
 
 /* 遭遇池：前 3 场普通战斗用 easy，之后用 hard（同通往顶端） */
 export const ENC_CH1 = {
-  easy: [['inf'], ['puppet', 'puppet'], ['dog', 'dog'], ['puppet', 'dog']],
+  easy: [['inf'], ['puppet', 'puppet'], ['dog', 'dog'], ['puppet', 'dog'], ['cav'], ['ski', 'puppet']],
   hard: [['inf', 'puppet', 'puppet'], ['mg', 'puppet'], ['mortar', 'inf'], ['sniper', 'inf'], ['dog', 'inf', 'dog'], ['mg', 'dog'],
-    ['sniper', 'puppet', 'puppet'], ['inf', 'inf'], ['mortar', 'dog', 'dog'], ['sniper', 'mg'], ['puppet', 'puppet', 'puppet'], ['inf', 'mortar', 'puppet']],
-  elite: [['inf', 'sergeant', 'inf'], ['inf', 'hmg'], ['puppet', 'pcap', 'puppet']],
+    ['sniper', 'puppet', 'puppet'], ['inf', 'inf'], ['mortar', 'dog', 'dog'], ['sniper', 'mg'], ['puppet', 'puppet', 'puppet'], ['inf', 'mortar', 'puppet'],
+    ['cav', 'puppet', 'puppet'], ['radio', 'inf'], ['supply', 'inf', 'puppet'], ['medic', 'inf', 'inf'], ['ski', 'ski'], ['cav', 'dog'], ['radio', 'mortar']],
+  elite: [['inf', 'sergeant', 'inf'], ['inf', 'hmg'], ['puppet', 'pcap', 'puppet'], ['gun', 'inf'], ['gun', 'medic']],
   boss: [['inf', 'captain'], ['dog', 'kcap', 'dog']],
 };
 
