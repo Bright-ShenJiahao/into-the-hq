@@ -548,13 +548,32 @@ function battle(enc, kind, strong) {
   see(...enc.map(k => 'e:' + k)); render(); teach('battle'); if (darkNow()) teach('ghostdark'); if (lead) banner((kind === 'boss' ? '' : strong ? '加强精英：' : '精英：') + lead.name);
   flushMsgs();
 }
-/* 敌人一排的位置：从主角右边到右侧按钮左边这一段里居中；放不下（四个敌人、宽的骑兵和炮）就整排等比缩小 */
+/* 战斗背景里哪些是 2.5D 的（斜上方往下看、地面铺满画面）：用这种背景时敌人分前后两排站 */
+const BG25 = new Set(['assets/bg/battle_snow25.jpg']);
+function curBg() { const k = B && B.kind === 'boss' && B.en.find(e => e.d.boss), b = k && CH().bossBg && CH().bossBg[k.key];
+  return b || (CH().segBg ? CH().segBg[segOf(R.pos ? R.pos.r : 0)] : CH().battleBg); }
+const deepMode = () => BG25.has(curBg());
+/* 前后两排的站位：[横向位置（0—1，从主角右边到右侧按钮之间）, 0 前排 / 1 后排] */
+const SLOTS = { 1: [[.45, 0]], 2: [[.28, 0], [.74, 0]], 3: [[.16, 0], [.5, 1], [.84, 0]], 4: [[.1, 1], [.36, 0], [.64, 1], [.9, 0]] };
+/* 精英、首领要站前排：落在后排时换成前后颠倒的这一套 */
+const SLOTS_ALT = { 3: [[.18, 1], [.5, 0], [.82, 1]], 4: [[.1, 0], [.36, 1], [.64, 0], [.9, 1]] };
+/* 敌人的位置：夹在主角和右侧按钮之间。2.5D 背景上分前后排（后排高一点、小一点、暗一点）；放不下就整体等比缩小 */
 function fitEnemies() {
   const box = view.querySelector('#enemies'), hero = view.querySelector('#hero'), btn = view.querySelector('#endturn'); if (!box || !hero) return;
   const W = stage.offsetWidth || 1280, L = hero.offsetLeft + hero.offsetWidth + (TOUCH ? 10 : 30), R = btn ? W - btn.offsetLeft + (TOUCH ? 6 : 16) : 240;
-  box.style.left = L + 'px'; box.style.right = R + 'px'; box.style.transform = '';
-  const need = box.scrollWidth, have = box.clientWidth;
-  if (need > have + 2) box.style.transform = `scale(${Math.max(.6, have / need).toFixed(3)})`;
+  box.style.left = L + 'px'; box.style.right = R + 'px'; box.style.transform = ''; box.style.scale = '';
+  const deep = deepMode(); box.classList.toggle('deep', deep);
+  if (!deep) { const need = box.scrollWidth, have = box.clientWidth; if (need > have + 2) box.style.transform = `scale(${Math.max(.6, have / need).toFixed(3)})`; return; }
+  /* 每个敌人第一次出场时占一个位子，之后不挪（倒下的留空位，增援的补到下一个位子） */
+  if (B.slotN == null) B.slotN = 0;
+  for (const e of B.en) if (e.slot == null) e.slot = B.slotN++;
+  const us = [...box.children], n = Math.max(1, B.slotN), w = box.clientWidth;
+  if (B.slotAlt == null) B.slotAlt = !!(SLOTS_ALT[n] && B.en.some(e => (e.d.boss || e.d.elite) && SLOTS[n][e.slot] && SLOTS[n][e.slot][1] === 1));
+  const S = (B.slotAlt && SLOTS_ALT[n]) || SLOTS[n] || Array.from({ length: n }, (_, i) => [(i + .5) / n, i % 2]);
+  let need = 0;
+  us.forEach(u => { const e = B.en.find(x => x.id === u.dataset.eid), [f, d] = S[e ? e.slot : 0] || [.5, 0]; u.classList.toggle('back', !!d); u.style.left = (f * w - u.offsetWidth / 2) + 'px'; u.style.bottom = d ? (TOUCH ? 46 : 62) + 'px' : '0'; need += u.offsetWidth * (d ? .84 : 1); });
+  need *= n >= 3 ? .78 : 1; /* 前后排可以叠一点 */
+  if (need > w) box.style.scale = Math.max(.62, w / need).toFixed(3);
 }
 addEventListener('resize', () => { if (B && !B.over) fitEnemies(); });
 /* 侦明（沈知秋）：弹出牌堆顶几张，点选要弃掉的，确定 */
