@@ -597,9 +597,13 @@ function fitEnemies() {
     u.dataset.depth = t.r; u.style.left = (cx - u.offsetWidth / 2) + 'px'; u.style.bottom = (lv(t.r) + (t.e.ri % 2) * (TOUCH ? 8 : 16)) + 'px'; });
   const k = span > w ? Math.max(.6, w / span) : 1; if (k < 1) box.style.scale = k.toFixed(3);
   /* 主角的脚站在敌人最前排和最后排的中线上（图上就是左右对着中间） */
-  /* 主角的脚：敌人只有一排时和最低的人平齐；有前后排时站在最前排和最后排的中线上 */
-  const mid = (lv(used[0]) + lv(used[used.length - 1])) / 2;
-  const base = TOUCH ? 10 : 28; hero.style.translate = `0 ${-(base + mid * k)}px`;
+  /* 主角的脚：敌人只有一排时和那排（不算错开的高低）的人平齐；有前后排时站在最前排和最后排的中线上。
+     按画面上量出来的脚的位置对齐（主角和敌人身下的信息条高度不一样，不能只算数） */
+  hero.style.translate = '';
+  const foot = u => (u.querySelector('.sprw') || u).getBoundingClientRect().bottom, sc = hero.getBoundingClientRect().height / (hero.offsetHeight || 1) || 1;
+  const fy = r => { const f = items.filter(t => t.r === r && t.e.ri % 2 === 0); return f.length ? Math.max(...f.map(t => foot(t.u))) : null; };
+  const yF = fy(used[0]), yB = fy(used[used.length - 1]);
+  if (yF != null) { const target = yB != null ? (yF + yB) / 2 : yF; hero.style.translate = `0 ${((target - foot(hero)) / sc).toFixed(1)}px`; }
 }
 addEventListener('resize', () => { if (B && !B.over) fitEnemies(); });
 /* 侦明（沈知秋）：弹出牌堆顶几张，点选要弃掉的，确定 */
@@ -955,13 +959,13 @@ function eventScreen(force) {
     san: n => { addSan(n); sanN += n; }, curse: () => { R.deck.push(mk('it_curse')); see('c:it_curse'); }, lure: n => { R.lure = (R.lure || 0) + n; },
     they: (n, f, fin) => they(n, f, fin), aweN: () => R.awe || 0, say: () => {} };
   const draw = () => {
-    view.innerHTML = `<div class="bg ev"></div>${ev.pic ? `<img class="evpic" src="${ev.pic}" alt="">` : ''}${topBar()}<div class="panel evp"><h2>${ev.title}</h2><p>${ev.text}</p><div class="col">${ev.opts.map((o, i) => { const ok = !o.need || o.need(G); return `<button class="btn opt" data-o="${i}" ${ok ? '' : 'disabled'}>${o.t}${String(o.f).includes('awe(') ? '<small class="awetag">⛩ 敬畏</small>' : ''}${ok ? '' : '（条件不够）'}</button>`; }).join('')}</div></div>`;
+    view.innerHTML = `<div class="bg ev"></div>${ev.pic ? `<img class="evpic" src="${ev.pic}" alt="">` : ''}${topBar()}<div class="panel evp"><h2>${ev.title}</h2><p>${ev.text}</p><div class="col">${ev.opts.map((o, i) => { const ok = !o.need || o.need(G); return `<button class="btn opt" data-o="${i}" ${ok ? '' : 'disabled'}>${o.t}${String(o.f).includes('awe(') ? '<small class="awetag">敬畏</small>' : ''}${ok ? '' : '（条件不够）'}</button>`; }).join('')}</div></div>`;
     bindTop();
     view.querySelectorAll('[data-o]').forEach(b => b.onclick = () => {
       const msg = ev.opts[+b.dataset.o].f(G); save();
       const after = () => { if (R.hp <= 0) { R.hp = 0; return endScreen(false, `倒在了${CH().name}里`); } if (fightEnc) { R.pending = { t: 'fight', enc: fightEnc }; save(); return battle(fightEnc, 'fight'); } mapScreen(); };
       const cont = () => { const w = waits.shift(); if (w === 'up') return upgradePick(() => cont()); if (w === 'rm') return removePick(() => cont()); after(); };
-      const aweP = aweN ? `<p class="awe">⛩ 敬畏 ${aweN > 0 ? '+' : ''}${aweN}（现在 ${R.awe}）<br><b>${MENTOR.name}</b>：「${aweLine || (aweN > 0 ? AWE_UP : AWE_DN)[Math.floor(Math.random() * 2)]}」</p>` : '';
+      const aweP = aweN ? `<p class="awe">敬畏 ${aweN > 0 ? '+' : ''}${aweN}（现在 ${R.awe}）<br><b>${MENTOR.name}</b>：「${aweLine || (aweN > 0 ? AWE_UP : AWE_DN)[Math.floor(Math.random() * 2)]}」</p>` : '';
       const susP = (susN ? `<p class="awe">🕵 可疑度 ${susN > 0 ? '+' : ''}${susN}（现在 ${R.sus}/10）</p>` : '') + (sanN ? `<p class="awe">🕯 理智 ${sanN > 0 ? '+' : ''}${sanN}（现在 ${R.san}/10）</p>` : '');
       if (msg) { view.querySelector('.evp').innerHTML = `<h2>${ev.title}</h2><p>${msg}</p>${aweP}${susP}<button class="btn" id="ev_ok">继续</button>`; bindTop(); $('#ev_ok').onclick = cont; } else cont();
     });
