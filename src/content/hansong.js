@@ -224,7 +224,7 @@ export const TUT_HS = [
 ];
 
 export const HANSONG = {
-  id: 'hansong', name: '韩松', title: '神枪手', code: '雪貂', hp: 72,
+  id: 'hansong', name: '韩松', title: '神枪手', code: '雪貂', hp: 72, blurb: '弹匣五发，打空了就换弹或者上刺刀。狙击枪一枪打得狠，冲锋枪打得快。',
   starter: ['note', 'note', 'note', 'note', 'defend', 'defend', 'defend', 'defend', 'shoot', 'barrage'],
   startRelic: 'strap', mech: MECH_HS, kw: KW_HS, tut: TUT_HS, lang: { ja: 1, ru: 0 }, /* 语言：0 不会，1 听得懂几句，2 能说，3 精通 */
   /* 美术：逐帧动画目录、画布信息（切图脚本算出）、枪口位置 */
