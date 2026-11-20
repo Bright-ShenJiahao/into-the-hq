@@ -7,6 +7,7 @@ export const shuffle = (a, r) => { for (let i = a.length - 1; i > 0; i--) { cons
 const ri = (r, a, b) => a + Math.floor(r() * (b - a + 1));
 const addSt = (u, k, n) => { u.st[k] = (u.st[k] || 0) + n; if (u.st[k] <= 0) delete u.st[k]; };
 export const HAND_MAX = 10, ENERGY = 3, DRAW = 5;
+export const RITUAL = ['rt_drum', 'rt_bell', 'rt_knife'];
 
 export const alive = B => B.en.filter(e => !e.dead);
 const relicsOf = B => (B.R.relics || []).map(id => RELICS[id]).filter(Boolean);
@@ -45,7 +46,11 @@ export function startTurn(B, first) {
   B.mech.turnStart(B);
   let n = DRAW + sum(B, 'draw', !!first);
   if (first && B.R.temp < 3 && !flag(B, 'noColdDraw')) { n--; B.msgs.push('体温太低，手脚发僵：第一回合少抽 1 张。'); }
+  /* 被「面具」拿走的牌，到时候还回来 */
+  if (B.taken && B.taken.length) { for (const x of B.taken) x.t--; const back = B.taken.filter(x => x.t <= 0); B.taken = B.taken.filter(x => x.t > 0); for (const x of back) { B.hand.push(x.c); B.msgs.push(`${CARDS[x.c.id].name}回到了你手里。`); } }
   drawCards(B, n);
+  /* 仪式：每回合给你下一张仪式牌（神鼓 → 腰铃 → 神刀），手里已经有了就不再给 */
+  if (B.ritual && B.ritual.step < 3 && !B.hand.some(c => CARDS[c.id].ritual)) B.hand.push({ id: RITUAL[B.ritual.step], up: 0, uid: 90000 + B.turn });
   if (B.mech.afterDraw) B.mech.afterDraw(B);
   trigger(B, 'turnStart', B);
 }
@@ -67,6 +72,7 @@ export const previewDmg = (B, d, x) => B.mech.preview ? B.mech.preview(B, d, x) 
 /* 不能打出的原因（能打返回 null） */
 export function cantPlay(B, c) {
   const d = CARDS[c.id];
+  if (d.unplay) return '不能打出';
   if (cardCost(B, c) > B.p.energy) return '能量不够';
   return B.mech.cantPlay ? B.mech.cantPlay(B, d) : null;
 }
@@ -77,6 +83,11 @@ function fx(B, who, text, cls) { B.fx.push({ who, text, cls }); }
 function hitEnemy(B, e, amt, pierce) {
   if (e.dead) return 0;
   amt = Math.max(0, Math.floor(amt));
+  /* 第三章：「它」打不动（只能用仪式封回去）；影子每回合有一次机会「散开」躲掉一下 */
+  if (e.d.immune) { fx(B, e.id, '打不动', 'st'); return 0; }
+  if (e.d.dodge && !e.dodged && amt > 0 && B.rng() < e.d.dodge) { e.dodged = 1; fx(B, e.id, '散开了', 'st'); return 0; }
+  if (e.d.hurtMul) amt = Math.floor(amt * e.d.hurtMul(B));
+  if (amt > 0) B.lastHit = amt;
   if (!pierce) { const u = Math.min(e.block, amt); e.block -= u; amt -= u; }
   e.hp -= amt; fx(B, e.id, amt ? '-' + amt : '格挡', amt ? 'dmg' : 'blk');
   if (e.hp <= 0) { kill(B, e); return amt; }
@@ -85,7 +96,11 @@ function hitEnemy(B, e, amt, pierce) {
   if (amt > 0 && e.d.onHurt) e.d.onHurt(e, B.G);
   return amt;
 }
-function kill(B, e) { e.dead = 1; e.hp = 0; e.marks = 0; e.deadAt = Date.now(); B.R.kills = (B.R.kills || 0) + 1; if (e.d.intel) B.intelGot = 1; trigger(B, 'kill', e); if (B.mech.onKill) B.mech.onKill(B, e); morale(B); }
+function kill(B, e) { e.dead = 1; e.hp = 0; e.marks = 0; e.deadAt = Date.now(); if (!e.d.noKill) B.R.kills = (B.R.kills || 0) + 1; if (e.d.intel) B.intelGot = 1; trigger(B, 'kill', e); if (B.mech.onKill) B.mech.onKill(B, e); if (e.d.onDeath) e.d.onDeath(e, B, B.G); morale(B); }
+/* 第三章用：敌人消失（不算击杀、不掉东西） */
+export function vanish(B, e, text) { if (e.dead) return; e.dead = 1; e.fled = 1; e.hp = 0; e.deadAt = Date.now(); if (text) fx(B, e.id, text, 'st'); }
+/* 中途加一个敌人（召唤、它醒来） */
+export function spawn(B, key, at) { const n = mkEnemy(B, key); if (at != null) B.en.splice(at, 0, n); else B.en.push(n); return n; }
 /* 控制（打乱）：同一个敌人每场只吃一次；精英和首领不吃，改为「麻痹」：下一次攻击减半（照通往顶端的规矩） */
 function hardCC(B, e) {
   if (!e || e.dead) return;
@@ -96,7 +111,7 @@ export const BLEED_MAX = 12;
 /* 流血：敌人行动前失去等于层数的生命（不吃格挡），然后层数 -2；最多 12 层；对有装甲的敌人无效 */
 function bleed(B, e, n) {
   if (!e || e.dead || n <= 0) return;
-  if (e.armor > 0) { fx(B, e.id, '装甲：不流血', 'st'); return; }
+  if (e.armor > 0 || e.d.immune || e.d.noBleed) { fx(B, e.id, '不流血', 'st'); return; }
   const k = Math.min(BLEED_MAX, (e.st.bleed || 0) + n); if (k > (e.st.bleed || 0)) fx(B, e.id, `流血+${k - (e.st.bleed || 0)}`, 'st'); e.st.bleed = k;
 }
 /* 士气（伪满军）：同伴倒下一个「动摇」+1；动摇到 2 就溃逃——但有日军（或伪满警察队长）督战时不逃 */
@@ -156,6 +171,11 @@ function mkG(B) {
     surrender: e => { if (!e || e.dead) return; e.dead = 1; e.fled = 1; e.deadAt = Date.now(); fx(B, e.id, '放下武器', 'st'); morale(B); },
     power: (k, v) => { B.p.pw[k] = v; fx(B, 'hero', '能力', 'st'); },
     say: t => B.msgs.push(t), fx: (who, text, cls) => fx(B, who, text, cls),
+    san: n => { if (B.R.san == null) return; B.R.san = Math.max(0, Math.min(10, B.R.san + n)); fx(B, 'hero', `理智${n > 0 ? '+' : ''}${n}`, 'st'); },
+    /* 仪式牌：按顺序打出，第三张打完「它」就封回去了 */
+    ritual: n => { if (!B.ritual || B.ritual.step !== n - 1) return; B.ritual.step = n; fx(B, 'hero', ['', '鼓声', '铃声', '刀光'][n], 'st');
+      if (n === 3) { for (const e of alive(B)) vanish(B, e, e.d.sealTx || '退回了黑暗里'); B.msgs.push('鼓声停了。'); } },
+    vanish: (e, t) => vanish(B, e, t), spawn: (k, at) => spawn(B, k, at),
   };
   return Object.assign(G, B.mech.G ? B.mech.G(B) : {});
 }
@@ -183,7 +203,11 @@ export function useItem(B, it) { if (!it.battle) return false; it.battle(B.G); r
 
 /* 结束你的回合：弃手牌，你的状态减 1 */
 export function endPlayerTurn(B) {
-  B.disc.push(...B.hand); B.hand = [];
+  /* 手里留到回合结束的牌：inHandEnd 生效；「虚无」的直接消耗；「保留」的留在手里 */
+  for (const c of B.hand) { const d = CARDS[c.id]; if (d.inHandEnd) d.inHandEnd(B.G, B); }
+  const keep = B.hand.filter(c => CARDS[c.id].retain);
+  for (const c of B.hand) if (!CARDS[c.id].retain) (CARDS[c.id].ethereal ? B.exh : B.disc).push(c);
+  B.hand = keep;
   for (const k of ['weak', 'vuln']) if (B.p.st[k]) addSt(B.p, k, -1);
   B.mech.turnEnd(B);
   trigger(B, 'turnEnd', B);
@@ -195,6 +219,7 @@ export function intentOf(B, e) {
   const m = typeof m0.t === 'function' ? { ...m0, t: m0.t(e) } : m0; /* 名字可以随回合变（如「后撤：还剩 2 回合」） */
   if (e.st.dazed) return { i: 'dazed', text: '', name: '被打乱' };
   if (m.hide && !B.mech.seeHidden) return { i: 'unk', text: '', name: '意图不明' }; /* 便衣、伪装：看不出要干什么（沈知秋看得穿） */
+  if (m.echo) { const n = enemyDmg(B, e, B.lastHit || 6); return { i: 'atk', text: `${n}`, name: m.t, dmg: n }; }
   if (m.i === 'atk') { const n = enemyDmg(B, e, m.d); return { i: 'atk', text: m.x ? `${n}×${m.x}` : `${n}`, name: m.t, dmg: n * (m.x || 1) }; }
   if (m.i === 'charge') return { i: 'charge', text: `下回合 ${m.next}`, name: m.t };
   return { i: m.i, text: '', name: m.t };
@@ -218,7 +243,7 @@ function hitPlayer(B, amt, src) {
 /* 一个敌人行动（界面逐个调用，中间可以加动画） */
 export function enemyAct(B, e) {
   if (e.dead || B.over) return;
-  e.block = 0; delete e.st.counter;
+  e.block = 0; delete e.st.counter; e.dodged = 0;
   /* 流血先结算 */
   if (e.st.bleed) { const n = e.st.bleed; e.hp -= n; fx(B, e.id, '-' + n, 'dmg'); if (B.mech.onBleed) B.mech.onBleed(B, e, n);
     if (e.hp <= 0) { kill(B, e); return; } e.st.bleed = Math.max(0, n - (B.p.pw.bleedSlow ? 1 : 2)); if (!e.st.bleed) delete e.st.bleed; }
@@ -227,8 +252,15 @@ export function enemyAct(B, e) {
   const m = e.d.moves[e.move];
   if (m.i === 'reload') { e.ammo = e.d.ammo; fx(B, e.id, '装弹', 'st'); }
   if (m.shot && e.ammo != null) e.ammo = Math.max(0, e.ammo - 1);
-  if (m.i === 'flee') { e.dead = 1; e.fled = 1; e.deadAt = Date.now(); fx(B, e.id, e.d.intel ? '带着档案箱撤走了' : '溃逃了', 'st'); if (e.d.intel) B.intelLost = 1; morale(B); return; }
+  if (m.i === 'flee') { e.dead = 1; e.fled = 1; e.deadAt = Date.now(); fx(B, e.id, e.d.fleeTx || (e.d.intel ? '带着档案箱撤走了' : '溃逃了'), 'st'); if (e.d.intel) B.intelLost = 1; morale(B); return; }
   if (m.d) { for (let k = 0; k < (m.x || 1) && !B.over && !e.dead; k++) hitPlayer(B, enemyDmg(B, e, m.d), e); if (e.st.para) addSt(e, 'para', -1); }
+  if (m.echo && !B.over) hitPlayer(B, enemyDmg(B, e, B.lastHit || 6), e); /* 回声：学你上一下打出的伤害 */
+  if (m.allHurt) alive(B).forEach(x => { if (x !== e) { fx(B, x.id, '被炸到', 'st'); hitEnemy(B, x, m.allHurt, 1); } }); /* 爆破工兵：连同伙一起炸 */
+  if (m.san && B.R.san != null) { B.R.san = Math.max(0, B.R.san - m.san); fx(B, 'hero', `理智-${m.san}`, 'st'); }
+  if (m.steal) { /* 面具：把你下回合本来要摸到的一张牌拿走，两回合后才还 */
+    const pile = B.draw.length ? B.draw : B.disc; if (pile.length) { const c = pile.splice(pile.length - 1, 1)[0]; (B.taken = B.taken || []).push({ c, t: 2 }); fx(B, 'hero', `「${CARDS[c.id].name}」被拿走了`, 'st'); } }
+  if (m.curse) { for (let k = 0; k < (m.cn || 1); k++) B.draw.splice(Math.floor(B.rng() * (B.draw.length + 1)), 0, { id: m.curse, up: 0, uid: 80000 + B.eid * 10 + k + B.turn * 100 }); fx(B, 'hero', `${CARDS[m.curse].name}混进了牌堆`, 'st'); }
+  if (m.fn) m.fn(e, B, B.G);
   if (m.blk) { e.block += m.blk; fx(B, e.id, '+' + m.blk, 'blk'); }
   if (m.allBlk) alive(B).forEach(x => { if (x !== e) { x.block += m.allBlk; fx(B, x.id, '+' + m.allBlk, 'blk'); } });
   if (m.str) { addSt(e, 'str', m.str); fx(B, e.id, `力量+${m.str}`, 'st'); }

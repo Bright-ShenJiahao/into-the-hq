@@ -3,6 +3,7 @@ import { CARDS, ENEMIES, CHARS, CHAPTERS, RELICS, ITEMS, ITEM_SLOTS, FRAMES, BLO
 import * as E from './engine.js';
 import { createAudio } from './audio.js';
 import { MENTOR, TUT, HIST, TERMS, MARTYRS, PEOPLE, ARCHIVE } from './content/codex.js';
+import { ITC } from './content/ch3.js';
 const audio = createAudio();
 let SET = { shake: 1, tut: 1 }; try { Object.assign(SET, JSON.parse(localStorage.getItem('ithq_set') || '{}')); } catch (e) {}
 const saveSet = () => { try { localStorage.setItem('ithq_set', JSON.stringify(SET)); } catch (e) {} };
@@ -61,6 +62,13 @@ const has = id => !!(R && R.relics && R.relics.includes(id));
 const SUS = () => CH().res === 'sus';
 const SUS_MAX = 10;
 const addSus = n => { R.sus = Math.max(0, Math.min(SUS_MAX, (R.sus || 0) + n)); };
+/* 第三章用「理智」代替：0—10 */
+const SAN = () => CH().res === 'san';
+const addSan = n => { R.san = Math.max(0, Math.min(10, (R.san == null ? 10 : R.san) + n)); };
+const segOf = r => (CH().seg ? CH().seg(r) : 0);
+const hasFlag = k => (R.flags || []).includes(k);
+/* 「他们」：这一局帮过你的人和他们后来怎么样了（结算页显示） */
+const they = (name, fate, final) => { R.they = R.they || {}; const o = R.they[name] || {}; if (final || !o.fate) R.they[name] = { fate: final ? `${o.fate ? o.fate + '。' : ''}${fate}` : fate, final: !!final }; };
 const placeName = t => (CH().places && CH().places[t] && CH().places[t].name) || NODE[t][1];
 const placeText = (t, def) => (CH().places && CH().places[t] && CH().places[t].text) || def;
 const rflag = k => !!(R && R.relics && R.relics.some(id => RELICS[id] && RELICS[id][k]));
@@ -121,9 +129,10 @@ function available() {
 
 // ---------- 顶栏：生命、体温、口粮、层数、情报、背包、随身物品 ----------
 function topBar() {
+  view.classList.toggle('ch3', SAN()); /* 第三章：所有画面压暗 */
   const items = Array.from({ length: ITEM_SLOTS }, (_, i) => { const id = R.items[i]; return id ? `<b class="itm" data-item="${i}" title="${esc(ITEMS[id].name)}">${ITEMS[id].icon}</b>` : '<b class="itm empty"></b>'; }).join('');
   return `<div id="top"><span class="hp">❤ ${R.hp}/${R.maxHp}</span>
-   ${SUS() ? `<span class="tmp sus ${R.sus >= 5 ? 'warn' : ''}" data-tip="可疑度（0—10）：城里打仗、开枪会让它上升，安全屋清零。到 5（警觉）：战斗里多一个伪满巡警。满 10（暴露）：下一格变成宪兵搜捕。">🕵 ${R.sus || 0}/10</span>` : ''}<span class="tmp ${R.temp < 3 ? 'warn' : ''}" ${SUS() ? 'hidden ' : ''}data-tip=""体温：每走一格 -1，到密营回满。低于 3 时，战斗第一回合少抽 1 张（不掉血）。">🌡 ${R.temp}/${TEMP_MAX}</span>
+   ${SUS() ? `<span class="tmp sus ${R.sus >= 5 ? 'warn' : ''}" data-tip="可疑度（0—10）：城里打仗、开枪会让它上升，安全屋清零。到 5（警觉）：战斗里多一个伪满巡警。满 10（暴露）：下一格变成宪兵搜捕。">🕵 ${R.sus || 0}/10</span>` : ''}${SAN() ? `<span class="tmp sus ${R.san <= 3 ? 'warn' : ''}" data-tip="理智（0—10）：走进古墓每格 -1，有的敌人和事件也会让它下降。到 6 以下地图开始变黑；到 3 以下，眼前的东西不一定可信；到 0，下一场战斗多一个影子。火堆 +3。">🕯 理智 ${R.san}/10</span>` : ''}<span class="tmp ${R.temp < 3 ? 'warn' : ''}" ${SUS() || SAN() ? 'hidden ' : ''}data-tip="体温：每走一格 -1，到密营回满。低于 3 时，战斗第一回合少抽 1 张（不掉血）。">🌡 ${R.temp}/${TEMP_MAX}</span>
    <span class="food ${R.food <= 0 ? 'warn' : ''}" data-tip="口粮：每走 2 格吃 1 口（${(R.steps || 0) % 2 ? '下一格要吃' : '下一格不吃'}）。打赢战斗能缴获，也能拿去跟老乡换东西。断粮时，该吃的那一格改为失去 3 生命（最少留 1 点）。">🍞 ${R.food}${(R.steps || 0) % 2 ? '<small class="nxt">-1</small>' : ''}</span>
    <span class="fl">第 ${Math.max(1, R.floor)} 层</span>
    <span class="intel" data-tip="情报：地图上带「📜」的加强精英身边有押运档案箱的敌人，3 回合内打倒它就得到情报。集齐三份情报，才能走到真结局。">📜 ${R.intel || 0}/3</span>
@@ -152,7 +161,7 @@ function itemPop(i) {
   if (can) o.querySelector('#it_use').onclick = () => {
     o.remove(); R.items.splice(i, 1);
     if (inBattle) { E.useItem(B, it); audio.card(); render(); flushMsgs(); checkEnd(); }
-    else { it.map(R, { heal: n => { R.hp = Math.min(R.maxHp, R.hp + n); }, food: n => { R.food += n; }, temp: n => { R.temp = Math.max(0, Math.min(TEMP_MAX, R.temp + n)); } }); tip('用掉了' + it.name); refreshScreen(); }
+    else { it.map(R, { heal: n => { R.hp = Math.min(R.maxHp, R.hp + n); }, food: n => { R.food += n; }, temp: n => { R.temp = Math.max(0, Math.min(TEMP_MAX, R.temp + n)); }, sus: n => addSus(n), san: n => addSan(n) }); tip('用掉了' + it.name); refreshScreen(); }
     save();
   };
 }
@@ -276,6 +285,10 @@ const ICON_NAME = { pistol: '手枪', rifle: '步枪', apround: '穿甲弹', hel
 const ICONS_READY = new Set(Object.keys(ICON_NAME).filter(k => !['grenade', 'letter'].includes(k))); /* 新角色用的「炸药」「情报」图标还没出图，先显示文字 */
 function cardHTML(c, extra = '', attrs = '') {
   see('c:' + c.id); /* 见过的牌在图鉴里解锁 */
+  if (extra.includes('inhand') && B && SAN() && R.san <= 3 && hsh(c.uid, B.turn) % 7 === 0) return cardHTML0(c, extra, attrs).replace(/(<div class="cname[^>]*>)[^<]*/, `$1${GLITCH[hsh(c.uid) % GLITCH.length]}`);
+  return cardHTML0(c, extra, attrs);
+}
+function cardHTML0(c, extra = '', attrs = '') {
   const live0 = B && !B.over && extra.includes('inhand'), d = CARDS[c.id], cost = live0 ? E.cardCost(B, c) : d.cost[c.up ? 1 : 0], ic = d.icon || 'round';
   let badge = '', cls = '';
   if (B && !B.over && extra.includes('inhand')) {
@@ -358,7 +371,7 @@ const INTRO = [
 /* 各章结尾的插画（第一章：沿着铁路向新京去） */
 const OUTRO = { 1: 'assets/story/s4_south.jpg' };
 /* 战役总图：开局和每章结束时显示。地名用代码叠在图上（不让 AI 画字） */
-const CAMP = [{ n: '第一章 · 林海雪原', t: '1944 年冬', x: 69.4, y: 39.1 }, { n: '第二章 · 新京', t: '1945 年春', x: 39.7, y: 70.7 }, { n: '第三章 · ？？？', t: '1945 年夏', x: 32.7, y: 71 }];
+const CAMP = [{ n: '第一章 · 林海雪原', t: '1944 年冬', x: 69.4, y: 39.1 }, { n: '第二章 · 新京', t: '1945 年春', x: 39.7, y: 70.7 }, { n: '第三章 · 地下', t: '1945 年 8 月', x: 32.7, y: 71 }];
 function campaign(ch, done, note) {
   $('#dbg')?.remove();
   const lab = (t, x, y, cls = '') => `<b class="clab ${cls}" style="left:${x}%;top:${y}%">${t}</b>`;
@@ -377,6 +390,7 @@ function story(lines, done) {
   show();
 }
 function resume() {
+  ITC.n = R.itN || 0;
   if (R.pending && (R.pending.t === 'fight' || R.pending.t === 'elite' || R.pending.t === 'boss')) return battle(R.pending.enc, R.pending.t, R.pending.strong);
   if (R.pending && R.pending.t === 'shop') return shopScreen();
   if (R.pending && R.pending.t === 'treasure') return treasureScreen();
@@ -390,6 +404,8 @@ function resume() {
 // ---------- 地图 ----------
 function mapScreen() {
   B = null; delete R.pending; save(); refreshScreen = mapScreen;
+  /* 第三章：理智 6 以下，只看得见往上两层（读了值班日志、跟了黄皮子就全看得见） */
+  const dark = SAN() && MAPD().dark && R.san <= 6 && !hasFlag('reveal');
   const av = available(), M = MAPD(), H = M.h, LC = '#6a4a2a', BOSS_X = Math.round(M.w * M.bossX), BOSS_Y = Math.round(M.h * M.bossY), ROWS = ROWSOF();
   let lines = '', nodes = '';
   /* 走过的路画成红色实线（抗联路线），没走的是灰色虚线 */
@@ -399,15 +415,16 @@ function mapScreen() {
   for (const nd of R.map[ROWS - 1]) if (nd) lines += ln(nodeX(nd), mapY(nd), BOSS_X, BOSS_Y, false);
   for (const row of R.map) for (const nd of row) if (nd) {
     const isAv = av.includes(nd), done = R.path.some(p => p.r === nd.r && p.c === nd.c), cur = R.pos && R.pos.r === nd.r && R.pos.c === nd.c, hide = rflag('hideMap') && !done;
+    if (dark && nd.r > (R.pos ? R.pos.r : -1) + 2) { nodes += `<div class="node dk" style="left:${nodeX(nd)}px;top:${mapY(nd)}px"></div>`; continue; }
     nodes += `<div class="node pic ${isAv ? 'av' : ''} ${done ? 'done' : ''} ${cur ? 'cur' : ''}" style="left:${nodeX(nd)}px;top:${mapY(nd)}px" data-r="${nd.r}" data-c="${nd.c}">${nodeIcon(hide ? 'event' : nd.type)}${nd.strong && !hide && !done ? '<i class="nintel" title="加强精英：有人押运档案箱，3 回合内打倒他才能拿到情报">📜</i>' : ''}${cur ? '<img class="curflag" src="assets/ui/node_cur.png" alt="">' : ''}</div>`;
   }
   nodes += `<div class="node boss ${NODE_ART ? 'pic' : ''} ${av[0] === 'boss' ? 'av' : ''}" style="left:${BOSS_X}px;top:${BOSS_Y}px">${NODE_ART ? nodeIcon('boss') : '讨伐队<br>据点'}</div><div class="maplab" style="left:${BOSS_X}px;top:${BOSS_Y - 82}px">${ENEMIES[bossKey()].name}</div>
    <div class="maplab start" style="left:${M.w / 2}px;top:${Math.round(M.h * .93)}px">${M.startLabel}</div>`;
-  view.innerHTML = `${topBar()}<div id="map"><div id="mapin" style="width:${M.w}px;height:${H}px;background-image:url(${M.img})"><svg width="${M.w}" height="${H}">${lines}</svg>${nodes}</div></div>
-   <div id="legend"><div class="lgt">图例</div>${Object.keys(NODE).map(k => `<div><b class="pic">${nodeIcon(k)}</b>${placeName(k)}</div>`).join('')}<div><b class="pic">${nodeIcon('boss')}</b>${CH().bossLabel || '讨伐队据点'}</div><div><b class="pic nint">📜</b>加强精英（情报）</div><div class="lg2"><i class="redl"></i>走过的路线<br>${SUS() ? '每两格口粮 -1；城里打仗会抬高可疑度' : '每走一格体温 -1，每两格口粮 -1'}</div></div>`;
+  view.innerHTML = `${topBar()}<div id="map" class="${SAN() ? 'under' : ''} ${dark ? 'dark' : ''}"><div id="mapin" style="width:${M.w}px;height:${H}px;background-image:url(${M.img})"><svg width="${M.w}" height="${H}">${lines}</svg>${nodes}</div></div>
+   <div id="legend"><div class="lgt">图例</div>${Object.keys(NODE).map(k => `<div><b class="pic">${nodeIcon(k)}</b>${placeName(k)}</div>`).join('')}<div><b class="pic">${nodeIcon('boss')}</b>${CH().bossLabel || '讨伐队据点'}</div><div><b class="pic nint">📜</b>加强精英（情报）</div><div class="lg2"><i class="redl"></i>走过的路线<br>${SAN() ? `每两格口粮 -1；进了古墓每格理智 -1<br>现在：${CH().segName[segOf(R.pos ? R.pos.r : 0)]}` : SUS() ? '每两格口粮 -1；城里打仗会抬高可疑度' : '每走一格体温 -1，每两格口粮 -1'}</div></div>`;
   bindTop();
   const m = $('#map'), y = R.pos ? mapY(R.map[R.pos.r][R.pos.c]) : H; m.scrollTop = Math.max(0, y - m.clientHeight + 200);
-  teach('map'); if (!rflag('hideMap') && R.map.flat().some(n => n && n.strong)) teach('intel'); if (R.temp < 3) teach('cold'); if (R.food <= 0) teach('hunger');
+  teach('map'); if (SAN() && dark) teach('dark'); if (!rflag('hideMap') && R.map.flat().some(n => n && n.strong)) teach('intel'); if (R.temp < 3) teach('cold'); if (R.food <= 0) teach('hunger');
   view.querySelectorAll('.node.av').forEach(el => el.onclick = () => {
     if (el.classList.contains('boss')) { if (!walk()) return; R.floor++; return enterNode('boss'); }
     const nd = R.map[+el.dataset.r][+el.dataset.c]; if (!walk()) return;
@@ -422,10 +439,12 @@ function walk() {
   if (R.steps % 2 === 0) { if (R.food > 0) R.food--; else { R.hp = Math.max(1, R.hp - 3); msg.push('没有口粮，饿着肚子赶路：生命 -3'); } }
   /* 体温每格 -1，只影响「冷开局」（战斗第一回合少抽 1 张），不掉血 */
   const loss = R.relics.some(id => RELICS[id].walkTemp) ? Math.min(...R.relics.filter(id => RELICS[id].walkTemp).map(id => RELICS[id].walkTemp(R))) : 1;
-  if (SUS()) R.temp = TEMP_MAX; else R.temp = Math.max(0, R.temp - loss);
+  if (SUS() || SAN()) R.temp = TEMP_MAX; else R.temp = Math.max(0, R.temp - loss);
+  /* 古墓里每走一格，理智 -1 */
+  if (SAN()) { const r = R.pos ? R.pos.r + 1 : 0; if (segOf(r) >= 2) { addSan(-1); msg.push('墓道里又冷又黑：理智 -1'); } }
   if (msg.length) say(msg.join('；'));
   if (R.hp > 0) teach('walk');
-  if (R.hp <= 0) { R.hp = 0; endScreen(false, SUS() ? '倒在了新京的街头' : '倒在了风雪里'); return false; }
+  if (R.hp <= 0) { R.hp = 0; endScreen(false, SAN() ? '倒在了地底下' : SUS() ? '倒在了新京的街头' : '倒在了风雪里'); return false; }
   return true;
 }
 /* 这一章的 Boss（开局随机定好，地图上能看到是谁） */
@@ -436,12 +455,16 @@ function enterNode(t, nd) {
   /* 暴露：不管这一格是什么，宪兵搜捕队先找上门；打完可疑度降到 5 */
   if (SUS() && (R.sus || 0) >= SUS_MAX && C.enc.hunt) { R.sus = 5; const enc = pickOne(C.enc.hunt); R.pending = { t: 'fight', enc, hunt: 1 }; save(); tip('暴露了！宪兵搜捕队找上门来'); return battle(enc, 'fight'); }
   if (t === 'fight' || t === 'elite') {
-    let enc = t === 'elite' ? pickOne(C.enc.elite) : pickOne(R.fights < C.easyFights ? C.enc.easy : C.enc.hard); if (t === 'fight') R.fights++;
+    const P = C.segEnc && nd ? C.segEnc[segOf(nd.r)] : C.enc; /* 第三章：按地图分段换敌人 */
+    let enc = t === 'elite' ? pickOne(P.elite) : pickOne(R.fights < C.easyFights ? P.easy : P.hard); if (t === 'fight') R.fights++;
+    if (SAN()) { enc = [...enc];
+      if (R.lure > 0 && enc.length < 4) { R.lure--; enc.push(segOf(nd ? nd.r : 0) >= 2 ? 'shadow' : 'inf'); } /* 点了灯，引来了东西 */
+      if (R.san <= 0 && enc.length < 4) { enc.push('shadow'); tip('理智到底了：黑暗里多了一个影子'); } }
     if (SUS() && (R.sus || 0) >= 5 && enc.length < (nd && nd.strong ? 3 : 4)) enc = [...enc, 'patrol']; /* 警觉：多一个巡警 */
     R.pending = { t, enc, strong: !!(nd && nd.strong) }; save(); return battle(enc, t, R.pending.strong);
   }
   if (t === 'rest') { R.pending = { t: 'rest' }; save(); return restScreen(); }
-  if (t === 'event') { save(); return eventScreen(); }
+  if (t === 'event') { save(); return eventScreen(C.fixedEv && nd && C.fixedEv[nd.r] && !(R.seenEv || []).includes(C.fixedEv[nd.r]) ? C.fixedEv[nd.r] : undefined); }
   if (t === 'shop') { R.pending = { t: 'shop' }; save(); return shopScreen(); }
   if (t === 'treasure') { R.pending = { t: 'treasure' }; save(); return treasureScreen(); }
 }
@@ -497,6 +520,7 @@ const LIHUI = { captain: 'assets/portraits/captain_lihui.png' };
 /* 第二章首领的开战对白（立绘还没画，先借头像） */
 Object.assign(BOSS_TALK, {
   kirino: [['boss', '（日语）新京有四十万人。每一个人，我都可以叫来问话。'], ['boss', '——你们，也不例外。'], ['hero', '那你问吧。'], ['hero', '我只会说一句：这是中国的地方。']],
+  priest: [['boss', '（日语）你们也听见了吧？地底下的声音。'], ['boss', '（日语）这片土地的龙脉，由我来钉死。帝国撤走了，钉子会留下来。'], ['hero', '你们撤的时候，连自己的伤兵都不要了。'], ['boss', '（日语）……所以他们的刀，才配做成钉子。'], ['hero', '……疯子。']],
   kuga: [['boss', '（日语）请坐。别紧张，我只是个做买卖的。'], ['boss', '（日语）……你们要的那份副本，我也想要。不如我们谈谈价钱？'], ['hero', '我们不谈价钱。'], ['hero', '我们是来拿回去的。']],
 });
 function bossTalk(key, done) {
@@ -519,7 +543,7 @@ function battle(enc, kind, strong) {
   enc.forEach(k => { const d = ENEMIES[k]; if (d.frames) preload('enemies/' + d.frames, EA); if (d.frames2) preload('enemies/' + d.frames2, EA); });
   B = E.startBattle(R, enc, kind, E.mulberry((Math.random() * 2 ** 31) | 0), { strong, escort: CH().escort }); B.sel = -1; B.busy = 0;
   const lead = enc.map(k => ENEMIES[k]).find(d => d.boss || d.elite);
-  see(...enc.map(k => 'e:' + k)); render(); teach('battle'); if (lead) banner((kind === 'boss' ? '' : strong ? '加强精英：' : '精英：') + lead.name);
+  see(...enc.map(k => 'e:' + k)); render(); teach('battle'); if (darkNow()) teach('ghostdark'); if (lead) banner((kind === 'boss' ? '' : strong ? '加强精英：' : '精英：') + lead.name);
   flushMsgs();
 }
 /* 侦明（沈知秋）：弹出牌堆顶几张，点选要弃掉的，确定 */
@@ -537,14 +561,25 @@ function scryUI() {
 function flushMsgs() { if (B && B.msgs.length) { say(B.msgs.join('\n'), 3600); B.msgs = []; } }
 const ICON = { atk: '⚔', def: '🛡', buff: '⬆', debuff: '⬇', charge: '⏳', flee: '🏃', reload: '🔄', unk: '？', dazed: '💫' };
 
+/* 第三章：黑暗（第一回合只看得见轮廓，点了灯或用马灯就看清）；理智 3 以下，有的意图是假的、有的牌名不对。不告诉你哪条是假的 */
+const darkNow = () => SAN() && CH().under && B && B.turn === 1 && !B.lit && !hasFlag('lamp');
+const hsh = (...a) => { let h = 7; for (const x of String(a.join('|'))) h = (h * 31 + x.charCodeAt(0)) >>> 0; return h; };
+function lieIntent(e, it) {
+  if (!it || !SAN() || R.san > 3) return it; const k = hsh(e.id, B.turn, R.floor) % 6;
+  if (k === 0) return { i: 'unk', text: '', name: '……' };
+  if (k === 1 && it.i === 'atk') { const n = parseInt(it.text) || 0; return { ...it, text: String(Math.max(1, Math.round(n * (hsh(e.id, B.turn) % 2 ? 1.6 : .4)))) }; }
+  return it;
+}
+const GLITCH = ['它在看', '□□□', '别回头', '少一个', '你是谁'];
 function enemyHTML(e) {
-  const d = e.d, [w, h] = BLOCK_SIZE[e.key] || [100, 160], it = e.dead ? null : E.intentOf(B, e);
+  const d = e.d, [w, h] = BLOCK_SIZE[e.key] || [100, 160], dk = darkNow() && !e.dead;
+  const it = e.dead ? null : dk ? { i: 'unk', text: '', name: '黑暗里有东西' } : lieIntent(e, E.intentOf(B, e));
   const tg = B.sel >= 0 && B.hand[B.sel] && E.needTarget(B.hand[B.sel]) && !e.dead;
   const label = e.key === 'captain' ? (e.phase === 2 ? '村濑' : '装甲车') : d.name;
-  return `<div class="unit enemy ${tg ? 'tg' : ''} ${e.dead ? 'dead' : ''} ${d.frames ? '' : 'noanim'}" data-eid="${e.id}">
+  return `<div class="unit enemy ${tg ? 'tg' : ''} ${e.dead ? 'dead' : ''} ${d.frames ? '' : 'noanim'} ${d.ghost ? 'ghost' : ''} ${dk ? 'dk' : ''}" data-eid="${e.id}">
     <div class="intent">${it ? `<i class="ii ii-${it.i}">${ICON[it.i]}</i>${it.text}<small>${it.name}</small>` : ''}</div>
-    ${d.frames ? frameBox(efr(e)[0], efr(e)[1], enemySrc(e), '', d.name) : `<div class="sprw">${d.art ? `<img class="spr art still" src="${enemySrc(e)}" style="height:${d.artH}px" alt="${d.name}" draggable="false">` : `<div class="spr blk ${d.boss ? 'bossb' : ''}" style="width:${w}px;height:${h}px;background:${d.col}">${label}</div>`}<i class="shd"></i></div>`}
-    <div class="uinfo">${barHTML(e.hp, e.max, e.block)}${e.ammo != null && !e.dead && (d.elite || d.boss || d.showAmmo) ? `<div class="eammo ${e.ammo ? '' : 'zero'}" data-k="敌人弹仓">${Array.from({ length: e.d.ammo }, (_, k) => `<i class="${k < e.ammo ? 'f' : ''}"></i>`).join('')}${e.ammo ? '' : '<b>空</b>'}</div>` : ''}<div class="badges">${e.armor ? `<b class="arm" data-k="装甲">🛡 装甲 ${e.armor}</b>` : ''}${d.intel && !e.dead ? '<b class="arm intelc" data-k="档案箱">📜 档案箱</b>' : ''}${B.mech.enemyChips ? B.mech.enemyChips(e) : ''}${stsHTML(e.st)}</div></div></div>`;
+    ${d.frames ? frameBox(efr(e)[0], efr(e)[1], enemySrc(e), '', d.name) : `<div class="sprw">${d.art ? `<img class="spr art still" src="${enemySrc(e)}" style="height:${d.artH}px" alt="${d.name}" draggable="false">` : `<div class="spr blk ${d.boss ? 'bossb' : ''}" style="width:${w}px;height:${h}px;background:${d.col}">${dk ? '' : label}</div>`}<i class="shd"></i></div>`}
+    <div class="uinfo">${dk ? `<div class="dkname">？？？</div>` : d.nohp ? `<div class="nohp">${e.block ? `<b class="blkv">${e.block}</b>` : ''}打不动 · 只能用仪式封回去</div>` : barHTML(e.hp, e.max, e.block)}${e.ammo != null && !e.dead && (d.elite || d.boss || d.showAmmo) ? `<div class="eammo ${e.ammo ? '' : 'zero'}" data-k="敌人弹仓">${Array.from({ length: e.d.ammo }, (_, k) => `<i class="${k < e.ammo ? 'f' : ''}"></i>`).join('')}${e.ammo ? '' : '<b>空</b>'}</div>` : ''}<div class="badges">${e.armor ? `<b class="arm" data-k="装甲">🛡 装甲 ${e.armor}</b>` : ''}${d.intel && !e.dead ? '<b class="arm intelc" data-k="档案箱">📜 档案箱</b>' : ''}${B.mech.enemyChips ? B.mech.enemyChips(e) : ''}${stsHTML(e.st)}</div></div></div>`;
 }
 /* 血条：格挡是左边的蓝色圆圈（同旧游戏） */
 function barHTML(hp, max, blk) {
@@ -574,7 +609,7 @@ function render() {
     return cardHTML(c, `inhand ${sel ? 'sel' : ''} ${off ? 'off' : ''}`, `data-i="${i}" style="left:${x0 + i * gap}px;transform:translateY(${sel ? -100 : dy}px) rotate(${sel ? 0 : rot}deg);z-index:${sel ? 60 : i + 1}"`);
   }).join('');
   const inc = E.incoming(B);
-  view.innerHTML = `<div class="bg battle" style="background-image:${battleBgCss()}"></div>${topBar()}
+  view.innerHTML = `<div class="bg battle ${SAN() && CH().under ? 'under' : ''}" style="background-image:${battleBgCss()}"></div>${topBar()}
    <div id="hero" class="unit" data-eid="hero"><div class="intent"></div>${heroBox()}
     <div class="uinfo">${barHTML(R.hp, R.maxHp, B.p.block)}${heroInfoHTML()}${inc ? `<div class="inc ${inc > B.p.block ? 'low' : 'ok'}">受到 ${Math.max(0, inc - B.p.block)}</div>` : ''}</div></div>
    <div id="enemies">${B.en.filter(e => !(e.dead && Date.now() - e.deadAt > 1400)).map(enemyHTML).join('')}</div>
@@ -586,6 +621,7 @@ function render() {
   $('#endturn').onclick = endTurn; view.querySelectorAll('[data-act]').forEach(el => el.onclick = () => doAct(el.dataset.act));
   refreshScreen = render;
   if (B.scryQ && B.scryQ.length && !view.querySelector('.scryov')) scryUI();
+  if (B.ritual && !B.over) teach('ritual');
   $('#drawp').onclick = () => showPile('抽牌堆（顺序已打乱）', [...B.draw].sort((a, b) => a.id < b.id ? -1 : 1));
   $('#discp').onclick = () => showPile('弃牌堆', B.disc);
   $('#exhp').onclick = () => showPile('消耗', B.exh);
@@ -680,6 +716,7 @@ async function checkEnd() {
   const kind = B.kind, en = B.en, strong = B.strong, gotIntel = !!(B.strong && B.intelGot); B.over = 'win'; audio.win(); E.endBattle(B, true);
   /* 击杀数在引擎 kill() 里已经计过，这里不再重复加 */ if (kind === 'elite') R.elites = (R.elites || 0) + 1; if (kind === 'boss') R.bosses = (R.bosses || 0) + 1;
   R.relics.forEach(id => { const r = RELICS[id]; if (r.fightWon) r.fightWon(R); });
+  if (R.deck.some(c => c.id === 'it_curse')) { R.itN = (R.itN || 0) + 1; ITC.n = R.itN; } /* 「它」那张牌的说明又长了一行 */
   if (gotIntel) { R.intel = (R.intel || 0) + 1; }
   /* 城里打仗：打赢 +1（精英 +2），另外每开 6 枪再 +1 */
   const shots = B.noise || 0, susUp = SUS() && kind !== 'boss' ? (kind === 'elite' ? 2 : 1) + Math.floor(shots / 6) : 0; if (susUp) addSus(susUp); winRewards.sus = susUp ? [susUp, shots] : null;
@@ -791,7 +828,7 @@ function rollRelic(w = { c: 50, u: 33, r: 17 }) {
   const any = ['c', 'u', 'r'].flatMap(relicPool); return any.length ? pickOne(any).id : null;
 }
 const rollBossRelics = () => { const p = relicPool('boss'); const out = []; while (out.length < 3 && p.length) out.push(p.splice(Math.floor(Math.random() * p.length), 1)[0].id); return out; };
-const rollItem = () => pickOne(Object.keys(ITEMS));
+const rollItem = () => pickOne(Object.keys(ITEMS).filter(id => !ITEMS[id].act || ITEMS[id].act === R.act)); /* 本章专用的（假国民手帐、马灯）只在那一章出 */
 function winRewards(kind, en, strong, gotIntel) {
   const food = kind === 'elite' ? 2 : 1; R.food += food;
   const list = [];
@@ -830,7 +867,7 @@ function offerLoot(id, done) {
 // ---------- 密营 ----------
 function restScreen() {
   teach('rest');
-  R.temp = TEMP_MAX; if (SUS()) R.sus = 0; save(); const heal = Math.floor(R.maxHp * .3) + rsum('restHeal'); refreshScreen = restScreen;
+  R.temp = TEMP_MAX; if (SUS()) R.sus = 0; if (SAN() && !R.pending.sanDone) { addSan(3); R.pending.sanDone = 1; } save(); const heal = Math.floor(R.maxHp * .3) + rsum('restHeal'); refreshScreen = restScreen;
   view.innerHTML = `<div class="bg rest"></div>${topBar()}<div class="panel"><h2>${placeName('rest')}</h2><p>${placeText('rest', '林子深处的地窨子，灶里的火压得很低。体温回满了。')}</p>
     <div class="col"><button class="btn" id="r_heal">休息：回复 ${heal} 生命</button><button class="btn" id="r_up">擦枪：升级 1 张牌</button></div></div>`;
   bindTop();
@@ -849,14 +886,21 @@ const AWE_UP = ['山里的规矩，守着不吃亏。', '老辈人信这个。�
 const AWE_DN = ['冲撞了。往后走道儿，留点神。', '咱不信这个，可山里人信。往后碰上他们，话得想好了说。'];
 function eventScreen(force) {
   teach('event');
-  const pool = CH().events.filter(e => !(R.seenEv || []).includes(e.id) && (!e.when || e.when(R))), ev = (force && CH().events.find(e => e.id === force)) || pickOne(pool.length ? pool : CH().events);
+  const pool = CH().events.filter(e => !(R.seenEv || []).includes(e.id) && (!e.when || e.when(R)));
+  let ev = (force && CH().events.find(e => e.id === force)) || pickOne(pool.length ? pool : CH().events);
+  /* 回声：理智 3 以下，有时候碰上的是以前经历过的事，换了个样子又来一遍 */
+  const old = CHAPTERS.slice(0, 2).flatMap(c => c.events).filter(e => (R.seenEv || []).includes(e.id) && !e.when);
+  if (!force && SAN() && R.san <= 3 && old.length && Math.random() < .4) { const o = pickOne(old); ev = { ...o, id: 'echo_' + o.id, title: o.title + '？', text: `${o.text}<br><i class="echo">……这件事，好像已经发生过一次了。那时候，旁边的人是这几个吗？</i>` }; teach('echo'); }
   R.seenEv = [...(R.seenEv || []), ev.id]; save(); refreshScreen = () => {};
-  let fightEnc = null, aweN = 0, aweLine = '', susN = 0; const waits = [];
+  let fightEnc = null, aweN = 0, aweLine = '', susN = 0, sanN = 0; const waits = [];
   const G = { rng: Math.random, foodN: () => R.food, food: n => { R.food = Math.max(0, R.food + n); }, temp: n => { R.temp = Math.max(0, Math.min(TEMP_MAX, R.temp + n)); },
     hp: n => { R.hp = Math.min(R.maxHp, R.hp + n); }, heal: n => { R.hp = Math.min(R.maxHp, R.hp + n); }, maxHp: n => { R.maxHp += n; R.hp += n; },
     upgrade: () => waits.push('up'), removeCard: () => waits.push('rm'), addCard: id => R.deck.push(mk(id)), fight: enc => { fightEnc = enc; },
     relic: id => gainRelic(id || rollRelic()), item: id => gainItem(id || rollItem()), hasRelic: id => has(id), awe: (n, line) => { R.awe = (R.awe || 0) + n; aweN += n; if (line) aweLine = line; }, lang: k => (CHR().lang || {})[k] || 0, char: R.char, sus: n => { addSus(n); susN += n; },
-    flag: k => { R.flags = [...new Set([...(R.flags || []), k])]; }, hasFlag: k => (R.flags || []).includes(k), hasItem: () => R.items.length > 0, loseItem: () => R.items.splice(Math.floor(Math.random() * R.items.length), 1) };
+    flag: k => { R.flags = [...new Set([...(R.flags || []), k])]; }, hasFlag: k => (R.flags || []).includes(k), hasItem: () => R.items.length > 0, loseItem: () => R.items.splice(Math.floor(Math.random() * R.items.length), 1),
+    hasItemId: id => R.items.includes(id), useItemId: id => { const i = R.items.indexOf(id); if (i >= 0) R.items.splice(i, 1); },
+    san: n => { addSan(n); sanN += n; }, curse: () => { R.deck.push(mk('it_curse')); see('c:it_curse'); }, lure: n => { R.lure = (R.lure || 0) + n; },
+    they: (n, f, fin) => they(n, f, fin), aweN: () => R.awe || 0, say: () => {} };
   const draw = () => {
     view.innerHTML = `<div class="bg ev"></div>${topBar()}<div class="panel evp"><h2>${ev.title}</h2><p>${ev.text}</p><div class="col">${ev.opts.map((o, i) => { const ok = !o.need || o.need(G); return `<button class="btn opt" data-o="${i}" ${ok ? '' : 'disabled'}>${o.t}${String(o.f).includes('awe(') ? '<small class="awetag">⛩ 敬畏</small>' : ''}${ok ? '' : '（条件不够）'}</button>`; }).join('')}</div></div>`;
     bindTop();
@@ -865,7 +909,7 @@ function eventScreen(force) {
       const after = () => { if (R.hp <= 0) { R.hp = 0; return endScreen(false, `倒在了${CH().name}里`); } if (fightEnc) { R.pending = { t: 'fight', enc: fightEnc }; save(); return battle(fightEnc, 'fight'); } mapScreen(); };
       const cont = () => { const w = waits.shift(); if (w === 'up') return upgradePick(() => cont()); if (w === 'rm') return removePick(() => cont()); after(); };
       const aweP = aweN ? `<p class="awe">⛩ 敬畏 ${aweN > 0 ? '+' : ''}${aweN}（现在 ${R.awe}）<br><b>${MENTOR.name}</b>：「${aweLine || (aweN > 0 ? AWE_UP : AWE_DN)[Math.floor(Math.random() * 2)]}」</p>` : '';
-      const susP = susN ? `<p class="awe">🕵 可疑度 ${susN > 0 ? '+' : ''}${susN}（现在 ${R.sus}/10）</p>` : '';
+      const susP = (susN ? `<p class="awe">🕵 可疑度 ${susN > 0 ? '+' : ''}${susN}（现在 ${R.sus}/10）</p>` : '') + (sanN ? `<p class="awe">🕯 理智 ${sanN > 0 ? '+' : ''}${sanN}（现在 ${R.san}/10）</p>` : '');
       if (msg) { view.querySelector('.evp').innerHTML = `<h2>${ev.title}</h2><p>${msg}</p>${aweP}${susP}<button class="btn" id="ev_ok">继续</button>`; bindTop(); $('#ev_ok').onclick = cont; } else cont();
     });
   };
@@ -873,7 +917,7 @@ function eventScreen(force) {
 }
 function removePick(done) {
   if (R.deck.length <= 5) { tip('牌组太少了'); return done(false); }
-  showPile('选一张牌去掉', R.deck, c => { R.deck.splice(R.deck.indexOf(c), 1); tip('去掉了 ' + CARDS[c.id].name); save(); done(true); });
+  showPile('选一张牌去掉', R.deck.filter(c => !CARDS[c.id].noRemove), c => { R.deck.splice(R.deck.indexOf(c), 1); tip('去掉了 ' + CARDS[c.id].name); save(); done(true); });
 }
 
 // ---------- 老乡（代替商店）：用口粮换东西 ----------
@@ -933,10 +977,10 @@ function actEnd() {
 }
 function startAct(n) {
   const heal = Math.floor(R.maxHp * .5);
-  R.act = n; R.hp = Math.min(R.maxHp, R.hp + heal); R.temp = TEMP_MAX; R.food += 3; R.sus = 0;
+  R.act = n; R.hp = Math.min(R.maxHp, R.hp + heal); R.temp = TEMP_MAX; R.food += 3; R.sus = 0; R.san = 10; R.lure = 0;
   R.floor0 = (R.floor0 || 0) + R.floor; R.floor = 0; R.fights = 0; R.pos = null; R.path = []; R.boss = null; delete R.pending;
   R.map = genMap(); save();
-  const go = () => { tip(`进入${CH().name}：生命回复 ${heal}，口粮 +3${SUS() ? '。城里不比山里：注意「可疑度」' : '，体温回满'}`); mapScreen(); if (SUS()) teach('sus'); };
+  const go = () => { tip(`进入${CH().name}：生命回复 ${heal}，口粮 +3${SAN() ? '。地底下，注意「理智」' : SUS() ? '。城里不比山里：注意「可疑度」' : '，体温回满'}`); mapScreen(); if (SUS()) teach('sus'); if (SAN()) teach('san'); };
   CH().intro ? story(CH().intro, go) : go();
 }
 
@@ -946,12 +990,13 @@ function endScreen(win, how = '') {
   const rare = R.deck.filter(c => CARDS[c.id] && (CARDS[c.id].rar === 'r' || CARDS[c.id].rar === 'loot'));
   view.innerHTML = `<div class="tbg ${win ? 'endwin' : 'endlose'}"></div><div class="endw2">
    <div class="ribbon ${win ? 'win' : ''}">${win ? `第${'一二三'[C.id - 1] || C.id}章 完` : '阵 亡'}</div>
-   <p class="endsub">${win ? '小分队穿过林海雪原，向新京进发。<br><b>第二章「新京」正在制作中，敬请期待。</b>' : `${CHR().name}${how}${R.killer ? `，被<b>${R.killer}</b>击倒` : ''}。`}</p>
+   <p class="endsub">${win ? (C.id >= 3 ? `天亮了。你们带着 ${R.intel || 0} 份证据爬出了地底。<br><b>真结局「长夜将尽」正在制作中${(R.intel || 0) >= 3 ? '：三份证据都在你手里。' : '：集齐三份证据才能看到。'}</b>` : `第${'一二三'[C.id - 1]}章完。`) : `${CHR().name}${how}${R.killer ? `，被<b>${R.killer}</b>击倒` : ''}。`}</p>
    <div class="endgrid">
     <table class="score"><tr><td>走过的层数</td><td>${floor}</td></tr><tr><td>击倒敌人</td><td>${R.kills || 0}</td></tr><tr><td>打退精英</td><td>${R.elites || 0}</td></tr><tr><td>击溃首领</td><td>${R.bosses || 0}</td></tr><tr><td>情报</td><td>${R.intel || 0} / 3</td></tr><tr><td>剩余生命</td><td>${Math.max(0, R.hp)} / ${R.maxHp}</td></tr></table>
     <div class="endbag"><h4>随身物品 ${R.relics.length}</h4><div class="erel">${R.relics.map(id => `<b title="${esc(RELICS[id].name)}">${RELICS[id].icon}</b>`).join('')}</div>
      <h4>牌组 ${R.deck.length} 张</h4><p class="edeck">${rare.length ? '稀有：' + rare.map(c => CARDS[c.id].name + (c.up ? '+' : '')).join('、') : '没有稀有牌'}</p></div>
    </div>
+   ${R.they && Object.keys(R.they).length ? `<div class="theyw"><h4>他们</h4>${Object.entries(R.they).map(([n, o]) => `<p><b>${n}</b>　${o.fate}</p>`).join('')}</div>` : ''}
    ${win ? '<p class="endsub small">谢谢试玩！</p>' : ''}<button class="btn big" id="e_t">回到标题</button></div>`;
   $('#e_t').onclick = () => { R = null; title(); };
 }
@@ -972,8 +1017,8 @@ addEventListener('keydown', e => {
 function dbgPanel() {
   if (!DEBUG) return; $('#dbg')?.remove(); const d = document.createElement('div'); d.id = 'dbg';
   const btns = B && !B.over ? [['胜利', () => { E.alive(B).forEach(e => { e.hp = 0; e.dead = 1; e.deadAt = Date.now(); }); render(); checkEnd(); }], ...(B.mech.dbg || []).map(([t, f]) => [t, () => { f(B); render(); }]),
-    ['+能量', () => { B.p.energy += 3; render(); }], ['抽牌', () => { E.drawCards(B, 3); render(); }], ['给牌', () => showPile('给一张牌（加入手牌）', Object.keys(CARDS).map(id => ({ id, up: 0, uid: uidN++ })), c => { B.hand.push(c); render(); })], ['满血', () => { R.hp = R.maxHp; render(); }]]
-    : R ? [['去Boss', () => { R.pos = { r: ROWSOF() - 1, c: R.map[ROWSOF() - 1].findIndex(Boolean) }; mapScreen(); }], ['满血', () => { R.hp = R.maxHp; mapScreen(); }], ['口粮+5', () => { R.food += 5; mapScreen(); }], ['体温0', () => { R.temp = 0; mapScreen(); }], ['精英战', () => { const enc = pickOne(CH().enc.elite); R.pending = { t: 'elite', enc }; battle(enc, 'elite'); }], ['加强精英', () => { const enc = pickOne(CH().enc.elite); R.pending = { t: 'elite', enc, strong: true }; battle(enc, 'elite', true); }], ['犬机狙', () => battle(['dog', 'mg', 'sniper'], 'fight')], ['重机枪', () => battle(['inf', 'hmg'], 'elite')], ['警察队长', () => battle(['puppet', 'pcap', 'puppet'], 'elite')], ['柏木', () => battle(['dog', 'kcap', 'dog'], 'boss')], ['Boss战', () => { bossKey(); R.pending = { t: 'boss', enc: R.bossEnc }; battle(R.bossEnc, 'boss'); }], ['换Boss', () => { R.boss = null; bossKey(); mapScreen(); }], ['第二章', () => { if (R.act < 2) startAct(2); }], ['可疑度+3', () => { addSus(3); mapScreen(); }], ['章节结尾', () => { R.pending = { t: 'actend' }; actEnd(); }], ['阵亡', () => { R.killer = '讨伐队长 · 村濑'; endScreen(false, `倒在了${CH().name}第 ${Math.max(1, R.floor)} 层`); }], ['老乡', () => enterNode('shop')], ['埋藏点', () => enterNode('treasure')], ['事件', () => enterNode('event')], ['逃兵', () => eventScreen('deserter')], ['黄皮子', () => eventScreen('weasel')], ['保家仙', () => eventScreen('baojiaxian')], ['给物品', () => { R.relics.push(...Object.keys(RELICS).filter(id => !has(id) && RELICS[id].rar !== 'boss' && (!RELICS[id].ch || RELICS[id].ch === R.char)).slice(0, 4)); mapScreen(); }], ['给背包', () => { R.items = Object.keys(ITEMS).slice(0, ITEM_SLOTS); mapScreen(); }]] : [];
+    ['+能量', () => { B.p.energy += 3; render(); }], ['抽牌', () => { E.drawCards(B, 3); render(); }], ['给牌', () => showPile('给一张牌（加入手牌）', Object.keys(CARDS).map(id => ({ id, up: 0, uid: uidN++ })), c => { B.hand.push(c); render(); })], ['满血', () => { R.hp = R.maxHp; render(); }], ...(SAN() ? [['神官1血', () => { const p = B.en.find(e => e.key === 'priest' && !e.dead); if (p) { p.hp = 1; p.block = 0; } render(); }], ['理智0', () => { R.san = 0; render(); }], ['点灯', () => { B.lit = 1; render(); }]] : [])]
+    : R ? [['去Boss', () => { R.pos = { r: ROWSOF() - 1, c: R.map[ROWSOF() - 1].findIndex(Boolean) }; mapScreen(); }], ['满血', () => { R.hp = R.maxHp; mapScreen(); }], ['口粮+5', () => { R.food += 5; mapScreen(); }], ['体温0', () => { R.temp = 0; mapScreen(); }], ['精英战', () => { const enc = pickOne(CH().enc.elite); R.pending = { t: 'elite', enc }; battle(enc, 'elite'); }], ['加强精英', () => { const enc = pickOne(CH().enc.elite); R.pending = { t: 'elite', enc, strong: true }; battle(enc, 'elite', true); }], ['犬机狙', () => battle(['dog', 'mg', 'sniper'], 'fight')], ['重机枪', () => battle(['inf', 'hmg'], 'elite')], ['警察队长', () => battle(['puppet', 'pcap', 'puppet'], 'elite')], ['柏木', () => battle(['dog', 'kcap', 'dog'], 'boss')], ['Boss战', () => { bossKey(); R.pending = { t: 'boss', enc: R.bossEnc }; battle(R.bossEnc, 'boss'); }], ['换Boss', () => { R.boss = null; bossKey(); mapScreen(); }], ['第二章', () => { if (R.act < 2) startAct(2); }], ['第三章', () => { if (R.act < 3) startAct(3); }], ['理智-3', () => { addSan(-3); mapScreen(); }], ['神官', () => battle(['priest'], 'boss')], ['墓里', () => battle(['shadow', 'echo', 'tombkeeper'], 'fight')], ['可疑度+3', () => { addSus(3); mapScreen(); }], ['章节结尾', () => { R.pending = { t: 'actend' }; actEnd(); }], ['阵亡', () => { R.killer = '讨伐队长 · 村濑'; endScreen(false, `倒在了${CH().name}第 ${Math.max(1, R.floor)} 层`); }], ['老乡', () => enterNode('shop')], ['埋藏点', () => enterNode('treasure')], ['事件', () => enterNode('event')], ['逃兵', () => eventScreen('deserter')], ['黄皮子', () => eventScreen('weasel')], ['保家仙', () => eventScreen('baojiaxian')], ['给物品', () => { R.relics.push(...Object.keys(RELICS).filter(id => !has(id) && RELICS[id].rar !== 'boss' && (!RELICS[id].ch || RELICS[id].ch === R.char)).slice(0, 4)); mapScreen(); }], ['给背包', () => { R.items = Object.keys(ITEMS).slice(0, ITEM_SLOTS); mapScreen(); }]] : [];
   btns.forEach(([t, f]) => { const b = document.createElement('button'); b.textContent = t; b.onclick = ev => { ev.stopPropagation(); f(); }; d.appendChild(b); });
   if (btns.length) stage.appendChild(d);
 }

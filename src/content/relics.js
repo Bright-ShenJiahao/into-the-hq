@@ -17,6 +17,9 @@ export const RELICS = {
   charm: { name: '五大仙护身符', rar: 'start', ch: 'tian', icon: '🧧', desc: '每场战斗生命第一次低于一半时，获得 12 格挡（敬畏 ≥3 时 24）。他信这个。' },
   manual: { name: '工兵手册', rar: 'start', ch: 'zhao', icon: '📘', desc: '每场战斗开始工事 +6。', battleStart: G => G.fort(6) },
   diary: { name: '桦皮日记', rar: 'start', ch: 'shen', icon: '📔', desc: '每场战斗第一回合：情报 +2，侦明 3。', turnStart: (G, B) => { if (B.turn === 1 && G.intel) { G.intel(2); G.scry(3); } } },
+  /* 第三章事件里拿到的（rar: 'ev'，不会随机掉落） */
+  hilt: { name: '断刀柄', rar: 'ev', icon: '🗡', desc: '军刀熔剩的刀柄，刻着阵亡军官的名字。对「镇龙钉」的伤害翻倍。' },
+  mask: { name: '金属面具', rar: 'ev', icon: '🎭', desc: '墓里拿的。每回合 +1 能量；每场战斗开始理智 -1。', energy: () => 1, battleStart: G => G.san(-1) },
   watch: { name: '怀表', rar: 'c', icon: '⌚', desc: '每场战斗第一回合 +1 能量。', energy: (B, first) => first ? 1 : 0 },
   mittens: { name: '狍皮手闷子', rar: 'c', icon: '🧤', desc: '每场战斗开始获得 6 格挡。', battleStart: G => G.block(6) },
   ulacao: { name: '乌拉草', rar: 'c', icon: '🌾', desc: '絮在鞋里防冻（关东三宝之一）。每走 2 格才掉 1 点体温。', walkTemp: R => (R.steps % 2 ? 0 : 1) },

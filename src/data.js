@@ -11,6 +11,7 @@ import { SHEN, CARDS_SQ, KW_SQ } from './content/shen.js';
 import { CARDS_COMMON } from './content/common.js';
 import { CHAPTER1 } from './content/ch1.js';
 import { CHAPTER2 } from './content/ch2.js';
+import { CHAPTER3, CARDS_CH3 } from './content/ch3.js';
 import { RELICS } from './content/relics.js';
 import { ITEMS, ITEM_SLOTS } from './content/items.js';
 export { V, pick, RELICS, ITEMS, ITEM_SLOTS, BAYONET, MAG, FEEL_MAX };
@@ -25,8 +26,8 @@ for (const [dir, tab] of [['relics', RELICS], ['items', ITEMS]]) for (const [id,
 
 export const SAVE_VERSION = 2;
 export const CHARS = { hansong: HANSONG, chenmo: CHENMO, tian: TIAN, zhao: ZHAO, shen: SHEN }; /* 顺序就是选人界面的顺序；现在全部一开始就解锁 */
-export const CHAPTERS = [CHAPTER1, CHAPTER2]; /* 第三章做好后加在这里 */
-export const CARDS = { ...CARDS_COMMON, ...CARDS_HS, ...CARDS_CM, ...CARDS_TS, ...CARDS_ZT, ...CARDS_SQ };
+export const CHAPTERS = [CHAPTER1, CHAPTER2, CHAPTER3]; /* 真结局做好后加在这里 */
+export const CARDS = { ...CARDS_COMMON, ...CARDS_HS, ...CARDS_CM, ...CARDS_TS, ...CARDS_ZT, ...CARDS_SQ, ...CARDS_CH3 };
 Object.entries(CARDS).forEach(([id, d]) => { d.id = id; });
 /* 所有章节的敌人合在一起（按 key 查） */
 export const ENEMIES = Object.assign({}, ...CHAPTERS.map(c => c.enemies));
@@ -41,6 +42,9 @@ export const KW = {
   '易伤': '受到的攻击伤害 +50%，每回合减 1 层。',
   '消耗': '打出后本场战斗移除。',
   '能力': '打出后整场战斗持续生效。',
+  '保留': '回合结束时不弃掉，留在手里。',
+  '理智': '第三章代替可疑度（0—10）。走进古墓每格 -1，有的敌人和事件也会让它下降。理智低了，地图会变黑，眼前的东西也不一定可信。到 0 时，下一场战斗会多一个影子。火堆 +3。',
+  '仪式': '萨满老人主持的仪式：神鼓、腰铃、神刀三张牌，每回合给你一张，按顺序打出来，就能把「它」封回去。',
 };
 export const TYPE = { atk: '攻击', skill: '技能', power: '能力' };
 export const RAR = { basic: '基础', c: '普通', u: '罕见', r: '稀有', loot: '缴获' };
