@@ -48,36 +48,38 @@ export const ENEMIES_CH2 = {
       shot: { t: '暗处一枪', i: 'atk', d: 20 }, turn: { t: '「你的事，我都知道」', i: 'debuff', weak: 2, vuln: 2 } },
     ai: (e, B) => ['mask', B.en.filter(x => !x.dead).length < 3 ? 'agents' : 'turn', 'shot', 'turn'][e.t % 4] },
   /* —— 城里的人（还没出图，先用色块） —— */
-  jpcop: { name: '日系警官', hp: [26, 30], col: '#2e3446', sup: 1,
+  jpcop: { name: '日系警官', hp: [26, 30], col: '#2e3446', frames: 'jpcop', artH: 245, sup: 1,
     moves: { pistol: { t: '手枪', i: 'atk', d: 8 }, order: { t: '督促巡警（全体格挡 +4）', i: 'def', allBlk: 4, blk: 4 } },
     ai: e => (e.t % 2 ? 'order' : 'pistol') },
-  informer: { name: '告密的线人', hp: [12, 15], col: '#3a3630', fleeTx: '跑去报信了',
+  informer: { name: '告密的线人', hp: [12, 15], col: '#3a3630', frames: 'informer', artH: 225, fleeTx: '跑去报信了',
     moves: { watch: { t: e => `盯着你（${Math.max(0, 2 - e.t)} 回合后去报信）`, i: 'unk', blk: 3 }, flee: { t: '跑去报信', i: 'flee', tx: '第 3 回合跑去报信：可疑度 +2' } },
     ai: e => (e.t >= 2 ? 'flee' : 'watch'),
     onFlee: (e, B) => { if (B.R.sus != null) { B.R.sus = Math.min(10, (B.R.sus || 0) + 2); B.msgs.push('线人跑去报信了：可疑度 +2'); } } },
-  ronin: { name: '大陆浪人', hp: [24, 28], col: '#3a2e2e',
+  ronin: { name: '大陆浪人', hp: [24, 28], col: '#3a2e2e', frames: 'ronin', artH: 240,
     moves: { cut: { t: '砍', i: 'atk', d: 9 }, lunge: { t: '扑上来', i: 'atk', d: 12 } },
     ai: e => (e.t % 2 ? 'lunge' : 'cut') },
-  kensei: { name: '浪人剑客', hp: [68, 74], col: '#2a2424', elite: 1, riposte: 3,
+  kensei: { name: '浪人剑客', hp: [68, 74], col: '#2a2424', frames: 'kensei', artH: 240, elite: 1, riposte: 3,
     moves: { wait: { t: '按刀不动（每挨一下就居合还 3）', i: 'def', blk: 10 }, iai: { t: '拔刀斩', i: 'atk', d: 18 }, flurry: { t: '连斩', i: 'atk', d: 6, x: 3 } },
     ai: e => ['wait', 'iai', 'flurry'][e.t % 3] },
-  armorcar: { name: '装甲车', hp: [58, 62], col: '#3c4034', elite: 1, sup: 1, armor: 5, noBleed: 1,
+  armorcar: { name: '装甲车', hp: [58, 62], col: '#3c4034', frames: 'armorcar', artH: 170, elite: 1, sup: 1, armor: 5, noBleed: 1,
     moves: { mg: { t: '车载机枪扫射', i: 'atk', d: 5, x: 3 }, ram: { t: '冲撞', i: 'atk', d: 14 }, hatch: { t: '关紧舱盖（格挡 +12）', i: 'def', blk: 12 } },
     ai: e => ['mg', 'ram', 'hatch'][e.t % 3] },
   /* 平民：不能被选成目标，打倒护着他们的人就举手投降 */
-  bureaucrat: { name: '日系官吏', hp: [10, 10], col: '#3a3a44', civ: 1, fleeTx: '抱着文件跑了',
+  bureaucrat: { name: '日系官吏', hp: [10, 10], col: '#3a3a44', frames: 'bureaucrat', artH: 235, civ: 1, fleeTx: '抱着文件跑了',
     moves: { pack: { t: e => `抱着文件往外挪（${Math.max(0, 3 - e.t)} 回合后跑掉）`, i: 'unk' }, flee: { t: '跑掉', i: 'flee', tx: '第 4 回合跑掉：可疑度 +1' } },
     ai: e => (e.t >= 3 ? 'flee' : 'pack'),
     onFlee: (e, B) => { if (B.R.sus != null) { B.R.sus = Math.min(10, (B.R.sus || 0) + 1); B.msgs.push('官吏跑去报告了：可疑度 +1'); } } },
-  merchant: { name: '日本商人', hp: [10, 10], col: '#4a3c2c', civ: 1,
+  merchant: { name: '日本商人', hp: [10, 10], col: '#4a3c2c', frames: 'merchant', artH: 230, civ: 1,
     moves: { pay: { t: '掏钱（浪人力量 +2）', i: 'buff', fn: (e, B, G) => B.en.forEach(x => { if (!x.dead && (x.key === 'ronin' || x.key === 'kensei')) { x.st.str = (x.st.str || 0) + 2; G.fx(x.id, '力量+2', 'st'); } }) },
       cower: { t: '躲在后面', i: 'def' } },
     ai: (e, B) => (B.en.some(x => !x.dead && (x.key === 'ronin' || x.key === 'kensei')) ? 'pay' : 'cower') },
-  exec: { name: '会社高管', hp: [10, 10], col: '#2c2c34', civ: 1,
+  exec: { name: '会社高管', hp: [10, 10], col: '#2c2c34', frames: 'exec', artH: 245, civ: 1,
     moves: { call: { t: '喊警卫（叫来一个宪兵）', i: 'buff', summon: 'kempei' }, cower: { t: '躲在后面', i: 'def' } },
     ai: e => (e.t === 1 ? 'call' : 'cower') },
 };
 Object.entries(ENEMIES_CH2).forEach(([k, d]) => { d.key = k; });
+/* 帧图尺寸（切图脚本算出来的） */
+export const FRAMES_CH2 = { jpcop: { cw: 340, ch: 249, ax: 117, sw: 91, sh: 247 }, informer: { cw: 464, ch: 203, ax: 187, sw: 121, sh: 190 }, ronin: { cw: 398, ch: 241, ax: 130, sw: 136, sh: 239 }, kensei: { cw: 498, ch: 229, ax: 215, sw: 120, sh: 221 }, armorcar: { cw: 411, ch: 333, ax: 196, sw: 349, sh: 231 }, bureaucrat: { cw: 226, ch: 243, ax: 85, sw: 115, sh: 238 }, merchant: { cw: 205, ch: 244, ax: 98, sw: 167, sh: 232 }, exec: { cw: 228, ch: 283, ax: 80, sw: 129, sh: 281 } };
 
 /* 遭遇池。第一章的敌人（dog、mg）也能直接用 */
 export const ENC_CH2 = {
@@ -191,7 +193,7 @@ export const CHAPTER2 = {
   nodes: { fight: 42, event: 26, elite: 16, rest: 11, shop: 5 }, fixed: { 0: 'fight', 4: 'shop', 8: 'treasure', 14: 'rest' }, earliest: 5, easyFights: 3,
   /* 地图底图还没画：先借第一章的 */
   map: { img: 'assets/bg/map_ch1.jpg', w: 1000, h: 1779, startY: .865, endY: .175, bossX: .5, bossY: .092, xMin: .27, xMax: .73, startLabel: '▲ 混进新京' },
-  battleBg: 'assets/bg/battle_snow.jpg', enemies: ENEMIES_CH2, frames: {}, blockSize: { armorcar: [240, 150] }, enc: ENC_CH2, events: EVENTS_CH2, places: PLACES_CH2,
+  battleBg: 'assets/bg/battle_snow.jpg', enemies: ENEMIES_CH2, frames: FRAMES_CH2, blockSize: {}, enc: ENC_CH2, events: EVENTS_CH2, places: PLACES_CH2,
   escort: 'escort2', bossLabel: '追捕者',
   intro: [
     '1945 年春。德国投降的消息传到东北的时候，新京的大街上还挂着「日满一德一心」的标语。',

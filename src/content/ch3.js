@@ -56,18 +56,18 @@ export const ENEMIES_CH3 = {
     ai: e => ['plant', 'fuse', 'blast'][e.t] || 'shoot' },
   /* —— 溃败中的人（还没出图，先用色块） —— */
   /* 1945 年 7 月关东军「根こそぎ动员」，把在满的日本男人拉来凑数。士气差，同伴倒下一个就投降 */
-  oldsoldier: { name: '临时召集的老兵', hp: [13, 16], col: '#5e5a44', morale: 1, brittle: 1, fleeTx: '扔下枪，举起了手',
+  oldsoldier: { name: '临时召集的老兵', hp: [13, 16], col: '#5e5a44', frames: 'oldsoldier', artH: 230, morale: 1, brittle: 1, fleeTx: '扔下枪，举起了手',
     moves: { shoot: { t: '射击', i: 'atk', d: 6 }, flee: { t: '投降', i: 'flee', tx: '同伴倒下一个、又没人督战时，就投降' } },
     ai: () => 'shoot' },
-  officer: { name: '撤退的军官', hp: [30, 34], col: '#4a4636', sup: 1, fleeTx: '跳上卡车跑了',
+  officer: { name: '撤退的军官', hp: [30, 34], col: '#4a4636', frames: 'officer', artH: 235, sup: 1, fleeTx: '跳上卡车跑了',
     moves: { order: { t: '命令部下断后（全体格挡 +6）', i: 'def', allBlk: 6 }, pistol: { t: '手枪', i: 'atk', d: 8 }, flee: { t: '跑了', i: 'flee', tx: '第 4 回合跳上卡车跑掉' } },
     ai: e => (e.t >= 3 ? 'flee' : e.t % 2 ? 'pistol' : 'order'),
     onDeath: (e, B) => { if (!(B.R.flags || []).includes('reveal')) { B.R.flags = [...(B.R.flags || []), 'reveal']; B.msgs.push('他的图囊里有一张地下工事的图：往后的地图全看得见。'); } } },
-  surgeon: { name: '军医', hp: [18, 22], col: '#5a5a50', sup: 1,
+  surgeon: { name: '军医', hp: [18, 22], col: '#5a5a50', frames: 'surgeon', artH: 175, sup: 1,
     moves: { treat: { t: '给伤兵包扎（同伴回 12 血，去掉虚弱和易伤）', i: 'buff', fn: (e, B, G) => { const w = B.en.filter(x => !x.dead && x !== e && !x.d.civ).sort((a, b) => (b.max - b.hp) - (a.max - a.hp))[0]; if (w) { w.hp = Math.min(w.max, w.hp + 12); delete w.st.weak; delete w.st.vuln; G.fx(w.id, '+12', 'heal'); } } },
       pistol: { t: '手枪', i: 'atk', d: 6 } },
     ai: (e, B) => (B.en.some(x => !x.dead && x !== e && x.hp < x.max) ? 'treat' : 'pistol') },
-  depotchief: { name: '弹药库守备队长', hp: [70, 76], col: '#4a3a2a', elite: 1, sup: 1,
+  depotchief: { name: '弹药库守备队长', hp: [70, 76], col: '#4a3a2a', frames: 'depotchief', artH: 245, elite: 1, sup: 1,
     moves: { guard: { t: '守住库门（格挡 +12）', i: 'def', blk: 12 }, saber: { t: '军刀', i: 'atk', d: 12 }, shoot: { t: '手枪连射', i: 'atk', d: 5, x: 2 },
       fuse: { t: '点燃弹药库（下回合爆炸）', i: 'charge', next: '爆炸', blk: 10 },
       blast: { t: '弹药库爆炸（他和同伙也一起炸）', i: 'atk', d: 22, allHurt: 22, fn: (e, B, G) => G.vanish(e, '和弹药库一起没了') } },
@@ -107,7 +107,7 @@ export const ENEMIES_CH3 = {
       if ((B.R.awe || 0) >= 3) { G.block(15); B.msgs.push('一只黄皮子从你脚边窜过去，挡在了你前面。'); }
       if ((B.R.awe || 0) <= -3) { G.spawn('shadow'); B.msgs.push('山里的东西不帮你。黑暗里多了一个影子。'); }
     } },
-  it: { name: '它', hp: [999, 999], col: '#08080a', frames: 'it', artH: 170, ghost: 1, boss: 1, immune: 1, nohp: 1, noKill: 1, sealTx: '沉回了地底',
+  it: { name: '它', hp: [999, 999], col: '#08080a', frames: 'it', artH: 150, ghost: 1, boss: 1, immune: 1, nohp: 1, noKill: 1, sealTx: '沉回了地底',
     moves: { press: { t: '压下来（理智 -1）', i: 'atk', d: 9, san: 1 }, whisper: { t: '低语（两张恐惧混进牌堆）', i: 'debuff', curse: 'fear', cn: 2, weak: 1 }, reach: { t: '伸过来', i: 'atk', d: 6, x: 2 } },
     ai: e => ['press', 'whisper', 'reach'][e.t % 3] },
 };
@@ -117,9 +117,10 @@ Object.entries(ENEMIES_CH3).forEach(([k, d]) => { d.key = k; });
 export const FRAMES_CH3 = { sapper: { cw: 432, ch: 187, ax: 248, sw: 267, sh: 158 }, kguard: { cw: 404, ch: 293, ax: 156, sw: 140, sh: 274 },
   shrineguard: { cw: 468, ch: 190, ax: 220, sw: 301, sh: 187 }, burner: { cw: 453, ch: 199, ax: 232, sw: 117, sh: 197 },
   shadow: { cw: 371, ch: 207, ax: 238, sw: 198, sh: 203 }, echo: { cw: 392, ch: 208, ax: 261, sw: 112, sh: 206 },
-  mask: { cw: 475, ch: 207, ax: 299, sw: 228, sh: 205 }, it: { cw: 484, ch: 200, ax: 269, sw: 404, sh: 166 },
+  mask: { cw: 475, ch: 207, ax: 299, sw: 228, sh: 205 }, it: { cw: 560, ch: 183, ax: 328, sw: 450, sh: 170 },
   tombkeeper: { cw: 469, ch: 207, ax: 232, sw: 315, sh: 203 }, nail: { cw: 307, ch: 214, ax: 149, sw: 166, sh: 204 },
-  priest: { cw: 458, ch: 419, ax: 215, sw: 210, sh: 415 } };
+  priest: { cw: 458, ch: 419, ax: 215, sw: 210, sh: 415 },
+  oldsoldier: { cw: 288, ch: 245, ax: 153, sw: 209, sh: 243 }, officer: { cw: 348, ch: 236, ax: 171, sw: 225, sh: 226 }, surgeon: { cw: 385, ch: 238, ax: 138, sw: 187, sh: 205 }, depotchief: { cw: 496, ch: 251, ax: 233, sw: 192, sh: 237 } };
 
 /* 遭遇池：按地图分段 */
 export const SEG_ENC = [
