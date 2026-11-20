@@ -548,6 +548,15 @@ function battle(enc, kind, strong) {
   see(...enc.map(k => 'e:' + k)); render(); teach('battle'); if (darkNow()) teach('ghostdark'); if (lead) banner((kind === 'boss' ? '' : strong ? '加强精英：' : '精英：') + lead.name);
   flushMsgs();
 }
+/* 敌人一排的位置：从主角右边到右侧按钮左边这一段里居中；放不下（四个敌人、宽的骑兵和炮）就整排等比缩小 */
+function fitEnemies() {
+  const box = view.querySelector('#enemies'), hero = view.querySelector('#hero'), btn = view.querySelector('#endturn'); if (!box || !hero) return;
+  const W = stage.offsetWidth || 1280, L = hero.offsetLeft + hero.offsetWidth + (TOUCH ? 10 : 30), R = btn ? W - btn.offsetLeft + (TOUCH ? 6 : 16) : 240;
+  box.style.left = L + 'px'; box.style.right = R + 'px'; box.style.transform = '';
+  const need = box.scrollWidth, have = box.clientWidth;
+  if (need > have + 2) box.style.transform = `scale(${Math.max(.6, have / need).toFixed(3)})`;
+}
+addEventListener('resize', () => { if (B && !B.over) fitEnemies(); });
 /* 侦明（沈知秋）：弹出牌堆顶几张，点选要弃掉的，确定 */
 function scryUI() {
   const k = B.scryQ[0], top = B.draw.slice(-k).reverse(), pick = new Set();
@@ -579,7 +588,7 @@ function enemyHTML(e) {
   const tg = B.sel >= 0 && B.hand[B.sel] && E.needTarget(B.hand[B.sel]) && !e.dead;
   const label = e.key === 'captain' ? (e.phase === 2 ? '村濑' : '装甲车') : d.name;
   return `<div class="unit enemy ${tg ? 'tg' : ''} ${e.dead ? 'dead' : ''} ${d.frames ? '' : 'noanim'} ${d.ghost ? 'ghost' : ''} ${dk ? 'dk' : ''}" data-eid="${e.id}">
-    <div class="intent">${it ? `<i class="ii ii-${it.i}">${ICON[it.i]}</i>${it.text}<small>${it.name}</small>` : ''}</div>
+    <div class="intent" ${it && it.name.includes('（') ? `title="${it.name}"` : ''}>${it ? `<i class="ii ii-${it.i}">${ICON[it.i]}</i>${it.text}<small>${it.name.split('（')[0]}</small>` : ''}</div>
     ${d.frames ? frameBox(efr(e)[0], efr(e)[1], enemySrc(e), '', d.name) : `<div class="sprw">${d.art ? `<img class="spr art still" src="${enemySrc(e)}" style="height:${d.artH}px" alt="${d.name}" draggable="false">` : `<div class="spr blk ${d.boss ? 'bossb' : ''}" style="width:${w}px;height:${h}px;background:${d.col}">${dk ? '' : label}</div>`}<i class="shd"></i></div>`}
     <div class="uinfo">${dk ? `<div class="dkname">？？？</div>` : d.civ ? `<div class="nohp civ">平民 · 不能攻击<br>打倒护着他的人，他就投降</div>` : d.nohp ? `<div class="nohp">${e.block ? `<b class="blkv">${e.block}</b>` : ''}打不动 · 只能用仪式封回去</div>` : barHTML(e.hp, e.max, e.block)}${e.ammo != null && !e.dead && (d.elite || d.boss || d.showAmmo) ? `<div class="eammo ${e.ammo ? '' : 'zero'}" data-k="敌人弹仓">${Array.from({ length: e.d.ammo }, (_, k) => `<i class="${k < e.ammo ? 'f' : ''}"></i>`).join('')}${e.ammo ? '' : '<b>空</b>'}</div>` : ''}<div class="badges">${e.armor ? `<b class="arm" data-k="装甲">🛡 装甲 ${e.armor}</b>` : ''}${d.intel && !e.dead ? '<b class="arm intelc" data-k="档案箱">📜 档案箱</b>' : ''}${B.mech.enemyChips ? B.mech.enemyChips(e) : ''}${stsHTML(e.st)}</div></div></div>`;
 }
@@ -649,9 +658,6 @@ function kwShow(el) {
 }
 function kwHide() { $('#kwbox')?.remove(); }
 /* 敌人一排太宽、会挤到韩松身上时，整排按比例缩小 */
-function fitEnemies() { const row = $('#enemies'), hero = $('#hero .sprw'); if (!row || !hero) return; row.style.transform = '';
-  const s = stage._s || 1, rr = row.getBoundingClientRect(), hr = hero.getBoundingClientRect(), room = (rr.right - hr.right) / s - 40, w = rr.width / s;
-  if (w > room && room > 80) { row.style.transformOrigin = 'right bottom'; row.style.transform = `scale(${Math.max(.6, room / w)})`; } }
 /* 电脑：点一下打出（要选目标的牌先点牌再点敌人）。手机：点一下放大看牌，拖上去才打出（防误触） */
 function clickCard(i) {
   if (!B || B.busy || B.over || B.anim) return; const c = B.hand[i]; if (!c) return;

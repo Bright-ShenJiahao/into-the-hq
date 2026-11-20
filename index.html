@@ -161,7 +161,7 @@ i.echo{color:#b8a0d0}.fxn.heal{color:#7ee08a}.nohp.civ{color:#d8d0b0;line-height
 @keyframes breathe{50%{transform:scale(1.008,1.018)}}
 .unit .shd{position:absolute;left:50%;bottom:-10px;width:110%;height:26px;transform:translateX(-50%);background:radial-gradient(closest-side,rgba(0,0,0,.6),transparent);z-index:0}
 #hero{position:absolute;left:calc(180px + (var(--sw,1280px) - 1280px) / 4);bottom:232px}
-#enemies{position:absolute;right:calc(200px + (var(--sw,1280px) - 1280px) / 4);bottom:232px;display:flex;align-items:flex-end;gap:20px}
+#enemies{position:absolute;right:240px;bottom:232px;display:flex;align-items:flex-end;justify-content:center;gap:20px;transform-origin:50% 100%}
 .enemy.tg{cursor:crosshair}.enemy.tg .sprw{filter:drop-shadow(0 0 8px #ffd35a)}.enemy.aim .sprw{filter:drop-shadow(0 0 10px #ff5a4a) drop-shadow(0 0 4px #fff)}
 .hpw{position:relative;margin-top:8px}
 /* 血条、弹仓等挂在脚底下，不把人物往上顶：所有人的脚底都在同一条地平线上 */
@@ -204,7 +204,7 @@ i.echo{color:#b8a0d0}.fxn.heal{color:#7ee08a}.nohp.civ{color:#d8d0b0;line-height
 .btn.reload.hot{background:linear-gradient(#8a6a2a,#5a4218);border-color:#ffd35a}.btn.reload.urgent{animation:pulse2 1s infinite}@keyframes pulse2{50%{box-shadow:0 0 18px #ffd35a}}
 /* 手牌（同旧游戏：只露上半，悬停升起） */
 #hand{position:absolute;left:150px;right:150px;bottom:0;height:260px;pointer-events:none;z-index:15}
-#hand .card{position:absolute;bottom:-78px;pointer-events:auto;touch-action:none}
+#hand .card{position:absolute;bottom:-56px;pointer-events:auto;touch-action:none}
 #hand .card *{pointer-events:none}
 #hand .card.off{filter:brightness(.65) saturate(.6)}
 #hand .card.sel{box-shadow:0 0 22px 6px #ffd35a}
