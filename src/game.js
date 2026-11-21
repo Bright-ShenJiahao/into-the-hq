@@ -592,7 +592,9 @@ function fitEnemies() {
      4. 交错：同一排的人一高一低错开一点，不站成一条直线。
      5. 整团居中，放不下就整体等比缩小，不挤到主角和按钮。
      6. 位置一旦定下就不变，有人倒下留空位。 */
-  const items = B.en.filter(e => e.row != null).map(e => { const u = us.find(x => x.dataset.eid === e.id); return u && { e, u, r: e.row, wd: (u.querySelector('.sprw') || u).offsetWidth * DEPTH.sc[e.row] }; }).filter(Boolean);
+  us.forEach(u => { const e = B.en.find(x => x.id === u.dataset.eid); if (e && e.row != null) u.dataset.depth = e.row; });
+  const vs = (box.getBoundingClientRect().width / (box.offsetWidth || 1)) || 1; /* 画面整体缩放（手机） */
+  const items = B.en.filter(e => e.row != null).map(e => { const u = us.find(x => x.dataset.eid === e.id); return u && { e, u, r: e.row, wd: (u.querySelector('.sprw') || u).getBoundingClientRect().width / vs }; }).filter(Boolean);
   const cnt = [0, 1, 2].map(r => items.filter(t => t.r === r).length);
   /* 先按「排」定一个大概位置：前排在左，后排在右，同一排按次序 */
   items.forEach(t => { t.key = t.r * 10 + t.e.ri - (cnt[t.r] > 1 ? 0 : 0); });

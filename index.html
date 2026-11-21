@@ -390,6 +390,13 @@ i.echo{color:#b8a0d0}.fxn.heal{color:#7ee08a}.nohp.civ{color:#d8d0b0;line-height
 .shopitem.rel{padding:16px 14px}.pile{color:#e0d0a8}.pile:hover::after,.shopitem.rel:hover::after{filter:brightness(1.25)}
 .card.t-curse .frame{filter:grayscale(.9) brightness(.5) sepia(.4) hue-rotate(-25deg)}.card.t-status .frame{filter:grayscale(1) brightness(.75)}
 .bg.rest.ch2{background-image:url(assets/bg/rest_ch2.jpg)}.bg.shop.ch2{background-image:url(assets/bg/shop_ch2.jpg)}.bg.ev.ch2{background-image:url(assets/bg/ev_ch2.jpg)}.bg.treasure.ch2{background-image:url(assets/bg/treasure_ch2.jpg)}.bg.rest.ch3{background-image:url(assets/bg/rest_ch3.jpg)}.bg.shop.ch3{background-image:url(assets/bg/shop_ch3.jpg)}.bg.ev.ch3{background-image:url(assets/bg/ev_ch3.jpg)}.bg.treasure.ch3{background-image:url(assets/bg/treasure_ch3.jpg)}.tbg.endwin{background-image:url(assets/story/s6_up.jpg)}
+
+/* 2.5D 站位：只缩小人物图（zoom 不建新的层叠上下文），血条和意图永远压在所有人物图上面，后排的不会被前排的身子挡住 */
+#enemies.deep .unit.enemy,#enemies.deep .unit.enemy[data-depth="1"],#enemies.deep .unit.enemy[data-depth="2"]{z-index:auto;scale:none}
+#enemies.deep .unit.enemy .sprw{position:relative;z-index:3}
+#enemies.deep .unit.enemy[data-depth="1"] .sprw{zoom:.86;z-index:2}#enemies.deep .unit.enemy[data-depth="2"] .sprw{zoom:.74;z-index:1}
+#enemies.deep .unit.enemy[data-depth="1"] .uinfo,#enemies.deep .unit.enemy[data-depth="1"] .intent{zoom:.93}#enemies.deep .unit.enemy[data-depth="2"] .uinfo,#enemies.deep .unit.enemy[data-depth="2"] .intent{zoom:.86}
+.touch .btn.reload{bottom:300px}
 </style>
 </head>
 <body>
