@@ -22,6 +22,6 @@ export const ITEMS = {
   jerky: { name: '狍子肉干', icon: '🥩', desc: '战斗中：回复 8 生命。地图上：口粮 +2。', battle: G => G.heal(8), map: (R, M) => M.food(2) },
   bandroll: { name: '绷带卷', icon: '🧻', desc: '获得 10 格挡，回复 5 生命。', battle: G => { G.block(10); G.heal(5); } },
   newspaper: { name: '旧报纸', icon: '📰', act: 2, desc: '城里用。地图上：可疑度 -2；战斗中：抽 2 张牌。', map: (R, M) => M.sus(-2), battle: G => G.draw(2) },
-  matchbox: { name: '洋火', icon: '🔥', desc: '地图上：体温 +3；战斗中：获得 6 格挡。', map: (R, M) => M.temp(3), battle: G => G.block(6) },
+  matchbox: { name: '铜手炉', icon: '🔥', desc: '揣在怀里的小铜炉。地图上：体温 +3；战斗中：获得 6 格挡。', map: (R, M) => M.temp(3), battle: G => G.block(6) },
 };
 Object.entries(ITEMS).forEach(([k, d]) => { d.id = k; });
