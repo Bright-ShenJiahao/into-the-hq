@@ -17,15 +17,15 @@ export const ENEMIES_CH2 = {
   kempei: { name: '日本宪兵', hp: [26, 30], col: '#5a5a3a', frames: 'kempei', artH: 240, sup: 1, ammo: 2,
     moves: { halt: { t: '「站住！」', i: 'debuff', weak: 2 }, shoot: { t: '射击', i: 'atk', d: 9, shot: 1 }, reload: { t: '装弹', i: 'reload', blk: 6 } },
     ai: e => e.t === 0 ? 'halt' : 'shoot' },
-  /* —— 补充的三种（查证见图鉴）。还没出图，先用色块 —— */
-  guard: { name: '伪满禁卫队士兵', hp: [24, 28], col: '#3a3a44', artH: 240, ammo: 2,
+  /* —— 补充的三种（查证见图鉴） —— */
+  guard: { name: '伪满禁卫队士兵', hp: [24, 28], col: '#3a3a44', frames: 'guard', artH: 240, ammo: 2,
     moves: { shoot: { t: '射击', i: 'atk', d: 8, shot: 1 }, saber: { t: '军刀', i: 'atk', d: 11 }, cover: { t: '护驾（全体格挡 +5）', i: 'def', allBlk: 5, blk: 5 },
       reload: { t: '装弹', i: 'reload', blk: 5 } },
     ai: e => ['cover', 'shoot', 'saber'][e.t % 3] },
-  reservist: { name: '日本在乡军人', hp: [18, 22], col: '#5a5040', artH: 230, ammo: 1,
+  reservist: { name: '日本在乡军人', hp: [18, 22], col: '#5a5040', frames: 'reservist', artH: 230, ammo: 1,
     moves: { shoot: { t: '射击', i: 'atk', d: 7, shot: 1 }, bayonet: { t: '刺刀', i: 'atk', d: 10 }, reload: { t: '拉栓装弹', i: 'reload', blk: 4 } },
     ai: e => (e.t % 2 ? 'bayonet' : 'shoot') },
-  overseer: { name: '勤劳奉公队的监工', hp: [20, 24], col: '#4a3a2a', artH: 230,
+  overseer: { name: '勤劳奉公队的监工', hp: [20, 24], col: '#4a3a2a', frames: 'overseer', artH: 230,
     moves: { urge: { t: '催工（全体力量 +1）', i: 'buff', all: 1 }, whip: { t: '鞭子', i: 'atk', d: 4, x: 2 }, call: { t: '喊巡警', i: 'buff', summon: 'patrol', blk: 4 } },
     ai: e => (e.t === 0 ? 'urge' : e.t % 3 === 2 ? 'call' : 'whip') },
   spy: { name: '便衣特务', hp: [18, 22], col: '#2a2a2a', frames: 'spy', artH: 235,
@@ -90,7 +90,7 @@ export const ENEMIES_CH2 = {
 };
 Object.entries(ENEMIES_CH2).forEach(([k, d]) => { d.key = k; });
 /* 帧图尺寸（切图脚本算出来的） */
-export const FRAMES_CH2 = { spy: { cw: 356, ch: 245, ax: 161, sw: 74, sh: 243 }, escort2: { cw: 483, ch: 240, ax: 324, sw: 152, sh: 229 }, kirino: { cw: 532, ch: 394, ax: 166, sw: 122, sh: 385 }, kuga: { cw: 640, ch: 397, ax: 258, sw: 130, sh: 394 }, kendo: { cw: 410, ch: 265, ax: 180, sw: 254, sh: 226 }, agent: { cw: 452, ch: 259, ax: 238, sw: 123, sh: 257 }, kempei: { cw: 396, ch: 234, ax: 172, sw: 234, sh: 232 }, patrol: { cw: 367, ch: 254, ax: 112, sw: 143, sh: 238 }, jpcop: { cw: 340, ch: 249, ax: 117, sw: 91, sh: 247 }, informer: { cw: 464, ch: 203, ax: 187, sw: 121, sh: 190 }, ronin: { cw: 398, ch: 241, ax: 130, sw: 136, sh: 239 }, kensei: { cw: 498, ch: 229, ax: 215, sw: 120, sh: 221 }, armorcar: { cw: 411, ch: 333, ax: 196, sw: 349, sh: 231 }, bureaucrat: { cw: 226, ch: 243, ax: 85, sw: 115, sh: 238 }, merchant: { cw: 205, ch: 244, ax: 98, sw: 167, sh: 232 }, exec: { cw: 228, ch: 283, ax: 80, sw: 129, sh: 281 } };
+export const FRAMES_CH2 = { guard: { cw: 258, ch: 263, ax: 91, sw: 73, sh: 248 }, reservist: { cw: 325, ch: 231, ax: 142, sw: 191, sh: 229 }, overseer: { cw: 311, ch: 245, ax: 177, sw: 99, sh: 242 }, spy: { cw: 356, ch: 245, ax: 161, sw: 74, sh: 243 }, escort2: { cw: 483, ch: 240, ax: 324, sw: 152, sh: 229 }, kirino: { cw: 532, ch: 394, ax: 166, sw: 122, sh: 385 }, kuga: { cw: 640, ch: 397, ax: 258, sw: 130, sh: 394 }, kendo: { cw: 410, ch: 265, ax: 180, sw: 254, sh: 226 }, agent: { cw: 452, ch: 259, ax: 238, sw: 123, sh: 257 }, kempei: { cw: 396, ch: 234, ax: 172, sw: 234, sh: 232 }, patrol: { cw: 367, ch: 254, ax: 112, sw: 143, sh: 238 }, jpcop: { cw: 340, ch: 249, ax: 117, sw: 91, sh: 247 }, informer: { cw: 464, ch: 203, ax: 187, sw: 121, sh: 190 }, ronin: { cw: 398, ch: 241, ax: 130, sw: 136, sh: 239 }, kensei: { cw: 498, ch: 229, ax: 215, sw: 120, sh: 221 }, armorcar: { cw: 411, ch: 333, ax: 196, sw: 349, sh: 231 }, bureaucrat: { cw: 226, ch: 243, ax: 85, sw: 115, sh: 238 }, merchant: { cw: 205, ch: 244, ax: 98, sw: 167, sh: 232 }, exec: { cw: 228, ch: 283, ax: 80, sw: 129, sh: 281 } };
 
 /* 遭遇池。第一章的敌人（dog、mg）也能直接用 */
 export const ENC_CH2 = {
