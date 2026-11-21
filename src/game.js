@@ -2,7 +2,7 @@
 import { CARDS, ENEMIES, CHARS, CHAPTERS, RELICS, ITEMS, ITEM_SLOTS, FRAMES, BLOCK_SIZE, KW, TYPE, RAR, SCH, BAYONET, SAVE_VERSION } from './data.js';
 import * as E from './engine.js';
 import { createAudio } from './audio.js';
-import { MENTOR, TUT, HIST, TERMS, MARTYRS, PEOPLE, ARCHIVE } from './content/codex.js';
+import { MENTOR, TUT, HIST, TERMS, MARTYRS, PEOPLE, ARCHIVE, JP_STORY } from './content/codex.js';
 import { ITC } from './content/ch3.js';
 import { PID, FRAGS, FRAG_PLAN, NPC, TALK_HS_MURASE, ADV_CH1_OPEN, ADV_CH1_END, ADV_CH2_OPEN, ADV_CH2_END, ADV_CH3_OPEN, ADV_CH3_END, ADV_TE_OPEN, TE_REVEAL_HI, TE_REVEAL_LO, TE_DAWN, TE_EPI, TE_BOSS_TALK } from './content/story.js';
 const audio = createAudio();
@@ -246,7 +246,7 @@ function codex(tab = 'people') {
     if (!open(e)) return `<div class="pic lk">${tab === 'card' ? '<div class="cback">？</div>' : tab === 'relic' || tab === 'item' ? `<b class="big">${e.d.icon}</b>` : `<img src="${enemyImg(e.d)}" alt="">`}</div><h3>？？？</h3><p class="no">${tab === 'enemy' || tab === 'boss' ? '在战斗中第一次遇到后解锁。' : tab === 'card' ? '在战利品、老乡那里见过或拿到后解锁。' : '第一次拿到后解锁。'}</p>`;
     if (tab === 'enemy' || tab === 'boss') { const d = e.d;
       return `<div class="pic"><img src="${portraitOf(d)}" alt="" onerror="this.src='${enemyImg(d)}'"></div><h3>${d.name}</h3><span class="tg2">${d.boss ? '首领' : d.elite ? '精英' : '敌人'} · 生命 ${d.hp[0] === d.hp[1] ? d.hp[0] : d.hp.join('–')}${d.armor ? ` · 装甲 ${d.armor}` : ''}${d.ammo && (d.elite || d.boss || d.showAmmo) ? ` · 弹数 ${d.ammo}` : ''}</span>
-        <h4>行 动</h4><ul>${Object.values(d.moves).map(m => `<li><b>${typeof m.t === 'function' ? m.t({ t: 0 }) : m.t}</b>：${MOVE_TX(m)}</li>`).join('')}</ul>${HIST[d.key] ? `<h4>史 实</h4><p class="hist">${HIST[d.key]}</p>` : ''}`; }
+        <h4>行 动</h4><ul>${Object.values(d.moves).map(m => `<li><b>${typeof m.t === 'function' ? m.t({ t: 0 }) : m.t}</b>：${MOVE_TX(m)}</li>`).join('')}</ul>${HIST[d.key] ? `<h4>史 实</h4><p class="hist">${HIST[d.key]}</p>` : ''}${JP_STORY[d.key] ? `<h4>他 的 故 事</h4><p>${JP_STORY[d.key]}</p><p class="no">人物为虚构。</p>` : ''}`; }
     if (tab === 'card') { const d = e.d; return `<div class="pic cards">${cardHTML({ id: d.id, up: 0 })}${cardHTML({ id: d.id, up: 1 })}</div><p class="no">左：原版　右：升级后</p><span class="tg2">${RAR[d.rar] || ''} · ${TYPE[d.type] || ''}${d.sch ? ' · ' + (SCH[d.sch] || '') : ''}</span>${HIST[d.id] ? `<h4>史 实</h4><p class="hist">${HIST[d.id]}</p>` : ''}`; }
     if (tab === 'relic' || tab === 'item') { const d = e.d, id = d.id; return `<div class="pic"><b class="big huge">${d.icon}</b></div><h3>${d.name}</h3><span class="tg2">${tab === 'relic' ? `随身物品 · ${RARN[d.rar] || ''}${d.ch ? ' · 韩松专用' : ''}` : '背包用品'}</span><h4>效 果</h4><p>${d.desc}</p>${HIST[id] ? `<h4>史 实</h4><p class="hist">${HIST[id]}</p>` : ''}`; }
     if (tab === 'people') { const p = e.p; return `<div class="pic">${p.img ? `<img src="${p.big || p.img}" alt="">` : '<div class="pph big">立绘制作中</div>'}</div><h3>${p.n}</h3><span class="tg2">${p.sub} · ${p.play}</span><h4>出 身</h4><p>${p.from}</p><h4>伤 疤</h4><p>${p.wound}</p><h4>性 子</h4><p>${p.heart}</p>${FRAG_PLAN[p.id] ? `<h4>拼 图 · ${FRAG_PLAN[p.id].filter((_, i) => { const fid = Object.keys(FRAGS).find(k => FRAGS[k].who === p.id && FRAGS[k].i === i); return fid && fragGot(fid); }).length}/5</h4><div class="pz">${FRAG_PLAN[p.id].map((ch, i) => { const fid = Object.keys(FRAGS).find(k => FRAGS[k].who === p.id && FRAGS[k].i === i), f = fid && FRAGS[fid];
@@ -536,8 +536,8 @@ function motion(who, cls) { const el = view.querySelector(`[data-eid="${who}"] .
 
 /* Boss 开战前的对白（立绘在右，韩松在左）；每局每个 Boss 只演一次 */
 const BOSS_TALK = {
-  captain: [['boss', '（日语）雪地上的脚印骗不了人。你们这些「匪贼」，今天一个也走不掉。'], ['hero', '我们不是匪。'], ['hero', '这片林子，是我们的。']],
-  kcap: [['boss', '（日语）你们走过的每个屯子，我都去过了。总有人会开口。'], ['boss', '——把狗放出去。'], ['hero', '那你也该听说了：我们从来不跑。']],
+  captain: [['boss', '（日语）我老家的山，冬天也是这么白。'], ['boss', '（日语）……雪地上的脚印骗不了人。你们这些「匪贼」，今天一个也走不掉。'], ['hero', '我们不是匪。'], ['hero', '这片林子，是我们的。']],
+  kcap: [['boss', '（日语）你们走过的每个屯子，我都去过了。总有人会开口。'], ['boss', '（日语）……我已经记不清，是从哪一天开始不做梦的了。'], ['boss', '——把狗放出去。'], ['hero', '那你也该听说了：我们从来不跑。']],
 };
 BOSS_TALK.staff = TE_BOSS_TALK;
 const LIHUI = { captain: 'assets/portraits/captain_lihui.png', priest: 'assets/portraits/priest_lihui.png', kirino: 'assets/portraits/kirino_lihui.png', kuga: 'assets/portraits/kuga_lihui.png', kcap: 'assets/portraits/kcap_lihui.png', staff: 'assets/portraits/staff_lihui.png' };

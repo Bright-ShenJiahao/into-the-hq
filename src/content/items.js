@@ -10,7 +10,7 @@ export const ITEMS = {
   beef: { name: '缴获的牛肉罐头', icon: '🥫', desc: '战斗中：回复 5 生命。地图上：口粮 +3。', battle: G => G.heal(5), map: (R, M) => M.food(3) },
   badger: { name: '獾子油', icon: '🫙', desc: '东北民间治冻伤的土方。体温回满。', map: (R, M) => M.temp(99) },
   flaregun: { name: '缴获的信号枪', icon: '🎆', desc: '给所有敌人 2 层虚弱。', battle: G => G.alive().forEach(e => G.weak(e, 2)) },
-  fakeid: { name: '假国民手帐', icon: '📕', act: 2, desc: '交通站做的假证件。检问所里能用掉它蒙混过关；在地图上用：可疑度 -3。', map: (R, M) => M.sus(-3) },
+  fakeid: { name: '假身份证明', icon: '📕', act: 2, desc: '交通站做的假证件。检问所里能用掉它蒙混过关；在地图上用：可疑度 -3。', map: (R, M) => M.sus(-3) },
   lantern: { name: '马灯', icon: '🏮', act: 3, desc: '地下用。地图上用：理智 +2；战斗中用：驱散黑暗，看清所有敌人。', map: (R, M) => M.san(2), battle: G => { G.B.lit = 1; G.say('马灯亮了。'); } },
   soybeans: { name: '炒黄豆', icon: '🫘', desc: '获得 2 点能量。', battle: G => G.energy(2) },
   styptic: { name: '止血粉', icon: '🩸', desc: '回复 10 生命。', battle: G => G.heal(10), map: (R, M) => M.heal(10) },
