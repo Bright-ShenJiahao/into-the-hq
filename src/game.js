@@ -358,7 +358,7 @@ function settings() {
 function pickChar(done) {
   const o = overlay(`<div class="panel charsel"><h2>选择出发的人</h2><div class="chars">${Object.values(CHARS).map(c => `<button class="charc" data-c="${c.id}">
     <div class="cface">${c.art.dir ? `<img src="assets/portraits/${c.art.dir}.png" alt="">` : `<div class="faceph" style="background:${c.art.ph}">${c.name}</div>`}</div>
-    <b>${c.name}</b><small>${c.title || ''} · 生命 ${c.hp}</small><p>${c.blurb || ''}</p></button>`).join('')}</div><button class="btn ghost" id="cs_x">取消</button></div>`);
+    <b>${c.name}</b><small>${c.title || ''}</small><p>${c.blurb || ''}</p></button>`).join('')}</div><button class="btn ghost" id="cs_x">取消</button></div>`);
   o.querySelectorAll('.charc').forEach(b => b.onclick = () => { o.remove(); done(b.dataset.c); });
   o.querySelector('#cs_x').onclick = () => o.remove();
 }
