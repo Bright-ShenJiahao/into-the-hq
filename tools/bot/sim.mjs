@@ -152,6 +152,7 @@ export function botTurn(B, w, context = () => {}) {
     const best = candidates[0]; if (!best || best.score <= 0) break;
     if (best.action) { context({ action: best.action }); if (!E.act(B, best.action)) throw new Error('可用按钮执行失败：' + best.action); }
     else {
+      if (!E.alive(B).length) break; /* 线索牌弃牌时可能把敌人打光，战斗已结束 */
       const target = E.alive(B).sort((a, b) => Number(!!b.d.intel) - Number(!!a.d.intel) || a.hp - b.hp)[0];
       context({ card: best.c.id });
       if (!E.playCard(B, best.i, target?.id)) throw new Error('可用卡牌执行失败：' + best.c.id);
