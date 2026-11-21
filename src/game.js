@@ -722,7 +722,7 @@ function heroInfoHTML() {
   return `${I.main}<div class="badges">${I.chips || ''}${stsHTML(B.p.st)}${Object.keys(B.p.pw).map(k => `<b class="pw">${(I.powers || {})[k] || GPW[k] || k}</b>`).join('')}</div>`;
 }
 function actionBtns() {
-  return E.actions(B).map((a, i) => `<button class="btn reload ${a.hot ? 'hot' : ''} ${a.urgent ? 'urgent' : ''}" style="bottom:${222 + i * 56}px" data-act="${a.id}" ${a.dis || B.busy ? 'disabled' : ''}>${a.label}${!TOUCH && a.key ? ` <small>${a.key}</small>` : ''}</button>`).join('');
+  return E.actions(B).map((a, i) => `<button class="btn reload ${a.hot ? 'hot' : ''} ${a.urgent ? 'urgent' : ''}" style="--i:${i}" data-act="${a.id}" ${a.dis || B.busy ? 'disabled' : ''}>${a.label}${!TOUCH && a.key ? ` <small>${a.key}</small>` : ''}</button>`).join('');
 }
 /* 手牌：扇形排开，只露上半截（费用、插图、卡名），鼠标移上去 / 手机按住才看说明（同旧游戏） */
 function handLayout() {
@@ -771,7 +771,7 @@ function kwShow(el) {
   const box = document.createElement('div'); box.id = 'kwbox';
   box.innerHTML = `${L.map(k => `<p><b>${k}</b>${KW[k]}</p>`).join('')}${why ? `<p class="hint bad">⚠ ${why}</p>` : `<p class="hint">${TOUCH ? '往上拖动打出' : E.needTarget(c) && E.alive(B).length > 1 ? '点牌后再点敌人，或直接拖到敌人身上' : '点击打出，或往上拖'}</p>`}`;
   const right = (r.right - sr.left) / s + 14, left = (r.left - sr.left) / s - 14 - bw;
-  box.style.left = (right + bw < SW - 10 ? right : Math.max(10, left)) + 'px'; box.style.bottom = (TOUCH ? 250 : 200) + 'px'; box.style.width = bw + 'px';
+  box.style.left = (right + bw < SW - (TOUCH ? 290 : 250) || left < 10 ? right : left) + 'px'; box.style.bottom = (TOUCH ? 250 : 200) + 'px'; box.style.width = bw + 'px';
   stage.appendChild(box);
 }
 function kwHide() { $('#kwbox')?.remove(); }

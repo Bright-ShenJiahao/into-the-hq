@@ -440,6 +440,19 @@ img.uic{height:1.15em;width:auto;vertical-align:-.22em;margin-right:3px;filter:d
 .advbox .advskip,.btalk .advskip{position:absolute;left:auto;right:150px;bottom:-14px;font-size:15px;padding:.3em 1.8em;text-decoration:none;color:#3a2210}.advskip small{font-size:11px;opacity:.75}
 .touch .advbox .advskip,.touch .btalk .advskip{font-size:20px;right:170px;bottom:-20px}
 .holdbar{position:absolute;left:0;bottom:0;height:5px;width:0;background:#e8c86a;z-index:200;transition:none}.holdbar.on{width:100%;transition:width .6s linear}
+
+/* —— 审查修复：重叠/遮挡/点击区 —— */
+.btn.reload{bottom:calc(222px + var(--i,0)*56px)!important}
+.touch .btn.reload{bottom:calc(300px + var(--i,0)*76px)!important}
+.touch #hand .card{bottom:-6px}
+.touch #top{height:70px}.touch #map{top:70px}
+.touch #top .tb{min-height:58px;padding:4px 26px}
+.touch .codex .tb2{min-height:56px;font-size:22px}
+.touch .codex .x,.touch #cx_x{min-width:60px;min-height:60px;font-size:28px}
+.touch .advskip{min-height:64px;font-size:24px}
+.touch .btn.ghost,.touch #s_leave,.touch #l_skip{min-height:64px}
+@media (pointer:fine){.codex .tb2{min-height:34px}.codex .x{min-width:34px;min-height:38px}}
+.touch .tbtn,.touch .tcorner button{min-height:60px;font-size:24px}
 </style>
 </head>
 <body>
