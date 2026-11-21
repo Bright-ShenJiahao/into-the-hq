@@ -227,7 +227,7 @@ export const MECH_HS = {
   playGun(B, d, u, t) {
     const K = B.K, res = { pre: d.pre ? d.pre(B.G, u, t) : 0 };
     if (B.ammo > 0) Object.assign(res, fire(B, d, u, t));
-    else { res.bayonet = 1; K.fx('hero', '拼刺！', 'st'); if (!t) t = K.alive()[0]; const before = t.dead; K.hitEnemy(t, K.atkMod(t, BAYONET + K.sum('bayonet'))); res.kill = !before && t.dead; }
+    else { res.bayonet = 1; K.fx('hero', '拼刺！', 'st'); if (!t || t.dead) t = K.alive()[0]; if (!t) return res; const before = t.dead; K.hitEnemy(t, K.atkMod(t, BAYONET + K.sum('bayonet'))); res.kill = !before && t.dead; }
     return res;
   },
   preview(B, d, x) { let v = x + bonusOf(B, d); if (B.p.st.weak) v = Math.floor(v * .75); return Math.max(0, v); },

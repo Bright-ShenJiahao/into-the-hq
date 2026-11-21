@@ -302,7 +302,8 @@ export function enemyAct(B, e) {
   if (m.weak) { addSt(B.p, 'weak', m.weak); fx(B, 'hero', `虚弱+${m.weak}`, 'st'); }
   if (m.vuln) { addSt(B.p, 'vuln', m.vuln); fx(B, 'hero', `易伤+${m.vuln}`, 'st'); }
   if (m.counter) { e.st.counter = m.counter; fx(B, e.id, '架势', 'st'); }
-  if (m.summon && alive(B).length < 4) { const n = mkEnemy(B, m.summon); B.en.splice(B.en.indexOf(e), 0, n); fx(B, n.id, '增援', 'st'); }
+  /* 叫人：场上最多 4 个；一场战斗最多叫来 6 个，叫完了就「没人来了」（防止只打援兵、战斗永远打不完） */
+  if (m.summon && alive(B).length < 4) { if ((B.nSum = (B.nSum || 0) + 1) <= 6) { const n = mkEnemy(B, m.summon); B.en.splice(B.en.indexOf(e), 0, n); fx(B, n.id, '增援', 'st'); } else fx(B, e.id, '没人来了', 'st'); }
   for (const k of ['weak', 'vuln']) if (e.st[k]) addSt(e, k, -1);
   /* 下回合干什么在这里就定好（意图照此显示，不会临时变卦）：打空了先换弹，溃逃优先 */
   if (!e.dead) { e.last = e.move; e.t++; const nx = e.d.ai(e, B, B.rng); e.move = nx === 'flee' ? 'flee' : e.ammo === 0 ? 'reload' : nx; }
