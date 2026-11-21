@@ -478,8 +478,9 @@ function enterNode(t, nd) {
    韩松：assets/hansong/idle0-3、shoot0-3、hurt0-1、down0-2、stab0-1（共 15 帧）
    敌人：assets/enemies/<名字>/idle0-1、atk0-1、hurt0、down0-1（共 7 帧）
    帧图还没画好时，用 assets/units/ 下的单张图 + 代码呼吸动作顶替 */
-const HA = { idle: [4, 200, 1], shoot: [4, 75, 0], hurt: [2, 130, 0], down: [3, 220, 2], stab: [2, 140, 0] };
-const EA = { idle: [2, 480, 1], atk: [2, 210, 0], hurt: [1, 320, 0], down: [2, 260, 2] };
+/* 待机放慢（呼吸的节奏），4 帧的来回播（0-1-2-3-2-1），不从最后一帧跳回第一帧；模式 3 = 来回播 */
+const HA = { idle: [4, 460, 3], shoot: [4, 95, 0], hurt: [2, 160, 0], down: [3, 240, 2], stab: [2, 170, 0] };
+const EA = { idle: [2, 760, 1], atk: [2, 240, 0], hurt: [1, 340, 0], down: [2, 280, 2] };
 const HERO_ART = () => CHR().art;
 /* 当前用哪套帧（村濑下车后换第二套） */
 const efr = e => (e.phase === 2 && e.d.frames2) ? [e.d.frames2, e.d.artH2] : [e.d.frames, e.d.artH];
@@ -498,7 +499,7 @@ const POSE = {
   shen: d => d.type === 'atk' ? 'shoot' : d.type === 'skill' ? 'stab' : null };
 const DASH = { chenmo: 1, tian: 1 }; /* 近身砍的人出攻击牌时往前冲一下 */
 function heroAct(n) { if (hst.n === 'down') return; hst = { n, t: performance.now() }; }
-function frameOf(tab, st, reset) { const [c, ms, mode] = tab[st.n] || tab.idle; let k = Math.floor((performance.now() - st.t) / ms); if (k >= c) { if (mode === 1) k %= c; else if (mode === 2) k = c - 1; else { reset(); return [ 'idle', Math.floor(performance.now() / tab.idle[1]) % tab.idle[0] ]; } } return [st.n in tab ? st.n : 'idle', k]; }
+function frameOf(tab, st, reset) { const [c, ms, mode] = tab[st.n] || tab.idle; let k = Math.floor((performance.now() - st.t) / ms); if (mode === 3) { const L = c * 2 - 2; k %= L; if (k >= c) k = L - k; } else if (k >= c) { if (mode === 1) k %= c; else if (mode === 2) k = c - 1; else { reset(); return [ 'idle', 0 ]; } } return [st.n in tab ? st.n : 'idle', k]; }
 /* 还没出图的角色：用一块带名字的色块顶着 */
 function heroBox() {
   const A = HERO_ART(), h = Math.round((TOUCH ? A.hTouch : A.h) * SZ());
@@ -507,7 +508,11 @@ function heroBox() {
   return `<div class="sprw"><img class="spr art still" src="${heroSrc()}" style="height:${h}px" alt="${CHR().name}" draggable="false"><i class="shd"></i></div>`;
 }
 const heroFace = () => CHR().art.dir ? `<img src="assets/portraits/${CHR().art.dir}.png" alt="">` : `<div class="faceph" style="background:${CHR().art.ph || '#444'}">${CHR().name}</div>`;
-function heroSrc() { const A = HERO_ART(); if (!A.frames) return `assets/units/${A.still}.png`; const [n, k] = frameOf(HA, hst, () => { hst = { n: 'idle', t: performance.now() }; }); return `assets/${A.dir}/${n}${k}.png`; }
+/* 陈默、田守义、赵铁山、沈知秋的 4 张待机图是四个不同的姿势（甩刀、扛刀、拿炸药包……），轮着放会像在抽动。
+   改成：平时站着用第 1 张，每隔 6 秒左右换一个小动作停 1.3 秒，再回来。韩松的 4 张是呼吸，照常来回播 */
+const FIDGET = new Set(['chenmo', 'tian', 'zhao', 'shen']);
+const fidgetK = () => { const P = 6200, t = performance.now(), slot = Math.floor(t / P); return t % P > P - 1300 ? 1 + ((slot * 7 + 3) % 3) : 0; };
+function heroSrc() { const A = HERO_ART(); if (!A.frames) return `assets/units/${A.still}.png`; let [n, k] = frameOf(HA, hst, () => { hst = { n: 'idle', t: performance.now() }; }); if (n === 'idle' && FIDGET.has(A.dir)) k = fidgetK(); return `assets/${A.dir}/${n}${k}.png`; }
 function enemySrc(e) { if (!e.d.frames) return `assets/units/${e.d.art}.png`; const fk = efr(e)[0]; const st = e.anim || { n: e.dead ? 'down' : 'idle', t: 0 }; if (e.dead && st.n !== 'down') { e.anim = { n: 'down', t: performance.now() }; } const [n, k] = frameOf(EA, e.anim || st, () => { e.anim = null; }); return `assets/enemies/${fk}/${n}${k}.png`; }
 function epose(e, n) { e.anim = { n, t: performance.now() }; }
 const pose = (n) => heroAct(n);
