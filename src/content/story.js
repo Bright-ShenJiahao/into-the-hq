@@ -60,7 +60,7 @@ export const TALK_HS_MURASE = [['boss', '（日语）……长白山北麓，三
   ['laoshen', '别在这儿把命交出去。先把他的人打散。'], ['hero', '……好。']];
 
 /* 第一章的开场和结尾过场 */
-export const ADV_CH1_OPEN = { bg: 'assets/bg/rest_dugout.jpg', lines: [['laoshen', '都到齐了。'], ['laoshen', '上头的任务：去新京。路我来带。'],
+export const ADV_CH1_OPEN = { bg: 'assets/bg/campaign.jpg', sharp: 1, /* 老沈摊开的地图 */ lines: [['laoshen', '都到齐了。'], ['laoshen', '上头的任务：去新京。路我来带。'],
   ['zhaotieshan', '新京……那可是关东军的老窝。'], ['laoshen', '所以人要少，脚要快。'], ['laoshen', '还有一件事。讨伐队往回送的档案箱，路上碰见了，能截就截。'],
   ['chenmo', '档案？要那玩意儿干嘛。'], ['laoshen', '他们怕丢什么，我们就拿什么。'], ['hero', '什么时候动身？'], ['laoshen', '天亮前。']] };
 export const ADV_CH1_END = { bg: 'assets/bg/ev_forest.jpg', lines: [['shenzhiqiu', '老沈，那份清单，你一路都贴身揣着。'], ['laoshen', '嗯。'],

@@ -545,7 +545,7 @@ const PERSON = id => PEOPLE.find(p => p.id === id) || {};
 const spk = w => w === 'hero' ? { n: CHR().name, img: PERSON(PID[R.char]).big || PERSON(PID[R.char]).img } : w === 'narr' ? null : { n: PERSON(w).n || w, img: PERSON(w).big || PERSON(w).img };
 function adv(sc, done) {
   $('#dbg')?.remove(); let k = 0; const slot = [null, null]; let lastSide = 1;
-  const o = document.createElement('div'); o.className = 'adv';
+  const o = document.createElement('div'); o.className = 'adv' + (sc.sharp ? ' sharp' : '');
   o.innerHTML = `<div class="advbg" style="background-image:url(${sc.bg})"></div><div class="advp l"></div><div class="advp r"></div>
     <div class="advbox"><b class="advn"></b><p class="advt"></p><span class="tutc"></span><button class="tutskip">跳过</button></div>`;
   const show = () => { const [w, t] = sc.lines[k], who = w === 'hero' ? PID[R.char] : w, sp = spk(w);
