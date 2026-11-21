@@ -16,7 +16,9 @@ jobs:
         with: { node-version: 22 }
       - run: node tools/rl/sim.mjs ${{ matrix.char }} ${{ inputs.minutes }} rl-out
       - uses: actions/upload-artifact@v4
-        with: { name: rl-${{ matrix.char }}, path: rl-out }
+        with:
+          name: rl-${{ matrix.char }}
+          path: rl-out
   report:
     needs: sim
     runs-on: ubuntu-latest
