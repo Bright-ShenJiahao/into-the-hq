@@ -114,7 +114,7 @@ export const ENEMIES_CH3 = {
 Object.entries(ENEMIES_CH3).forEach(([k, d]) => { d.key = k; });
 
 /* 帧图尺寸（切图脚本算出来的：画布宽高、脚底锚点、站立姿势宽高） */
-export const FRAMES_CH3 = { escort3: { cw: 415, ch: 280, ax: 169, sw: 253, sh: 277 }, sapper: { cw: 432, ch: 187, ax: 248, sw: 267, sh: 158 }, kguard: { cw: 404, ch: 293, ax: 156, sw: 140, sh: 274 },
+export const FRAMES_CH3 = { staff: { cw: 298, ch: 259, ax: 132, sw: 82, sh: 249 }, wargod: { cw: 312, ch: 320, ax: 127, sw: 187, sh: 317 }, /* 真结局的参谋和「军神」，真结局写代码时接上 */ escort3: { cw: 415, ch: 280, ax: 169, sw: 253, sh: 277 }, sapper: { cw: 432, ch: 187, ax: 248, sw: 267, sh: 158 }, kguard: { cw: 404, ch: 293, ax: 156, sw: 140, sh: 274 },
   shrineguard: { cw: 468, ch: 190, ax: 220, sw: 301, sh: 187 }, burner: { cw: 453, ch: 199, ax: 232, sw: 117, sh: 197 },
   shadow: { cw: 371, ch: 207, ax: 238, sw: 198, sh: 203 }, echo: { cw: 392, ch: 208, ax: 261, sw: 112, sh: 206 },
   mask: { cw: 475, ch: 207, ax: 299, sw: 228, sh: 205 }, it: { cw: 560, ch: 183, ax: 328, sw: 450, sh: 170 },

@@ -369,7 +369,7 @@ const INTRO = [
   { img: 'assets/story/s2_camp.jpg', t: '辗转月余，到了吉东山地，接上了密营。灶火边，老沈摊开手绘的地图：最终目标是长春——伪满洲国所谓的「新京」，关东军司令部就在那里。' },
   { img: 'assets/story/s3_depart.jpg', t: '下一程，向长白山北麓的林海雪原转进。日伪讨伐队正在搜山。神枪手韩松，代号「雪貂」，走在队伍最前面。' }];
 /* 各章结尾的插画（第一章：沿着铁路向新京去） */
-const OUTRO = { 1: 'assets/story/s4_south.jpg' };
+const OUTRO = { 1: 'assets/story/s4_south.jpg', 2: 'assets/story/s5_drain.jpg', 3: 'assets/story/s6_up.jpg' }; /* 真结局用 s7_dawn.jpg（真结局还没写） */
 /* 战役总图：开局和每章结束时显示。地名用代码叠在图上（不让 AI 画字） */
 const CAMP = [{ n: '第一章 · 林海雪原', t: '1944 年冬', x: 69.4, y: 39.1 }, { n: '第二章 · 新京', t: '1945 年春', x: 39.7, y: 70.7 }, { n: '第三章 · 地下', t: '1945 年 8 月', x: 32.7, y: 71 }];
 function campaign(ch, done, note) {
@@ -524,7 +524,7 @@ const BOSS_TALK = {
   captain: [['boss', '（日语）雪地上的脚印骗不了人。你们这些「匪贼」，今天一个也走不掉。'], ['hero', '我们不是匪。'], ['hero', '这片林子，是我们的。']],
   kcap: [['boss', '（日语）你们走过的每个屯子，我都去过了。总有人会开口。'], ['boss', '——把狗放出去。'], ['hero', '那你也该听说了：我们从来不跑。']],
 };
-const LIHUI = { captain: 'assets/portraits/captain_lihui.png', priest: 'assets/portraits/priest_lihui.png', kirino: 'assets/portraits/kirino_lihui.png', kuga: 'assets/portraits/kuga_lihui.png' };
+const LIHUI = { captain: 'assets/portraits/captain_lihui.png', priest: 'assets/portraits/priest_lihui.png', kirino: 'assets/portraits/kirino_lihui.png', kuga: 'assets/portraits/kuga_lihui.png', staff: 'assets/portraits/staff_lihui.png' };
 /* 第二章首领的开战对白 */
 Object.assign(BOSS_TALK, {
   kirino: [['boss', '（日语）新京有四十万人。每一个人，我都可以叫来问话。'], ['boss', '——你们，也不例外。'], ['hero', '那你问吧。'], ['hero', '我只会说一句：这是中国的地方。']],
@@ -916,7 +916,7 @@ function lootScreen() {
   const P = R.pending;
   if (!P || P.t !== 'loot') return mapScreen();
   if (P.relic) { gainRelic(P.relic, 1); P.relicShown = P.relic; delete P.relic; } if (P.item) { if (R.items.length < ITEM_SLOTS) { R.items.push(P.item); see('i:' + P.item); teach('item'); } P.itemShown = P.item; delete P.item; } save();
-  view.innerHTML = `<div class="bg ${P.kind === 'boss' ? 'ev' : 'battle dim'}"></div>${topBar()}`; bindTop();
+  view.innerHTML = `<div class="bg ${P.kind === 'boss' ? 'ev ch' + CH().id : 'battle dim'}"></div>${topBar()}`; bindTop();
   if (P.cards) {
     view.insertAdjacentHTML('beforeend', `<div class="panel loot"><h2>${P.kind === 'boss' ? (SUS() ? '打垮了追捕！' : '击溃了讨伐队！') : P.kind === 'elite' ? '打退了精英！' : '战斗胜利'}</h2>
      <p>缴获口粮 +${P.food || 1}${P.strong ? (P.intel ? (SUS() ? '　📜 抢下了公文包，得到一份情报' : '　📜 抢下了档案箱，得到一份情报') : (SUS() ? '　公文包被带走了，这份情报没拿到' : '　档案箱被带走了，这份情报没拿到')) : ''}${P.sus ? `　🕵 枪声惊动了巡警：可疑度 +${P.sus[0]}${P.sus[1] ? `（开了 ${P.sus[1]} 枪）` : ''}` : ''}</p>${P.relicShown ? `<p class="gain">得到随身物品：${RELICS[P.relicShown].icon} <b>${RELICS[P.relicShown].name}</b>　<small>${RELICS[P.relicShown].desc}</small></p>` : ''}${P.itemShown ? `<p class="gain">缴获背包用品：${ITEMS[P.itemShown].icon} <b>${ITEMS[P.itemShown].name}</b>${R.items.includes(P.itemShown) ? '' : '（背包满了，没拿）'}</p>` : ''}<p class="sub">${P.kind === 'boss' ? '选一张稀有牌加入牌组：' : '选一张牌加入牌组：'}</p><div class="row">${P.cards.map((c, i) => cardHTML(c, '', `data-k="${i}"`)).join('')}</div>
@@ -942,7 +942,7 @@ function offerLoot(id, done) {
 function restScreen() {
   teach('rest');
   R.temp = TEMP_MAX; if (SUS()) R.sus = 0; if (SAN() && !R.pending.sanDone) { addSan(3); R.pending.sanDone = 1; } save(); const heal = Math.floor(R.maxHp * .3) + rsum('restHeal'); refreshScreen = restScreen;
-  view.innerHTML = `<div class="bg rest"></div>${topBar()}<div class="panel"><h2>${placeName('rest')}</h2><p>${placeText('rest', '林子深处的地窨子，灶里的火压得很低。体温回满了。')}</p>
+  view.innerHTML = `<div class="bg rest ch${CH().id}"></div>${topBar()}<div class="panel"><h2>${placeName('rest')}</h2><p>${placeText('rest', '林子深处的地窨子，灶里的火压得很低。体温回满了。')}</p>
     <div class="col"><button class="btn" id="r_heal">休息：回复 ${heal} 生命</button><button class="btn" id="r_up">擦枪：升级 1 张牌</button></div></div>`;
   bindTop();
   $('#r_heal').onclick = () => { R.hp = Math.min(R.maxHp, R.hp + heal); mapScreen(); };
@@ -976,7 +976,7 @@ function eventScreen(force) {
     san: n => { addSan(n); sanN += n; }, curse: () => { R.deck.push(mk('it_curse')); see('c:it_curse'); }, lure: n => { R.lure = (R.lure || 0) + n; },
     they: (n, f, fin) => they(n, f, fin), aweN: () => R.awe || 0, say: () => {} };
   const draw = () => {
-    view.innerHTML = `<div class="bg ev"></div>${ev.pic ? `<img class="evpic" src="${ev.pic}" alt="">` : ''}${topBar()}<div class="panel evp"><h2>${ev.title}</h2><p>${ev.text}</p><div class="col">${ev.opts.map((o, i) => { const ok = !o.need || o.need(G); return `<button class="btn opt" data-o="${i}" ${ok ? '' : 'disabled'}>${o.t}${String(o.f).includes('awe(') ? '<small class="awetag">敬畏</small>' : ''}${ok ? '' : '（条件不够）'}</button>`; }).join('')}</div></div>`;
+    view.innerHTML = `<div class="bg ev ch${CH().id}"></div>${ev.pic ? `<img class="evpic" src="${ev.pic}" alt="">` : ''}${topBar()}<div class="panel evp"><h2>${ev.title}</h2><p>${ev.text}</p><div class="col">${ev.opts.map((o, i) => { const ok = !o.need || o.need(G); return `<button class="btn opt" data-o="${i}" ${ok ? '' : 'disabled'}>${o.t}${String(o.f).includes('awe(') ? '<small class="awetag">敬畏</small>' : ''}${ok ? '' : '（条件不够）'}</button>`; }).join('')}</div></div>`;
     bindTop();
     view.querySelectorAll('[data-o]').forEach(b => b.onclick = () => {
       const msg = ev.opts[+b.dataset.o].f(G); save();
@@ -1001,7 +1001,7 @@ function shopScreen() {
   if (!P.stock) { P.stock = { cards: [...rollCards(3).map(c => ({ c, price: 2 })), { c: mk(rollColorless()), price: 3 }], item: { id: rollItem(), price: 2 }, relic: { id: rollRelic({ c: 40, u: 40, r: 20 }), price: 5 }, remove: 3 }; save(); }
   const S = P.stock; refreshScreen = shopScreen;
   const pr = (n, sold) => sold ? '<span class="price no">已换</span>' : `<span class="price ${R.food < n ? 'no' : ''}">🍞 ${n}</span>`;
-  view.innerHTML = `<div class="bg shop"></div>${topBar()}<div class="panel shop wide"><h2>${placeName('shop')}</h2><p>${placeText('shop', '一个赶爬犁的老乡在林边歇脚。他不要钱，只想换点吃的。')}</p>
+  view.innerHTML = `<div class="bg shop ch${CH().id}"></div>${topBar()}<div class="panel shop wide"><h2>${placeName('shop')}</h2><p>${placeText('shop', '一个赶爬犁的老乡在林边歇脚。他不要钱，只想换点吃的。')}</p>
     <div class="row">${S.cards.map((x, i) => `<div class="shopitem ${x.sold ? 'sold' : ''}" data-buy="c${i}">${cardHTML(x.c)}${pr(x.price, x.sold)}</div>`).join('')}
       ${S.item.id ? `<div class="shopitem rel ${S.item.sold ? 'sold' : ''}" data-buy="item"><b class="big">${ITEMS[S.item.id].icon}</b><b>${ITEMS[S.item.id].name}</b><small>${ITEMS[S.item.id].desc}</small>${pr(S.item.price, S.item.sold)}</div>` : ''}
       ${S.relic.id ? `<div class="shopitem rel ${S.relic.sold ? 'sold' : ''}" data-buy="relic"><b class="big">${RELICS[S.relic.id].icon}</b><b>${RELICS[S.relic.id].name}</b><small>${RELICS[S.relic.id].desc}</small>${pr(S.relic.price, S.relic.sold)}</div>` : ''}
@@ -1025,7 +1025,7 @@ function treasureScreen() {
   teach('treasure');
   const P = R.pending; if (!P.relic && !P.taken) { P.relic = rollRelic(); save(); } refreshScreen = treasureScreen;
   const r = RELICS[P.relic];
-  view.innerHTML = `<div class="bg treasure"></div>${topBar()}<div class="panel wide"><h2>${placeName('treasure')}</h2><p>${placeText('treasure', '树上刻着约好的记号。扒开积雪，底下埋着一个油布包。')}</p>
+  view.innerHTML = `<div class="bg treasure ch${CH().id}"></div>${topBar()}<div class="panel wide"><h2>${placeName('treasure')}</h2><p>${placeText('treasure', '树上刻着约好的记号。扒开积雪，底下埋着一个油布包。')}</p>
     ${r ? `<div class="relicbig"><b class="big">${r.icon}</b><b>${r.name}</b><p>${r.desc}</p></div><br><button class="btn" id="tr_take">收下</button>` : '<p class="sub">里面是空的。</p><button class="btn" id="tr_take">继续</button>'}</div>`;
   bindTop();
   $('#tr_take').onclick = () => { if (r) gainRelic(P.relic); P.taken = 1; mapScreen(); };
@@ -1036,7 +1036,7 @@ function bossRelicScreen() {
   const P = R.pending, opts = (P.opts || []).filter(id => RELICS[id]);
   const finish = () => { R.pending = { t: 'actend' }; save(); actEnd(); };
   if (!opts.length) return finish();
-  view.innerHTML = `<div class="bg ev"></div>${topBar()}<div class="panel wide"><h2>${SUS() ? "缴获追捕者的东西" : "缴获讨伐队的东西"}</h2><p class="sub">选一件带走（Boss 物品，下一章开始生效）</p>
+  view.innerHTML = `<div class="bg ev ch${CH().id}"></div>${topBar()}<div class="panel wide"><h2>${SUS() ? "缴获追捕者的东西" : "缴获讨伐队的东西"}</h2><p class="sub">选一件带走（Boss 物品，下一章开始生效）</p>
     <div class="row">${opts.map(id => `<div class="relicbig pick" data-r="${id}"><b class="big">${RELICS[id].icon}</b><b>${RELICS[id].name}</b><p>${RELICS[id].desc}</p></div>`).join('')}</div><button class="btn ghost" id="br_skip">都不要</button></div>`;
   bindTop();
   view.querySelectorAll('[data-r]').forEach(el => el.onclick = () => { gainRelic(el.dataset.r); finish(); });
