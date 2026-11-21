@@ -361,6 +361,27 @@ i.echo{color:#b8a0d0}.fxn.heal{color:#7ee08a}.nohp.civ{color:#d8d0b0;line-height
 .panel.small::after{content:'';position:absolute;right:22px;bottom:16px;width:58px;height:56px;background:url(assets/ui/seal.png) center/contain no-repeat;opacity:.75;transform:rotate(-8deg);pointer-events:none}
 .panel.small .ico{filter:drop-shadow(0 1px 1px rgba(0,0,0,.4))}
 #top{background:linear-gradient(rgba(22,16,10,.62),rgba(22,16,10,.62)),url(assets/ui/bar.png) center/100% 100%;border-bottom:0;box-shadow:0 3px 6px rgba(0,0,0,.6)}
+
+/* —— 全面换装：大面板＝钉在木板上的旧纸（压暗，字照旧用浅色）；标题页、顶栏、图鉴的按钮全换木牌 —— */
+.panel:not(.small),.codex .cx{background:none;border:0;border-radius:0;isolation:isolate;padding:40px 50px 36px}
+.panel.shop{padding:34px 40px 30px}
+.panel:not(.small)::before,.codex .cx::before{content:'';position:absolute;inset:0;z-index:-1;border-image:url(assets/ui/panel.png) 70 fill / 34px stretch;filter:brightness(.34) saturate(.8);pointer-events:none}
+.codex .cx{position:relative;padding:30px 40px}
+.panel:not(.small)::after{content:'';position:absolute;inset:0;z-index:-1;border-image:url(assets/ui/panel.png) 70 / 34px stretch;pointer-events:none}
+.tbtn,.tcorner button,#top .tb,.codex .tb2{background:none;border:0;border-radius:0;border-image:url(assets/ui/btn.png) 0 70 fill / 0 30px stretch;color:#3a2210;text-shadow:0 1px 0 rgba(255,236,190,.55);font-weight:bold;filter:drop-shadow(0 3px 3px rgba(0,0,0,.6));cursor:pointer}
+.tbtn{padding:16px 54px;letter-spacing:8px}.tbtn:hover{color:#1e1004;filter:drop-shadow(0 3px 3px rgba(0,0,0,.6)) brightness(1.12);letter-spacing:8px}
+#t_new{border-image:url(assets/ui/btn_hot.png) 0 60 0 150 fill / 0 28px 0 60px stretch;color:#3a1608}
+.tcorner button{padding:7px 26px;letter-spacing:2px}.tcorner button:hover{color:#1e1004;filter:drop-shadow(0 3px 3px rgba(0,0,0,.6)) brightness(1.12)}
+#top .tb{padding:4px 22px}.codex .tb2{padding:6px 22px}.codex .tb2.on{border-image:url(assets/ui/btn_hot.png) 0 60 0 150 fill / 0 28px 0 60px stretch;background:none;color:#3a1608}
+.touch #top .tb{padding:4px 24px}
+
+/* 木牌按钮：两端带铆钉的那段按字号缩放，字留在铆钉中间 */
+.btn,.btn.big,.tbtn,.tcorner button,#top .tb,.codex .tb2{border-image:url(assets/ui/btn.png) 0 82 fill / 0 1.45em stretch;padding:.5em 2.1em;white-space:nowrap}
+#endturn,.btn.red,.btn.hot,#t_new,.codex .tb2.on{border-image:url(assets/ui/btn_hot.png) 0 82 0 140 fill / 0 1.3em 0 2.25em stretch;padding:.5em 1.9em .5em 2.6em}
+.btn.opt{white-space:normal}.btn.reload,#endturn{padding-top:4px;padding-bottom:4px}
+.tbtn{padding:.45em 2.2em}.codex .tb2{padding:.35em 1.9em}.codex .tb2.on{padding:.35em 1.7em .35em 2.4em}
+.codex .hd h2{white-space:nowrap}
+.codex .hd{flex-wrap:wrap;row-gap:6px;gap:4px}.codex .hd>*{white-space:nowrap}.codex .tb2,.touch .codex .tb2{font-size:15px;padding:.35em 1.65em}.codex .tb2.on,.touch .codex .tb2.on{padding:.35em 1.5em .35em 2.3em}.touch .codex .tb2,.touch .codex .tb2.on{font-size:19px}
 </style>
 </head>
 <body>
