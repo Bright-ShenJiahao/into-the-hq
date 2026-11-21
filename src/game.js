@@ -662,7 +662,7 @@ const stsHTML = st => Object.entries(st).filter(([k]) => STN[k]).map(([k, n]) =>
 /* 主角脚下的资源（角色模块提供：韩松是弹仓和枪感），右侧按钮（韩松是装填） */
 function heroInfoHTML() {
   const I = B.mech.info ? B.mech.info(B) : { main: '', chips: '', powers: {} };
-  return `${I.main}<div class="badges">${I.chips || ''}${stsHTML(B.p.st)}${Object.keys(B.p.pw).map(k => `<b class="pw">${(I.powers || {})[k] || k}</b>`).join('')}</div>`;
+  return `${I.main}<div class="badges">${I.chips || ''}${stsHTML(B.p.st)}${Object.keys(B.p.pw).map(k => `<b class="pw">${(I.powers || {})[k] || GPW[k] || k}</b>`).join('')}</div>`;
 }
 function actionBtns() {
   return E.actions(B).map((a, i) => `<button class="btn reload ${a.hot ? 'hot' : ''} ${a.urgent ? 'urgent' : ''}" style="bottom:${222 + i * 56}px" data-act="${a.id}" ${a.dis || B.busy ? 'disabled' : ''}>${a.label}${!TOUCH && a.key ? ` <small>${a.key}</small>` : ''}</button>`).join('');
@@ -879,8 +879,12 @@ function flushFx() {
 function shake(hard) { if (!SET.shake) return; view.classList.remove('shake', 'shake2'); void view.offsetWidth; view.classList.add(hard ? 'shake2' : 'shake'); }
 
 // ---------- 战后 ----------
+/* 通用卡给的能力在状态栏上的名字 */
+const GPW = { whet: '油石', cblk: '防寒大衣', ePlus: '老兵经验', drawPlus: '马蹄表', stance: '扎马步', listen: '侦听', quickH: '快手' };
 /* 奖励池：只出当前角色的牌和通用牌 */
-const poolCards = () => Object.values(CARDS).filter(d => d.rar !== 'basic' && d.rar !== 'loot' && (!d.ch || d.ch === R.char));
+const poolCards = () => Object.values(CARDS).filter(d => d.rar !== 'basic' && d.rar !== 'loot' && !d.colorless && (!d.ch || d.ch === R.char));
+/* 通用卡（谁都能拿）：只在商店固定那一格和事件里出 */
+const rollColorless = () => { const x = Math.random(), rar = x < .15 ? 'r' : x < .5 ? 'u' : 'c'; return pickOne(Object.values(CARDS).filter(d => d.colorless && d.rar === rar)).id; };
 function rollCards(n, elite) {
   const pool = poolCards(), out = [];
   for (let k = 0; out.length < n && k < 200; k++) {
@@ -994,7 +998,7 @@ function removePick(done) {
 function shopScreen() {
   teach('shop');
   const P = R.pending;
-  if (!P.stock) { P.stock = { cards: rollCards(3).map(c => ({ c, price: 2 })), item: { id: rollItem(), price: 2 }, relic: { id: rollRelic({ c: 40, u: 40, r: 20 }), price: 5 }, remove: 3 }; save(); }
+  if (!P.stock) { P.stock = { cards: [...rollCards(3).map(c => ({ c, price: 2 })), { c: mk(rollColorless()), price: 3 }], item: { id: rollItem(), price: 2 }, relic: { id: rollRelic({ c: 40, u: 40, r: 20 }), price: 5 }, remove: 3 }; save(); }
   const S = P.stock; refreshScreen = shopScreen;
   const pr = (n, sold) => sold ? '<span class="price no">已换</span>' : `<span class="price ${R.food < n ? 'no' : ''}">🍞 ${n}</span>`;
   view.innerHTML = `<div class="bg shop"></div>${topBar()}<div class="panel shop wide"><h2>${placeName('shop')}</h2><p>${placeText('shop', '一个赶爬犁的老乡在林边歇脚。他不要钱，只想换点吃的。')}</p>

@@ -22,7 +22,7 @@ export const ENEMIES_CH2 = {
     ai: e => e.t % 2 === 0 ? 'lurk' : 'knife' },
   /* —— 精英 —— */
   kendo: { name: '剑道军官', hp: [70, 76], col: '#4a4a2a', frames: 'kendo', artH: 250, elite: 1, sup: 1,
-    moves: { stance: { t: '架势（这回合挨打就反击）', i: 'def', blk: 10, counter: 7 }, cut: { t: '劈砍', i: 'atk', d: 15 }, thrust: { t: '连续突刺', i: 'atk', d: 7, x: 2 } },
+    moves: { stance: { t: '架势（这回合挨打就反击）', i: 'def', blk: 10, counter: 7 }, cut: { t: '劈砍（伤口混进牌堆）', i: 'atk', d: 15, curse: 'st_wound' }, thrust: { t: '连续突刺', i: 'atk', d: 7, x: 2 } },
     ai: e => e.t % 3 === 0 ? 'stance' : e.t % 3 === 1 ? 'cut' : 'thrust' },
   agent: { name: '关东军情报部特务', hp: [60, 66], col: '#3a2a2a', frames: 'agent', artH: 250, elite: 1, sup: 1, ammo: 2,
     moves: { cover: { t: '装成商人寒暄', i: 'unk', hide: 1, blk: 12 }, dossier: { t: '翻出你的档案', i: 'debuff', weak: 1, vuln: 2 },
@@ -56,13 +56,13 @@ export const ENEMIES_CH2 = {
     ai: e => (e.t >= 2 ? 'flee' : 'watch'),
     onFlee: (e, B) => { if (B.R.sus != null) { B.R.sus = Math.min(10, (B.R.sus || 0) + 2); B.msgs.push('线人跑去报信了：可疑度 +2'); } } },
   ronin: { name: '大陆浪人', hp: [24, 28], col: '#3a2e2e', frames: 'ronin', artH: 240,
-    moves: { cut: { t: '砍', i: 'atk', d: 9 }, lunge: { t: '扑上来', i: 'atk', d: 12 } },
+    moves: { cut: { t: '砍', i: 'atk', d: 9 }, lunge: { t: '扑上来（伤口混进牌堆）', i: 'atk', d: 12, curse: 'st_wound' } },
     ai: e => (e.t % 2 ? 'lunge' : 'cut') },
   kensei: { name: '浪人剑客', hp: [68, 74], col: '#2a2424', frames: 'kensei', artH: 240, elite: 1, riposte: 3,
-    moves: { wait: { t: '按刀不动（每挨一下就居合还 3）', i: 'def', blk: 10 }, iai: { t: '拔刀斩', i: 'atk', d: 18 }, flurry: { t: '连斩', i: 'atk', d: 6, x: 3 } },
+    moves: { wait: { t: '按刀不动（每挨一下就居合还 3）', i: 'def', blk: 10 }, iai: { t: '拔刀斩（伤口混进牌堆）', i: 'atk', d: 18, curse: 'st_wound' }, flurry: { t: '连斩', i: 'atk', d: 6, x: 3 } },
     ai: e => ['wait', 'iai', 'flurry'][e.t % 3] },
   armorcar: { name: '装甲车', hp: [58, 62], col: '#3c4034', frames: 'armorcar', artH: 170, elite: 1, sup: 1, armor: 5, noBleed: 1,
-    moves: { mg: { t: '车载机枪扫射', i: 'atk', d: 5, x: 3 }, ram: { t: '冲撞', i: 'atk', d: 14 }, hatch: { t: '关紧舱盖（格挡 +12）', i: 'def', blk: 12 } },
+    moves: { mg: { t: '车载机枪扫射（眩晕混进牌堆）', i: 'atk', d: 5, x: 3, curse: 'st_daze' }, ram: { t: '冲撞', i: 'atk', d: 14 }, hatch: { t: '关紧舱盖（格挡 +12）', i: 'def', blk: 12 } },
     ai: e => ['mg', 'ram', 'hatch'][e.t % 3] },
   /* 平民：不能被选成目标，打倒护着他们的人就举手投降 */
   bureaucrat: { name: '日系官吏', hp: [10, 10], col: '#3a3a44', frames: 'bureaucrat', artH: 235, civ: 1, fleeTx: '抱着文件跑了',
@@ -109,7 +109,7 @@ export const EVENTS_CH2 = [
     ] },
   { id: 'blackmarket', title: '黑市', text: '日本人开的洋行后门，夜里有人卖东西：罐头、西药、香烟。卖货的日本商人一边点钱，一边拿眼角打量你的手——那是握枪的手。',
     opts: [
-      { t: '用口粮换一包西药（口粮 -2，得到急救包，可疑度 +2）', need: G => G.foodN() >= 2, f: G => { G.food(-2); G.item('medkit'); G.sus(2); return '药是真的。可你走出两条街，听见身后有人吹了声口哨。'; } },
+      { t: '用口粮换一包西药（口粮 -2，得到急救包，可疑度 +2，得到诅咒「疑心」）', need: G => G.foodN() >= 2, f: G => { G.food(-2); G.item('medkit'); G.sus(2); G.addCard('cu_doubt'); return '药是真的。可你走出两条街，听见身后有人吹了声口哨。'; } },
       { t: '【日语】跟他套近乎，打听宪兵的巡逻路线（可疑度 -2）', need: G => G.lang('ja'), f: G => { G.sus(-2); return '他以为你是新来的满铁职员，抱怨宪兵查得太严，顺嘴把哪条街几点有人都说了。'; } },
       { t: '转身走', f: () => '这种人，见了钱什么都卖——也包括你。' },
     ] },
@@ -126,7 +126,7 @@ export const EVENTS_CH2 = [
   { id: 'labor', title: '抓劳工', text: '街口停了两辆卡车，伪满巡警拿着名单挨家挨户抓人去「出劳工」。一个半大孩子被拽着胳膊往车上拖，他娘跪在地上。',
     opts: [
       { t: '趁乱把孩子拽进胡同（触发战斗）', f: G => { G.fight(['patrol', 'patrol']); return '你一把把孩子拽了过来。巡警的警笛响了。'; } },
-      { t: '忍住，低头走过去（可疑度 -1）', f: G => { G.sus(-1); return '你没回头。老沈说过：在城里，忍不住的人活不过三天。'; } },
+      { t: '忍住，低头走过去（可疑度 -1，得到诅咒「悔意」）', f: G => { G.sus(-1); G.addCard('cu_regret'); return '你没回头。老沈说过：在城里，忍不住的人活不过三天。<br>那孩子他娘的哭声，你记了很久。（牌组里多了一张「悔意」）'; } },
     ] },
   /* —— 「一份单据、三个经手人」：按顺序出现，拿全三处签章就是第二份证据「交接副本」（真结局用） —— */
   { id: 'hand1', title: '经手人之一：新京驿货运科', text: '新京驿的货运科，夜班的日本职员在登记一批「特殊物资」的发运。他签完字，把单据的副本压在了抽屉最底下。',

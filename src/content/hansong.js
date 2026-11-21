@@ -93,6 +93,61 @@ export const CARDS_HS = {
     desc: u => `可用弹数上限 +${V(u, 3, 5)}，并立刻多装 ${V(u, 3, 5)} 发。`, play: (G, u) => G.magUp(V(u, 3, 5)) },
   hs_depot: { name: '备用弹匣', type: 'power', cost: [2, 1], rar: 'u', sch: '通',
     desc: () => '装填不再花能量。', play: G => G.power('depot', 1) },
+  // —— 手枪（扩充） ——
+  hs_tap: { name: '点射', type: 'atk', cost: [1, 1], rar: 'c', sch: '手', tgt: 'one', gun: 1,
+    sh: u => ({ n: 1, d: V(u, 9, 12) }), extra: G => G.feel(1), desc: (u, f) => `射击 1 发，${f(V(u, 9, 12))} 伤害；枪感 +1。` },
+  hs_two: { name: '双枪', type: 'atk', cost: [1, 1], rar: 'c', sch: '手', tgt: 'one', gun: 1,
+    sh: u => ({ n: 2, d: V(u, 5, 7) }), desc: (u, f) => `射击 2 发，每发 ${f(V(u, 5, 7))} 伤害。` },
+  hs_gunfu: { name: '枪斗术', type: 'atk', cost: [0, 0], rar: 'c', sch: '手', tgt: 'one', gun: 1,
+    sh: u => ({ n: 1, d: V(u, 4, 6) }), extra: (G, u) => G.block(V(u, 3, 5)), desc: (u, f) => `射击 1 发，${f(V(u, 4, 6))} 伤害；获得 ${V(u, 3, 5)} 格挡。` },
+  hs_misfire: { name: '走火', type: 'atk', cost: [0, 0], rar: 'c', sch: '手', tgt: 'one', gun: 1,
+    sh: u => ({ n: 1, d: V(u, 9, 12) }), extra: G => G.loseHp(2), desc: (u, f) => `射击 1 发，${f(V(u, 9, 12))} 伤害；失去 2 生命。` },
+  hs_casing: { name: '弹壳收集', type: 'skill', cost: [0, 0], rar: 'c', sch: '手',
+    desc: u => `枪感 +${V(u, 1, 2)}，抽 1。`, play: (G, u) => { G.feel(V(u, 1, 2)); G.draw(1); } },
+  hs_selector: { name: '快慢机', type: 'skill', cost: [1, 0], rar: 'u', sch: '手',
+    desc: () => '枪感 +3；本回合手枪牌少花 1 费。', play: G => { G.feel(3); G.B.p.selT = 1; } },
+  hs_rapid2: { name: '连射', type: 'atk', cost: [1, 1], rar: 'u', sch: '手', tgt: 'one', gun: 1,
+    sh: (u, B) => ({ n: Math.min(4, Math.max(1, Math.floor((B ? B.p.feel : 0) / 2))), d: V(u, 5, 7) }),
+    desc: (u, f) => `枪感每 2 点射击 1 发（至少 1 发，最多 4 发），每发 ${f(V(u, 5, 7))} 伤害。` },
+  hs_close: { name: '贴身射击', type: 'atk', cost: [1, 1], rar: 'u', sch: '手', tgt: 'one', gun: 1,
+    sh: u => ({ n: 1, d: V(u, 10, 13) }), bonus: (G, u, t) => (G.intends(t) ? 6 : 0),
+    desc: (u, f) => `射击 1 发，${f(V(u, 10, 13))} 伤害；目标这回合要打你，再 +6。` },
+  hs_dual: { name: '双持', type: 'power', cost: [2, 2], rar: 'r', sch: '手',
+    desc: () => '手枪牌每次多射 1 发。', play: G => G.power('dual', 1) },
+  hs_burst2: { name: '枪感爆发', type: 'atk', cost: [2, 2], rar: 'r', sch: '手', tgt: 'one', gun: 1,
+    sh: (u, B) => ({ n: 1, d: V(u, 3, 4) * (B ? B.p.feel : 0) }), extra: G => G.feelClear(),
+    desc: u => `射击 1 发，伤害等于枪感 ×${V(u, 3, 4)}；枪感清零。` },
+  // —— 冲锋枪（扩充） ——
+  hs_butt: { name: '枪托', type: 'atk', cost: [0, 0], rar: 'c', sch: '冲', tgt: 'one',
+    desc: u => `造成 ${V(u, 6, 9)} 伤害（不用子弹），枪感 +1。`, play: (G, u, t) => { G.melee(t, V(u, 6, 9)); G.feel(1); } },
+  hs_rush: { name: '突进', type: 'skill', cost: [1, 1], rar: 'c', sch: '冲',
+    desc: u => `获得 ${V(u, 8, 11)} 格挡，枪感 +2。`, play: (G, u) => { G.block(V(u, 8, 11)); G.feel(2); } },
+  hs_storm: { name: '弹壳风暴', type: 'atk', cost: [1, 1], rar: 'u', sch: '冲', tgt: 'one', gun: 1,
+    sh: (u, B) => ({ n: V(u, 2, 3), d: B ? B.p.feel : 0 }), desc: u => `射击 ${V(u, 2, 3)} 发，每发伤害等于枪感。` },
+  hs_supp: { name: '压制射击', type: 'atk', cost: [2, 2], rar: 'u', sch: '冲', gun: 1,
+    sh: u => ({ n: 2, d: V(u, 4, 5), all: 1 }), extra: G => G.alive().forEach(e => G.weak(e, 1)), desc: (u, f) => `对所有敌人各射击 2 发，每发 ${f(V(u, 4, 5))} 伤害；虚弱 1。` },
+  hs_supp2: { name: '扫射压制', type: 'atk', cost: [2, 2], rar: 'r', sch: '冲', gun: 1,
+    sh: u => ({ n: 3, d: V(u, 4, 5), all: 1 }), extra: G => G.alive().forEach(e => G.weak(e, 2)), desc: (u, f) => `对所有敌人各射击 3 发，每发 ${f(V(u, 4, 5))} 伤害；虚弱 2。` },
+  // —— 狙击（扩充） ——
+  hs_ballistic: { name: '弹道修正', type: 'skill', cost: [1, 1], rar: 'c', sch: '狙', tgt: 'one',
+    desc: u => `标尺 +${V(u, 2, 3)}；本回合下一张狙击牌，每层标尺再 +1 伤害。`, play: (G, u, t) => { G.mark(t, V(u, 2, 3)); G.B.p.nextPm = (G.B.p.nextPm || 0) + 1; } },
+  hs_steady: { name: '稳定射击', type: 'atk', cost: [2, 2], rar: 'u', sch: '狙', tgt: 'one', gun: 1,
+    sh: u => ({ n: 1, d: V(u, 14, 18) }), extra: (G, u, t) => { if (t && !t.dead) G.mark(t, 2); }, desc: (u, f) => `射击 1 发，${f(V(u, 14, 18))} 伤害；标尺 +2。` },
+  hs_wait: { name: '等待时机', type: 'atk', cost: [1, 1], rar: 'u', sch: '狙', tgt: 'one', gun: 1,
+    sh: u => ({ n: 1, d: V(u, 10, 13) }), pre: G => (G.atkPlayed() ? 0 : 1), bonus: G => (G.atkPlayed() ? 0 : 8),
+    extra: (G, u, t, res) => { if (res.pre && t && !t.dead) G.mark(t, 1); },
+    desc: (u, f) => `射击 1 发，${f(V(u, 10, 13))} 伤害；本回合没打过别的攻击牌，再 +8、标尺 +1。` },
+  hs_silent: { name: '静默射击', type: 'atk', cost: [1, 1], rar: 'u', sch: '狙', tgt: 'one', gun: 1, silent: 1,
+    sh: u => ({ n: 1, d: V(u, 9, 12) }), extra: (G, u, t, res) => { if (res.kill) G.draw(1); },
+    desc: (u, f) => `射击 1 发，${f(V(u, 9, 12))} 伤害，不算开枪（第二章不惊动巡警）；打倒敌人就抽 1。` },
+  hs_pinpoint: { name: '定点清除', type: 'atk', cost: [3, 3], rar: 'r', sch: '狙', tgt: 'one', gun: 1,
+    sh: u => ({ n: 1, d: 10, pm: V(u, 5, 6), use: 'all' }), extra: (G, u, t, res) => { if (res.kill) G.energy(1); },
+    desc: (u, f) => `射击 1 发，${f(10)} 伤害，每层标尺再 +${V(u, 5, 6)}；用掉全部标尺；打倒敌人能量 +1。` },
+  // —— 通用（扩充） ——
+  hs_fallback: { name: '战术撤退', type: 'skill', cost: [0, 0], rar: 'c', sch: '通',
+    desc: u => `获得 ${V(u, 5, 7)} 格挡；子弹打光时再抽 2。`, play: (G, u) => { G.block(V(u, 5, 7)); if (G.ammo() === 0) G.draw(2); } },
+  hs_prep: { name: '火力准备', type: 'power', cost: [2, 1], rar: 'r', sch: '通',
+    desc: () => '每回合第一张枪械牌 +4 伤害。', play: G => G.power('prep', 4) },
   // —— 缴获（不在奖励池，只从敌人或事件拿到） ——
   c_type97: { name: '九七式狙击', type: 'atk', cost: [1, 1], rar: 'loot', sch: '狙', tgt: 'one', gun: 1,
     sh: u => ({ n: 1, d: V(u, 12, 15) }), extra: (G, u, t) => { if (t && !t.dead) G.mark(t, 1); }, desc: (u, f) => `缴获的狙击步枪。射击 1 发，${f(V(u, 12, 15))} 伤害；标尺 +1。` },
@@ -108,7 +163,10 @@ Object.values(CARDS_HS).forEach(d => { d.ch = 'hansong'; });
 const ICON_HS = { note: 'pistol', s_beat: 'pistol', c_nambu: 'pistol', shoot: 'rifle', high: 'rifle', c_type97: 'rifle', crack: 'apround', h_shells: 'apround', h_lockon: 'helmet',
   refrain: 'scope', echo: 'scope', h_scope: 'scope', lowf: 'binoc', hs_spotter: 'binoc', h_ex: 'round', h_ricochet: 'round', standby: 'breath', skip: 'wind',
   barrage: 'smg', burst: 'smg', spread: 'smg', h_twin2: 'smg', c_ppsh: 'smg', h_sweep: 'casings', h_medkit: 'casings', c_type11: 'mg', h_drone: 'belt', expand: 'belt',
-  overload: 'barrel', rapid: 'barrel', hs_quickmag: 'mag', hs_depot: 'mag', hs_bayonet: 'bayonet' };
+  overload: 'barrel', rapid: 'barrel', hs_quickmag: 'mag', hs_depot: 'mag', hs_bayonet: 'bayonet',
+  hs_tap: 'pistol', hs_two: 'pistol', hs_gunfu: 'pistol', hs_misfire: 'pistol', hs_casing: 'casings', hs_selector: 'pistol', hs_rapid2: 'pistol', hs_close: 'pistol', hs_dual: 'pistol', hs_burst2: 'casings',
+  hs_butt: 'bayonet', hs_rush: 'smg', hs_storm: 'casings', hs_supp: 'smg', hs_supp2: 'mg', hs_ballistic: 'scope', hs_steady: 'rifle', hs_wait: 'breath', hs_silent: 'rifle', hs_pinpoint: 'scope',
+  hs_fallback: 'cover', hs_prep: 'mag' };
 Object.entries(ICON_HS).forEach(([k, v]) => { CARDS_HS[k].icon = v; });
 
 // ---------- 角色机制（战斗引擎在固定时机调用这些函数） ----------
@@ -119,15 +177,17 @@ function bonusOf(B, d) {
   const p = B.p; let flat = 0;
   if (d.sch === '狙') { flat += p.nextSn; if (p.pw.scope && !p.firstSniper) flat += p.pw.scope[0]; }
   if (d.sch === '冲' || d.sch === '手') flat += Math.floor(p.feel / 2);
+  if (p.pw.prep && !p.prepUsed) flat += p.pw.prep; /* 火力准备：每回合第一张枪械牌 */
   return flat + B.K.sum('shotBonus', d);
 }
 /* 枪械牌射击：每发扣 1 颗子弹，打空就停 */
 function fire(B, d, u, t) {
-  const K = B.K, p = B.p, sh = d.sh(u), sniper = d.sch === '狙';
-  const flat = bonusOf(B, d), pm = sh.pm || 0;
+  const K = B.K, p = B.p, sh = d.sh(u, B), sniper = d.sch === '狙';
+  const flat = bonusOf(B, d) + (d.bonus ? d.bonus(B.G, u, t) : 0), pm = (sh.pm || 0) + (sniper ? p.nextPm || 0 : 0);
+  p.prepUsed = 1; if (sniper) p.nextPm = 0;
   let scopeMark = 0;
   if (sniper) { if (p.pw.scope && !p.firstSniper) scopeMark = p.pw.scope[1]; p.firstSniper = 1; p.nextSn = 0; }
-  let n = sh.n || 0;
+  let n = (sh.n || 0) + (d.sch === '手' && p.pw.dual ? 1 : 0); /* 双持 */
   if (d.sch === '冲' && !p.firstSmg) { p.firstSmg = 1; n += K.sum('smgExtra'); }
   const marks0 = t ? t.marks : 0, plan = [];
   if (sh.mag) for (let k = 0; k < B.ammo; k++) plan.push('rand');
@@ -139,7 +199,7 @@ function fire(B, d, u, t) {
     const a = K.alive(); if (!a.length) break;
     let tg = x === 'rand' ? a[Math.floor(B.rng() * a.length)] : x;
     if (!tg || tg.dead) { if (sh.all) continue; tg = a[0]; } /* 目标死了，剩下的子弹打下一个 */
-    B.ammo--; shots++; B.noise = (B.noise || 0) + 1; /* 第二章：枪声会抬高可疑度 */
+    B.ammo--; shots++; if (!d.silent) B.noise = (B.noise || 0) + 1; /* 第二章：枪声会抬高可疑度（静默射击不算） */
     const mk = tg === t ? marks0 : tg.marks;
     let dmg = sh.d + flat + (sniper ? mk * (1 + pm) : 0);
     if (sh.exe && tg.hp < tg.max * sh.exe) dmg *= 2;
@@ -157,7 +217,8 @@ const cantReload = B => B.ammo >= B.cap ? '子弹已满' : B.p.energy < reloadCo
 
 export const MECH_HS = {
   init(B) { B.cap = MAG + B.K.sum('magBonus'); B.ammo = B.cap; B.p.feel = 0; },
-  turnStart(B) { const p = B.p; p.firstSniper = 0; p.nextSn = 0; p.firstSmg = 0; },
+  turnStart(B) { const p = B.p; p.firstSniper = 0; p.nextSn = 0; p.firstSmg = 0; p.prepUsed = 0; p.selT = 0; p.nextPm = 0; },
+  costMod(B, d) { return B.p.selT && d.sch === '手' && d.gun ? -1 : 0; }, /* 快慢机 */
   turnEnd(B) { B.p.feel = Math.max(0, B.p.feel - 1); },
   /* 卡牌现在打出去是什么样：'shoot' 射击 / 'bayonet' 拼刺 / null 不是枪械牌 */
   mode(B, d) { return !d.gun ? null : B.ammo > 0 ? 'shoot' : 'bayonet'; },
@@ -175,7 +236,7 @@ export const MECH_HS = {
     return {
       marks: e => (e ? e.marks : 0), ammo: () => B.ammo, mark: (e, n) => mark(B, e, n),
       addAmmo: n => { B.ammo = Math.min(B.cap, B.ammo + n); B.K.fx('hero', `子弹+${n}`, 'st'); },
-      nextSniper: n => { B.p.nextSn += n; }, feel: n => addFeel(B, n),
+      nextSniper: n => { B.p.nextSn += n; }, feel: n => addFeel(B, n), feelClear: () => { B.p.feel = 0; },
       magUp: n => { B.cap += n; B.ammo = Math.min(B.cap, B.ammo + n); B.K.fx('hero', `弹数上限+${n}`, 'st'); },
     };
   },
@@ -192,7 +253,7 @@ export const MECH_HS = {
     const pips = B.cap <= 16 ? Array.from({ length: B.cap }, (_, k) => `<i class="${k < B.ammo ? 'f' : ''}"></i>`).join('') : `<em class="mbar"><u style="width:${B.ammo / B.cap * 100}%"></u></em>`;
     return { main: `<div class="ammo ${B.ammo ? '' : 'zero'}" data-k="可用弹数"><span class="pips">${pips}</span><b>${B.ammo}/${B.cap}</b></div>`,
       chips: `<b class="feelc" data-k="枪感">枪感 ${B.p.feel}${B.p.feel >= 2 ? `（+${Math.floor(B.p.feel / 2)}）` : ''}</b>`,
-      powers: { scope: '瞄准镜', depot: '备用弹匣', rapid: '枪感训练', quick: '快换弹匣' } };
+      powers: { scope: '瞄准镜', depot: '备用弹匣', rapid: '枪感训练', quick: '快换弹匣', dual: '双持', prep: '火力准备' } };
   },
   /* 敌人头上的标尺 */
   enemyChips(e) { return e.marks ? `<b class="mark" data-k="标尺">🎯 标尺 ${e.marks}</b>` : ''; },

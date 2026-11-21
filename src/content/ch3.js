@@ -44,7 +44,7 @@ export const ENEMIES_CH3 = {
     ai: e => ['guard', 'saber', 'shoot'][e.t % 3] },
   /* —— 仓库 —— */
   burner: { name: '烧档案的宪兵', hp: [22, 26], col: '#5a4a30', frames: 'burner', artH: 240, sup: 1,
-    moves: { burn: { t: '往炉子里扔档案', i: 'def', blk: 7 }, shoot: { t: '射击', i: 'atk', d: 9 } },
+    moves: { burn: { t: '往炉子里扔档案（烧伤混进牌堆）', i: 'def', blk: 7, curse: 'st_burn' }, shoot: { t: '射击', i: 'atk', d: 9 } },
     ai: e => (e.t % 2 ? 'shoot' : 'burn') },
   /* 加强精英里那个：3 回合内不打倒，「拟销毁目录」就烧完了（第三份证据） */
   escort3: { name: '烧目录的宪兵', hp: [20, 22], col: '#5a4a30', frames: 'escort3', noAtk: 1, artH: 240, intel: 1, fleeTx: '把最后一页扔进了炉子',
@@ -175,7 +175,7 @@ export const EVENTS_CH3 = [
   /* —— 仓库 —— */
   { id: 'furnace', when: inSeg(1), title: '炉子', text: '仓库深处，几座炉子日夜在烧。地上堆着成捆的档案，封皮上盖着「极秘」的章。炉膛里有半页纸还没烧透，正一点点卷起来。',
     opts: [
-      { t: '伸手抢出来（生命 -5，理智 -1）', f: G => { G.hp(-5); G.san(-1); G.flag('scrap'); return '纸边烫得你直甩手。上面只剩几个字：「……移送……名……」后面烧没了。'; } },
+      { t: '伸手抢出来（生命 -5，理智 -1，得到诅咒「手抖」）', f: G => { G.hp(-5); G.san(-1); G.flag('scrap'); G.addCard('cu_shake'); return '纸边烫得你直甩手。上面只剩几个字：「……移送……名……」后面烧没了。你的手抖了好几天。（牌组里多了一张「手抖」）'; } },
       { t: '赶紧走', f: () => '火光把你们的影子投在墙上，很长，很长。' },
     ] },
   { id: 'logbook', when: inSeg(1), title: '值班日志', text: '值班室的桌上摊着一本值班日志。字一开始很工整。',
@@ -192,7 +192,7 @@ export const EVENTS_CH3 = [
   { id: 'knock2', when: R => SEG((R.pos && R.pos.r) || 0) >= 1 && has(R, 'knock'), title: '又是敲墙声', text: '咚。咚咚。咚。<br>是那个暗号。你没有回应。<br>那边停了一会儿，又敲了起来。这一回很慢，一下，一下，像是一个字一个字地拼。<br>拼出来的，是你的名字。',
     opts: [
       { t: '敲回去', f: G => { G.curse(); return '你不知道自己为什么要这么做。手好像不是自己的。<br>敲声停了。有什么东西，跟上来了。（牌组里多了一张「它」）'; } },
-      { t: '捂住耳朵往前走（理智 -2）', f: G => { G.san(-2); return '敲声在你身后跟了一路，每一下都离得更近一点。'; } },
+      { t: '捂住耳朵往前走（理智 -2，得到诅咒「耳鸣」）', f: G => { G.san(-2); G.addCard('cu_tinnitus'); return '敲声在你身后跟了一路，每一下都离得更近一点。后来敲声停了，耳朵里还在响。（牌组里多了一张「耳鸣」）'; } },
     ] },
   { id: 'hilt', when: inSeg(1), title: '熔剩的军刀', text: '角落里扔着一堆碎铁，是军刀熔剩的。没熔化的刀柄上缠着丝绳，刻着名字：「陆军中尉 ……」「陆军大尉 ……」<br>一共十几把。都是阵亡军官的。',
     opts: [

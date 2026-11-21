@@ -15,7 +15,7 @@ export const ENEMIES_CH1 = {
     moves: { bite: { t: '撕咬', i: 'atk', d: 4, x: 2 }, pounce: { t: '扑倒', i: 'atk', d: 6, weak: 1 } },
     ai: (e, B, r) => e.last === 'pounce' ? 'bite' : r() < .6 ? 'bite' : 'pounce' },
   mortar: { name: '掷弹筒兵', hp: [20, 22], col: '#6a6050', frames: 'mortar', artH: 188, sup: 1,
-    moves: { load: { t: '装弹', i: 'charge', next: 14 }, fire: { t: '炮击', i: 'atk', d: 14 }, dig: { t: '挖掩体', i: 'def', blk: 8 } },
+    moves: { load: { t: '装弹', i: 'charge', next: 14 }, fire: { t: '炮击（眩晕混进牌堆）', i: 'atk', d: 14, curse: 'st_daze' }, dig: { t: '挖掩体', i: 'def', blk: 8 } },
     ai: e => ['load', 'fire', 'dig'][e.t % 3] },
   mg: { name: '机枪组', hp: [30, 34], col: '#4a5040', armor: 2, frames: 'mg', artH: 123, loot: 'c_type11', lootP: .5, sup: 1, showAmmo: 1,
     ammo: 2, moves: { spray: { t: '扫射', i: 'atk', d: 3, x: 3, shot: 1 }, reload: { t: '换弹斗', i: 'reload', blk: 10 } },
@@ -67,7 +67,7 @@ export const ENEMIES_CH1 = {
     ai: e => (e.t % 2 ? 'glide' : 'strike') },
   gun: { name: '步兵炮小队', hp: [62, 68], col: '#4a4a36', frames: 'gun', artH: 160, elite: 1, sup: 1, interrupt: { at: 15, moves: ['aim1', 'aim2'], to: 'stagger' },
     moves: { aim1: { t: '架炮瞄准（这回合挨够 15 伤害就被打断）', i: 'charge', next: '开炮', blk: 8 }, aim2: { t: '装填炮弹（挨够 15 伤害就被打断）', i: 'charge', next: '开炮', blk: 8 },
-      fire: { t: '九二式步兵炮开炮', i: 'atk', d: 26 }, stagger: { t: '手忙脚乱', i: 'def', blk: 4 }, shoot: { t: '步枪射击', i: 'atk', d: 7 } },
+      fire: { t: '九二式步兵炮开炮（两张眩晕混进牌堆）', i: 'atk', d: 26, curse: 'st_daze', cn: 2 }, stagger: { t: '手忙脚乱', i: 'def', blk: 4 }, shoot: { t: '步枪射击', i: 'atk', d: 7 } },
     ai: e => { if (e.last === 'stagger') e.cyc = 3; e.cyc = ((e.cyc == null ? -1 : e.cyc) + 1) % 4; return ['aim1', 'aim2', 'fire', 'shoot'][e.cyc]; } },
 };
 
@@ -118,7 +118,7 @@ export const EVENTS_CH1 = [
     ] },
   { id: 'river', title: '封冻的河', text: '一条河挡在前面。冰面看着结实，但河心颜色发暗。绕到上游的桥要多走半天。',
     opts: [
-      { t: '踩冰过河（一半可能落水：生命 -8，体温 -4）', f: G => { if (G.rng() < .5) { G.hp(-8); G.temp(-4); return '冰面「咔」地裂开，你半个身子掉进冰水里。'; } return '冰面吱吱作响，但你们平安过去了。'; } },
+      { t: '踩冰过河（一半可能落水：生命 -8，体温 -4，得到诅咒「冻伤」）', f: G => { if (G.rng() < .5) { G.hp(-8); G.temp(-4); G.addCard('cu_frost'); return '冰面「咔」地裂开，你半个身子掉进冰水里。脚趾头好几天都没有知觉。（牌组里多了一张「冻伤」）'; } return '冰面吱吱作响，但你们平安过去了。'; } },
       { t: '绕路（体温 -2，口粮 -1）', f: G => { G.temp(-2); G.food(-1); return '你们在风雪里多走了半天。'; } },
     ] },
   { id: 'tribe', title: '集团部落', text: '山脚下是一座「集团部落」：日伪把山里的散户强迫并进来，四周围着土墙和炮楼，为的是断掉老百姓给抗联送粮。墙根底下，有人朝你们这边轻轻咳了一声。',
@@ -145,6 +145,7 @@ export const EVENTS_CH1 = [
     opts: [
       { t: '翻找一下（获得 1 件随身物品）', f: G => { G.relic(); return '炕洞里藏着一个小布包，是当年留下的东西。'; } },
       { t: '在墙上也刻下小分队的名字（升级 1 张牌）', f: G => { G.upgrade(); return '你用刺刀一笔一画刻下了名字，和前面那几行字挨在一起。'; } },
+      { t: '一个一个念墙上的名字（最大生命 +4，得到诅咒「思乡」）', f: G => { G.maxHp(4); G.addCard('cu_home'); return '有一个名字你认得，是同村的。你想起了娘蒸的黏豆包。（牌组里多了一张「思乡」）'; } },
     ] },
   { id: 'manchu', title: '满族老猎人', text: '一个满族老猎人拖着爬犁从林子里出来，爬犁上捆着一只狍子。他在这片山里打了一辈子猎，看了看你们，问要不要换东西。',
     opts: [
@@ -161,7 +162,7 @@ export const EVENTS_CH1 = [
     opts: [
       { t: '【听得懂几句日语】仔细听他在说什么', need: G => G.lang('ja') >= 1, f: G => { G.relic(G.hasRelic('intelmap') ? null : 'intelmap'); return '你只听懂了几个词：「讨伐队」「北沟」「明天」。他是从讨伐队里逃出来的，路线全在他嘴里。你们照着他比划的方向，画下了一张敌情图。'; } },
       { t: '给他一口吃的，指条下山的路（口粮 -1）', need: G => G.foodN() >= 1, f: G => { G.food(-1); if (G.rng() < .3) { G.fight(['inf', 'inf']); return '他千恩万谢地走了。半个时辰后，林子里响起了枪声——他还是把讨伐队带了回来。'; } G.maxHp(3); return '他千恩万谢，朝山下踉踉跄跄地走了。有人一直盯着他的背影，直到看不见。（最大生命 +3）'; } },
-      { t: '搜走他身上的东西，各走各的路', f: G => { G.item('beef'); return '你们从他的背囊里翻出一个罐头。走出很远，没人回头。'; } },
+      { t: '搜走他身上的东西，各走各的路（得到罐头和诅咒「悔意」）', f: G => { G.item('beef'); G.addCard('cu_regret'); return '你们从他的背囊里翻出一个罐头。走出很远，没人回头。夜里你梦见了那双举着的手。（牌组里多了一张「悔意」）'; } },
     ] },
   { id: 'weasel', title: '黄皮子讨封', text: '雪地上，一只黄皮子（黄鼠狼）像人一样直直地站了起来，两只前爪拱在胸前，一动不动地盯着你。屯子里的老辈人说过：黄皮子修行到了时候，会拦住过路人「讨封」，问一句——「你看我，像人，还是像神？」',
     opts: [

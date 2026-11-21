@@ -74,10 +74,60 @@ export const CARDS_SQ = {
     desc: u => `她会俄语：抽 2，能量 +${V(u, 1, 2)}。消耗。`, play: (G, u) => { G.draw(2); G.energy(V(u, 1, 2)); } },
   sq_coat: { name: '换装', type: 'skill', cost: [1, 1], rar: 'c', sch: '通', icon: 'cover',
     desc: u => `获得 ${V(u, 8, 11)} 格挡。`, play: (G, u) => G.block(V(u, 8, 11)) },
+  // —— 侦（扩充） ——
+  sq_listen: { name: '监听', type: 'skill', cost: [0, 0], rar: 'c', sch: '侦', icon: 'binoc',
+    desc: u => `情报 +${V(u, 1, 2)}，抽 1。`, play: (G, u) => { G.intel(V(u, 1, 2)); G.draw(1); } },
+  sq_foresee: { name: '预判', type: 'skill', cost: [1, 1], rar: 'c', sch: '侦', icon: 'binoc',
+    desc: u => `抽 1，侦明 2，获得 ${V(u, 4, 7)} 格挡。`, play: (G, u) => { G.draw(1); G.block(V(u, 4, 7)); G.scry(2); } },
+  sq_match: { name: '线索：火柴盒', type: 'atk', cost: [1, 1], rar: 'c', sch: '侦', tgt: 'one', clueTag: 1, icon: 'pistol',
+    desc: u => `造成 ${V(u, 7, 10)} 伤害。【线索】被侦明弃掉时：所有敌人虚弱 1。`, play: (G, u, t) => G.melee(t, V(u, 7, 10)), clue: G => G.alive().forEach(e => G.weak(e, 1)) },
+  sq_mapbit: { name: '线索：地图碎片', type: 'skill', cost: [1, 1], rar: 'u', sch: '侦', clueTag: 1, icon: 'letter',
+    desc: u => `侦明 ${V(u, 3, 4)}。【线索】被侦明弃掉时：情报 +2。`, play: (G, u) => G.scry(V(u, 3, 4)), clue: G => G.intel(2) },
+  sq_wire: { name: '电文', type: 'skill', cost: [1, 1], rar: 'u', sch: '侦', icon: 'letter',
+    desc: u => `情报 +${V(u, 2, 3)}，抽 1。`, play: (G, u) => { G.intel(V(u, 2, 3)); G.draw(1); } },
+  sq_ear: { name: '侦听', type: 'power', cost: [1, 0], rar: 'u', sch: '侦', icon: 'binoc',
+    desc: () => '每次侦明多看 1 张。', play: G => G.power('listen', 1) },
+  sq_fire: { name: '呼叫火力', type: 'atk', cost: [1, 1], rar: 'u', sch: '侦', icon: 'grenade', need: G => G.intelN() >= 2, needTx: '情报不够 2',
+    desc: u => `花 2 情报：对所有敌人造成 ${V(u, 12, 16)} 伤害。`, play: (G, u) => { G.intel(-2); G.meleeAll(V(u, 12, 16)); } },
+  sq_net: { name: '情报网', type: 'power', cost: [2, 1], rar: 'r', sch: '侦', icon: 'binoc',
+    desc: () => '情报上限变成 9；每回合开始侦明 2。', play: G => G.power('net', 2) },
+  sq_assault: { name: '总攻', type: 'atk', cost: [3, 3], rar: 'r', sch: '侦', icon: 'grenade', need: G => G.intelN() >= 3, needTx: '情报不够 3',
+    desc: u => `花 3 情报：对所有敌人造成 ${V(u, 20, 26)} 伤害。`, play: (G, u) => { G.intel(-3); G.meleeAll(V(u, 20, 26)); } },
+  // —— 伏（扩充） ——
+  sq_lead: { name: '提前量', type: 'atk', cost: [1, 1], rar: 'c', sch: '伏', tgt: 'one', icon: 'pistol',
+    desc: u => `造成 ${V(u, 7, 10)} 伤害；迎击：抽 2。`, play: (G, u, t) => { const a = atk(G, t); G.melee(t, V(u, 7, 10)); if (a) G.draw(2); } },
+  sq_feint: { name: '佯动', type: 'skill', cost: [1, 1], rar: 'c', sch: '伏', icon: 'cover',
+    desc: u => `获得 ${V(u, 7, 10)} 格挡，侦明 2。`, play: (G, u) => { G.block(V(u, 7, 10)); G.scry(2); } },
+  sq_breath: { name: '屏住气', type: 'skill', cost: [0, 0], rar: 'c', sch: '伏', tgt: 'one', icon: 'cover',
+    desc: u => `获得 ${V(u, 4, 6)} 格挡；迎击：再 +${V(u, 6, 8)}。`, play: (G, u, t) => G.block(V(u, 4, 6) + (atk(G, t) ? V(u, 6, 8) : 0)) },
+  sq_cover: { name: '掩护撤退', type: 'skill', cost: [1, 1], rar: 'c', sch: '伏', tgt: 'one', icon: 'cover',
+    desc: u => `获得 ${V(u, 8, 11)} 格挡；迎击：情报 +1。`, play: (G, u, t) => { G.block(V(u, 8, 11)); if (atk(G, t)) G.intel(1); } },
+  sq_after: { name: '后发制人', type: 'atk', cost: [2, 2], rar: 'u', sch: '伏', tgt: 'one', icon: 'pistol',
+    desc: u => `造成 ${V(u, 12, 15)} 伤害；迎击：再打 1 次。`, play: (G, u, t) => { const a = atk(G, t); G.melee(t, V(u, 12, 15)); if (a && t && !t.dead) G.melee(t, V(u, 12, 15)); } },
+  sq_feign: { name: '声东击西', type: 'skill', cost: [1, 0], rar: 'u', sch: '伏', icon: 'helmet',
+    desc: () => '所有敌人易伤 1；要攻击你的敌人改为易伤 2。', play: G => G.alive().forEach(e => G.vuln(e, G.intends(e) ? 2 : 1)) },
+  sq_sitmap: { name: '战况图', type: 'power', cost: [1, 1], rar: 'u', sch: '伏', icon: 'letter',
+    desc: u => `每回合开始，每有一个要攻击你的敌人，获得 ${V(u, 4, 6)} 格挡。`, play: (G, u) => G.power('sitmap', V(u, 4, 6)) },
+  sq_ambusher: { name: '伏兵', type: 'power', cost: [2, 2], rar: 'r', sch: '伏', icon: 'pistol',
+    desc: u => `每回合第一次挨打，对打你的敌人造成 ${V(u, 10, 14)} 伤害。`, play: (G, u) => G.power('ambusher', V(u, 10, 14)) },
+  sq_birch: { name: '白桦林', type: 'skill', cost: [3, 2], rar: 'r', sch: '伏', icon: 'cover',
+    desc: () => '获得 30 格挡，情报 +3。', play: G => { G.block(30); G.intel(3); } },
+  // —— 通用（扩充） ——
+  sq_hide2: { name: '藏身', type: 'skill', cost: [1, 1], rar: 'c', sch: '通', icon: 'cover',
+    desc: u => `获得 ${V(u, 6, 9)} 格挡；下回合多抽 1。`, play: (G, u) => { G.block(V(u, 6, 9)); G.nextDraw(1); } },
+  sq_send: { name: '发报', type: 'skill', cost: [1, 1], rar: 'c', sch: '通', icon: 'letter',
+    desc: u => `情报 +1，抽 ${V(u, 1, 2)}。`, play: (G, u) => { G.intel(1); G.draw(V(u, 1, 2)); } },
+  sq_three: { name: '连开三枪', type: 'atk', cost: [2, 2], rar: 'u', sch: '通', tgt: 'one', icon: 'pistol',
+    desc: u => `造成 ${V(u, 7, 9)} 伤害 3 次（会出声）。`, play: (G, u, t) => { for (let i = 0; i < 3; i++) { const a = G.alive(); if (!a.length) break; G.melee(t && !t.dead ? t : a[0], V(u, 7, 9)); } G.noise(1); } },
+  sq_codebook: { name: '密码本', type: 'power', cost: [1, 0], rar: 'u', sch: '通', icon: 'letter',
+    desc: () => '每回合第一次侦明后，抽 1。', play: G => G.power('code', 1) },
+  sq_letter: { name: '家书', type: 'skill', cost: [0, 0], rar: 'r', sch: '通', ex: 1, icon: 'letter',
+    desc: u => `回复 ${V(u, 3, 5)} 生命，情报 +2。消耗。（写在桦树皮上的那几页）`, play: (G, u) => { G.heal(V(u, 3, 5)); G.intel(2); } },
 };
 Object.values(CARDS_SQ).forEach(d => { d.ch = 'shen'; });
 
-function addIntel(B, n) { const p = B.p, k = Math.min(INTEL_MAX, p.intel + n); if (k > p.intel) B.K.fx('hero', `情报+${k - p.intel}`, 'st'); p.intel = k; }
+const imax = B => B.p.pw.net ? 9 : INTEL_MAX; /* 情报网：上限 9 */
+function addIntel(B, n) { const p = B.p, k = Math.max(0, Math.min(imax(B), p.intel + n)); if (k > p.intel) B.K.fx('hero', `情报+${k - p.intel}`, 'st'); p.intel = k; }
 const cost = B => B.p.pw.master ? 2 : DISRUPT;
 /* 最危险的敌人：这回合打你最疼的；都不打就挑生命最多的 */
 function threat(B) {
@@ -89,21 +139,25 @@ export const MECH_SQ = {
   seeHidden: 1,
   init(B) { const p = B.p; p.intel = 0; p.disrupted = 0; },
   turnStart(B) {
-    const p = B.p; p.disrupted = 0; p.turnUsed = 0;
+    const p = B.p; p.disrupted = 0; p.turnUsed = 0; p.codeUsed = 0; p.ambUsed = 0;
+    if (p.pw.sitmap) { const n = B.K.alive().filter(e => B.G.intends(e)).length * p.pw.sitmap; if (n) { p.block += n; B.K.fx('hero', '+' + n, 'blk'); } }
     if (p.pw.master) addIntel(B, 1);
   },
-  afterDraw(B) { if (B.p.pw.tail) B.G.scry(B.p.pw.tail); },
+  afterDraw(B) { if (B.p.pw.tail) B.G.scry(B.p.pw.tail); if (B.p.pw.net) B.G.scry(B.p.pw.net); },
+  /* 伏兵：每回合第一次挨打，还打你的人一下 */
+  onHitBy(B, src) { const p = B.p; if (p.pw.ambusher && !p.ambUsed) { p.ambUsed = 1; B.K.fx(src.id, '伏兵', 'st'); B.K.hitEnemy(src, p.pw.ambusher); } },
   turnEnd() {},
   onScry(B, k, out = 0) {
     const p = B.p; addIntel(B, 1);
     if (p.pw.read) { p.block += p.pw.read; B.K.fx('hero', '+' + p.pw.read, 'blk'); }
     if (p.planDraw) { p.planDraw = 0; if (out) B.K.drawCards(out); }
+    if (p.pw.code && !p.codeUsed) { p.codeUsed = 1; B.K.drawCards(1); }
   },
   /* 自动侦明（模拟、测试用）：弃掉带线索的、基础牌和格挡牌留一张，其余留下 */
-  scryBot(B, top) { return top.filter(c => c.id === 'defend' || /^sq_(foot|butt|draft|ticket)$/.test(c.id)).map(c => c.uid); },
+  scryBot(B, top) { return top.filter(c => c.id === 'defend' || /^sq_(foot|butt|draft|ticket|match|mapbit)$/.test(c.id)).map(c => c.uid); },
   G(B) {
     return {
-      intel: n => addIntel(B, n),
+      intel: n => addIntel(B, n), intelN: () => B.p.intel,
       /* 迎击类加成：将计就计 */
       melee: (t, n) => { if (!t || t.dead) return; let x = n; if (B.p.pw.turn && !B.p.turnUsed && B.G.intends(t)) { B.p.turnUsed = 1; x += B.p.pw.turn; } B.K.hitEnemy(t, B.K.atkMod(t, x)); },
     };
@@ -118,8 +172,8 @@ export const MECH_SQ = {
   },
   info(B) {
     const p = B.p;
-    return { main: `<div class="ammo intelv" data-k="情报"><span class="pips">${Array.from({ length: INTEL_MAX }, (_, i) => `<i class="${i < p.intel ? 'f' : ''}"></i>`).join('')}</span><b>情报 ${p.intel}</b></div>`,
-      chips: '', powers: { tail: '盯梢', read: '判读', master: '全盘掌握', turn: '将计就计' } };
+    return { main: `<div class="ammo intelv" data-k="情报"><span class="pips">${Array.from({ length: imax(B) }, (_, i) => `<i class="${i < p.intel ? 'f' : ''}"></i>`).join('')}</span><b>情报 ${p.intel}</b></div>`,
+      chips: '', powers: { tail: '盯梢', read: '判读', master: '全盘掌握', turn: '将计就计', listen: '侦听', net: '情报网', sitmap: '战况图', ambusher: '伏兵', code: '密码本' } };
   },
   enemyChips() { return ''; },
   shotKind() { return null; },

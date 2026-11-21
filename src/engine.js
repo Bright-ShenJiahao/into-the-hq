@@ -43,9 +43,13 @@ export function startBattle(R, keys, kind, rng, opt = {}) {
 
 export function startTurn(B, first) {
   const p = B.p; B.turn++;
-  p.block = 0; p.counter = 0; /* 反击只管到敌人回合结束 */ p.energy = ENERGY + sum(B, 'energy', !!first); p.firstGunPlayed = 0;
+  p.block = p.pw.stance ? Math.floor(p.block / 2) : 0; /* 扎马步：上回合剩的格挡留一半 */ p.counter = 0; /* 反击只管到敌人回合结束 */ p.energy = ENERGY + sum(B, 'energy', !!first); p.firstGunPlayed = 0;
+  p.atkT = 0; p.whetUsed = 0; p.halfHit = 0; p.minus3 = 0;
   B.mech.turnStart(B);
-  let n = DRAW + sum(B, 'draw', !!first);
+  /* 通用能力（通用卡给的）：防寒大衣、老兵经验 */
+  if (p.pw.cblk) { p.block += p.pw.cblk; fx(B, 'hero', '+' + p.pw.cblk, 'blk'); }
+  if (p.pw.ePlus) p.energy += p.pw.ePlus;
+  let n = DRAW + sum(B, 'draw', !!first) + (p.pw.drawPlus || 0) + (p.nextDraw || 0) - (p.drawLess || 0); p.nextDraw = 0; p.drawLess = 0;
   if (first && B.R.temp < 3 && !flag(B, 'noColdDraw')) { n--; B.msgs.push('体温太低，手脚发僵：第一回合少抽 1 张。'); }
   /* 被「面具」拿走的牌，到时候还回来 */
   if (B.taken && B.taken.length) { for (const x of B.taken) x.t--; const back = B.taken.filter(x => x.t <= 0); B.taken = B.taken.filter(x => x.t > 0); for (const x of back) { B.hand.push(x.c); B.msgs.push(`${CARDS[x.c.id].name}回到了你手里。`); } }
@@ -60,11 +64,12 @@ export function drawCards(B, n) {
   for (let i = 0; i < n; i++) {
     if (B.hand.length >= HAND_MAX) return;
     if (!B.draw.length) { if (!B.disc.length) return; B.draw = shuffle(B.disc, B.rng); B.disc = []; }
-    B.hand.push(B.draw.pop());
+    const c = B.draw.pop(); B.hand.push(c);
+    const d = CARDS[c.id]; if (d.onDraw && B.G) d.onDraw(B.G, B);
   }
 }
 
-export const cardCost = (B, c) => { const d = CARDS[c.id]; return Math.max(0, d.cost[c.up ? 1 : 0] + sum(B, 'costMod', d, c)); };
+export const cardCost = (B, c) => { const d = CARDS[c.id]; return Math.max(0, d.cost[c.up ? 1 : 0] + sum(B, 'costMod', d, c) + (B.mech.costMod ? B.mech.costMod(B, d) : 0)); };
 export const needTarget = c => CARDS[c.id].tgt === 'one';
 /* 这张牌现在打出去是什么样（韩松：'shoot' 射击 / 'bayonet' 拼刺 / null） */
 export const cardMode = (B, c) => B.mech.mode ? B.mech.mode(B, CARDS[c.id]) : null;
@@ -75,6 +80,7 @@ export function cantPlay(B, c) {
   const d = CARDS[c.id];
   if (d.unplay) return '不能打出';
   if (cardCost(B, c) > B.p.energy) return '能量不够';
+  if (d.need && !d.need(B.G)) return d.needTx || '条件不够';
   return B.mech.cantPlay ? B.mech.cantPlay(B, d) : null;
 }
 
@@ -120,6 +126,7 @@ export const BLEED_MAX = 12;
 function bleed(B, e, n) {
   if (!e || e.dead || n <= 0) return;
   if (e.armor > 0 || e.d.immune || e.d.noBleed) { fx(B, e.id, '不流血', 'st'); return; }
+  if (B.mech.bleedMod) n = B.mech.bleedMod(B, e, n);
   const k = Math.min(BLEED_MAX, (e.st.bleed || 0) + n); if (k > (e.st.bleed || 0)) fx(B, e.id, `流血+${k - (e.st.bleed || 0)}`, 'st'); e.st.bleed = k;
 }
 /* 士气（伪满军）：同伴倒下一个「动摇」+1；动摇到 2 就溃逃——但有日军（或伪满警察队长）督战时不逃 */
@@ -133,6 +140,9 @@ function morale(B) {
 
 /* 你的攻击：虚弱、易伤、装甲 */
 function atkMod(B, e, d, sh = {}) {
+  const p = B.p; d += (p.str || 0) + (B.mech.atkBonus ? B.mech.atkBonus(B) : 0);
+  if (p.pw.whet && !p.whetUsed) { p.whetUsed = 1; d += p.pw.whet; }
+  if (B.hand.some(c => CARDS[c.id].shake)) d -= 2;
   if (B.p.st.weak) d *= .75;
   if (e.st.vuln) d *= 1.5;
   if (e.armor) d = sh.ap != null ? d * (1 + sh.ap) : d - e.armor;
@@ -151,6 +161,7 @@ export function playCard(B, i, tid) {
   else if (d.play) d.play(B.G, u, t);
   if (d.type !== 'power') (d.ex ? B.exh : B.disc).push(c); /* 能力牌打出后本场移出牌组 */
   trigger(B, 'cardPlayed', d);
+  if (d.type === 'atk') B.p.atkT = (B.p.atkT || 0) + 1;
   return true;
 }
 
@@ -158,7 +169,15 @@ export function playCard(B, i, tid) {
 function mkG(B) {
   const G = {
     B, alive: () => alive(B), rng: B.rng,
-    block: n => { B.p.block += n; fx(B, 'hero', '+' + n, 'blk'); },
+    block: n => { n += B.p.dex || 0; if (n <= 0) return; B.p.block += n; fx(B, 'hero', '+' + n, 'blk'); if (B.mech.onBlock) B.mech.onBlock(B, n); },
+    /* 近战，对装甲另算（ap：对装甲加成的倍数，无视装甲） */
+    meleeAP: (t, n, ap) => { if (t) hitEnemy(B, t, atkMod(B, t, n, { ap })); },
+    str: n => { B.p.str = (B.p.str || 0) + n; fx(B, 'hero', `攻击+${n}`, 'st'); },
+    dex: n => { B.p.dex = (B.p.dex || 0) + n; },
+    nextDraw: n => { B.p.nextDraw = (B.p.nextDraw || 0) + n; },
+    halfHit: () => { B.p.halfHit = 1; }, minus3: () => { B.p.minus3 = 1; },
+    clearSelf: () => { delete B.p.st.weak; delete B.p.st.vuln; fx(B, 'hero', '缓过来了', 'st'); },
+    atkPlayed: () => B.p.atkT || 0,
     draw: n => drawCards(B, n),
     heal: n => { const k = Math.min(n, B.R.maxHp - B.R.hp); if (k > 0) { B.R.hp += k; fx(B, 'hero', '+' + k, 'heal'); } },
     melee: (t, n) => { if (t) hitEnemy(B, t, atkMod(B, t, n)); },
@@ -190,6 +209,7 @@ function mkG(B) {
 
 /* 侦明（沈知秋）：看抽牌堆顶 n 张，挑着弃掉。界面弹框让玩家挑；自动模式（模拟、测试）由角色的 scryBot 来挑 */
 function scry(B, n) {
+  n += B.p.pw.listen || 0;
   const k = Math.min(n, B.draw.length); if (!k) { if (B.mech.onScry) B.mech.onScry(B, 0); return; }
   B.scryQ.push(k); if (B.autoScry) { const top = B.draw.slice(-k).reverse(); resolveScry(B, B.mech.scryBot ? B.mech.scryBot(B, top) : []); }
 }
@@ -212,11 +232,11 @@ export function useItem(B, it) { if (!it.battle) return false; it.battle(B.G); r
 /* 结束你的回合：弃手牌，你的状态减 1 */
 export function endPlayerTurn(B) {
   /* 手里留到回合结束的牌：inHandEnd 生效；「虚无」的直接消耗；「保留」的留在手里 */
-  for (const c of B.hand) { const d = CARDS[c.id]; if (d.inHandEnd) d.inHandEnd(B.G, B); }
+  for (const k of ['weak', 'vuln']) if (B.p.st[k]) addSt(B.p, k, -1);
+  for (const c of B.hand) { const d = CARDS[c.id]; if (d.inHandEnd) d.inHandEnd(B.G, B); } /* 放在状态减 1 之后：疑心给的虚弱要留到敌人回合 */
   const keep = B.hand.filter(c => CARDS[c.id].retain);
   for (const c of B.hand) if (!CARDS[c.id].retain) (CARDS[c.id].ethereal ? B.exh : B.disc).push(c);
   B.hand = keep;
-  for (const k of ['weak', 'vuln']) if (B.p.st[k]) addSt(B.p, k, -1);
   B.mech.turnEnd(B);
   trigger(B, 'turnEnd', B);
 }
@@ -239,12 +259,15 @@ export const incoming = B => alive(B).reduce((s, e) => s + (intentOf(B, e).dmg |
 
 /* 你挨打：先扣格挡，再扣工事（赵铁山，不会清零的格挡），最后扣生命；反击（田守义）打回去 */
 function hitPlayer(B, amt, src) {
+  if (B.p.halfHit && amt > 0) { B.p.halfHit = 0; amt = Math.floor(amt / 2); fx(B, 'hero', '躲开一半', 'st'); }
+  if (B.p.minus3 && amt > 0) { B.p.minus3 = 0; amt = Math.max(0, amt - 3); }
   const u = Math.min(B.p.block, amt); B.p.block -= u; let left = amt - u;
   if (left && B.p.fort) { const w = Math.min(B.p.fort, left); B.p.fort -= w; left -= w; fx(B, 'hero', `工事-${w}`, 'blk'); }
   B.R.hp -= left; fx(B, 'hero', left ? '-' + left : '格挡', left ? 'dmg' : 'blk');
   if (left > 0 && B.mech.onHurt) B.mech.onHurt(B, left);
   const ctr = (B.p.counter || 0) + (B.p.pw.mine || 0);
   if (src && !src.dead && ctr > 0) { fx(B, src.id, '反击', 'st'); hitEnemy(B, src, ctr); }
+  if (src && !src.dead && B.mech.onHitBy) B.mech.onHitBy(B, src);
   if (B.R.hp <= 0) { B.R.hp = 0; if (!relicsOf(B).some(r => r.lethal && r.lethal(B.G, B))) B.over = 'lose'; }
 }
 
