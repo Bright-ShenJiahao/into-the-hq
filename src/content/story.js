@@ -161,26 +161,26 @@ export const ADV_CH3_END = { bg: 'assets/story/adv3_radio.jpg', lines: [['narr',
   ['shenzhiqiu', '（她听了一会儿）……他们投降了。'], ['tianshouyi', '投降了？'], ['hansong', '……'], ['chenmo', '那些没烧完的档案呢？'],
   ['laoshen', '在司令部。他们还在烧。'], ['laoshen', '把清单、副本、目录凑齐的人——跟我走。']] };
 
-/* —— 真结局「长夜将尽」（1945 年 8 月 15 日夜，关东军司令部）。背景先借，以后按内容出 —— */
-export const ADV_TE_OPEN = { bg: 'assets/story/adv3_depot.jpg', lines: [['narr', '1945 年 8 月 15 日夜。关东军司令部的楼里，每一层都在烧东西。'],
+/* —— 真结局「长夜将尽」（1945 年 8 月 15 日夜，关东军司令部） —— */
+export const ADV_TE_OPEN = { bg: 'assets/story/te_archive.jpg', lines: [['narr', '1945 年 8 月 15 日夜。关东军司令部的楼里，每一层都在烧东西。'],
   ['narr', '走廊尽头的档案室，门开着。一个戴眼镜的参谋站在铁桶前，一页一页往火里扔。'], ['laoshen', '就是他。最后那几页，在他手里。'], ['zhaotieshan', '他再扔一会儿，就啥也不剩了。'], ['hero', '那就别让他扔完。']] };
 /* 名单：证据保住多少（R.evid），看得清多少。保住四成以上，才有认出名字的那一刻 */
 const TE_STAY = [['narr', '楼梯口传来脚步声和日语的喊叫，烟从门缝里涌进来。'], ['zhaotieshan', '楼梯我来守。炸药还够。'], ['zhaotieshan', '九一八那晚我退了。这回，一步也不退。']];
-export const TE_REVEAL_HI = { bg: 'assets/story/adv3_depot.jpg', lines: [['narr', '火灭了。铁桶边剩下一摞烧焦了边的纸。'], ['shenzhiqiu', '「特别移送」……'],
+export const TE_REVEAL_HI = { bg: 'assets/story/te_archive.jpg', lines: [['narr', '火灭了。铁桶边剩下一摞烧焦了边的纸。'], ['shenzhiqiu', '「特别移送」……'],
   ['shenzhiqiu', '编号、姓名、抓人的宪兵分队、移送的日子。一共四十个人。'], ['chenmo', '经手的章……第二个，是我爹的。'], ['narr', '沈知秋的手指停在一行字上。'],
   ['shenzhiqiu', '林怀远。哈尔滨，中学教员。'], ['shenzhiqiu', '……是我爹。'], ['laoshen', '清单上我认识的那一个，就是他。'],
   ['laoshen', '当年给读书会递书的人，是我。宪兵问了他七天，他一个名字都没说。'], ['laoshen', '我欠他一条命。所以把你带出来了。'], ['shenzhiqiu', '……你为什么不早说？'],
   ['laoshen', '说了，你就会一个人跑来新京找他。'], ...TE_STAY, ['laoshen', '都走。东西带出去。'], ['shenzhiqiu', '你呢？'],
   ['laoshen', '我这条腿跑不快了。……知秋，日记里空着的那一行，回去你自己写。'], ['narr', '他把那摞纸塞进她怀里，转身关上了档案室的铁门。']] };
-export const TE_REVEAL_LO = { bg: 'assets/story/adv3_depot.jpg', lines: [['narr', '火灭了。铁桶里只剩一摞焦黑的纸，一碰就碎。'], ['shenzhiqiu', '「特别移送」……后面的字，都烧没了。'],
+export const TE_REVEAL_LO = { bg: 'assets/story/te_archive.jpg', lines: [['narr', '火灭了。铁桶里只剩一摞焦黑的纸，一碰就碎。'], ['shenzhiqiu', '「特别移送」……后面的字，都烧没了。'],
   ['shenzhiqiu', '只剩编号。一串一串的编号。'], ['chenmo', '盖章的地方也烧掉了。'], ['laoshen', '清单上我认识的那一个……'], ['laoshen', '……算了。出去再说。'],
   ...TE_STAY, ['laoshen', '都走。东西带出去。'], ['narr', '他把剩下的纸塞进沈知秋怀里，转身关上了档案室的铁门。'], ['narr', '他想说的那句话，再也没有人知道了。']] };
-export const TE_DAWN = hi => ({ bg: 'assets/story/adv3_radio.jpg', lines: [['narr', '天亮了。司令部的楼还在冒烟。'], ['narr', '赵铁山一身黑灰，从楼梯口走了出来，手里攥着一顶烧焦了边的兔毛皮帽。'],
+export const TE_DAWN = hi => ({ bg: 'assets/story/te_dawn.jpg', lines: [['narr', '天亮了。司令部的楼还在冒烟。'], ['narr', '赵铁山一身黑灰，从楼梯口走了出来，手里攥着一顶烧焦了边的兔毛皮帽。'],
   ['zhaotieshan', '……沈营副。'], ['hansong', '我回三道沟。接我娘。'], ['chenmo', '这一摞，我交上去。连我爹那一枚章，一起。'], ['jinyongzhe', '我往北走。我哥在找我，我也得去找他。'],
   ['tianshouyi', '我去一趟豆腐坊。门上的封条，该揭了。'], ...(hi ? [['narr', '沈知秋翻开日记，在那一页空着的最后一行，写下了一个名字。']] : [['narr', '沈知秋翻开日记，在那一页空着的最后一行，写下了「老沈」两个字。']]),
   ['narr', '长夜将尽。']] });
 /* 尾声：七个人的拼图全拼齐，打通真结局才看得到 */
-export const TE_EPI = { bg: 'assets/bg/ev_forest.jpg', lines: [['narr', '1945 年冬。'], ['narr', '韩松在三道沟的部落里找到了娘。娘认了他好一会儿，才叫出他的小名。'],
+export const TE_EPI = { bg: 'assets/story/te_winter.jpg', lines: [['narr', '1945 年冬。'], ['narr', '韩松在三道沟的部落里找到了娘。娘认了他好一会儿，才叫出他的小名。'],
   ['narr', '陈默把那摞档案交了上去，连同盖着他父亲私章的那一页。父亲的下落，他没有再打听。'], ['narr', '田守义在豆腐坊门口等了一个冬天。开春的时候，秀兰回来了。他叫了一声「闺女」，她叫了一声「爹」。'],
   ['narr', '赵铁山把那顶皮帽带回了沈阳北大营的旧址，在那儿站了很久。'], ['narr', '金永哲往北走了很远。听说在牡丹江，兄弟俩见上了面。'],
   ['narr', '沈知秋把日记本里空着的那些行，一行一行写满了。'], ['narr', '老沈留在了那扇铁门后面。直到最后，也没有人知道他的全名。']] };
