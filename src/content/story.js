@@ -61,9 +61,17 @@ export const TALK_HS_MURASE = [['boss', '（日语）……长白山北麓，三
   ['laoshen', '别在这儿把命交出去。先把他的人打散。'], ['hero', '……好。']];
 
 /* 第一章的开场和结尾过场 */
-export const ADV_CH1_OPEN = { bg: 'assets/bg/campaign.jpg', sharp: 1, /* 老沈摊开的地图 */ lines: [['laoshen', '都到齐了。'], ['laoshen', '上头的任务：去新京。路我来带。'],
-  ['zhaotieshan', '新京……那可是关东军的老窝。'], ['laoshen', '所以人要少，脚要快。'], ['laoshen', '还有一件事。讨伐队往回送的档案箱，路上碰见了，能截就截。'],
-  ['chenmo', '档案？要那玩意儿干嘛。'], ['laoshen', '他们怕丢什么，我们就拿什么。'], ['hero', '什么时候动身？'], ['laoshen', '天亮前。']] };
+/* 第一章开场：先是你选的那个人自己的一段，再是老沈交代任务。每个人开场不一样 */
+const OPEN_SELF = {
+  hansong: [['narr', '江面上的冰在脚底下咯吱响。韩松走在最前面，枪横在胸前。'], ['hero', '……三道沟就在南边。'], ['shenzhiqiu', '你想回去看看？'], ['hero', '家早没了。我回去干什么。'], ['narr', '他没再说话，可一直往南看。']],
+  chenmo: [['narr', '过江的时候，陈默把一本日文小说扔进了冰窟窿。'], ['tianshouyi', '少爷，书也不要了？'], ['hero', '在东京念书时买的。用不上了。'], ['tianshouyi', '你爹给的钱买的吧。'], ['hero', '……老田，走你的路。']],
+  tian: [['narr', '田守义扛着大刀，嘴里嚼着一根草棍。'], ['hero', '五年了。又踩上这片地了。'], ['zhaotieshan', '老田，在苏联吃了五年面包，还惦记这儿的雪？'], ['hero', '惦记的不是雪。'], ['narr', '他没说惦记的是什么。']],
+  zhao: [['narr', '赵铁山把炸药一包一包检查了三遍，才背上身。'], ['shenzhiqiu', '赵大哥，在苏联不是检查过了吗？'], ['hero', '这一路上，一根都不能出错。'], ['hero', '十几年前那一回，我们输就输在没准备。']],
+  shen: [['narr', '沈知秋翻开日记本，在第一页写下了日期：1944 年冬。'], ['hansong', '又记？'], ['hero', '总得有人记下来。'], ['hero', '不然以后，谁知道我们来过。']],
+};
+export const ADV_CH1_OPEN = ch => ({ bg: 'assets/bg/campaign.jpg', sharp: 1, /* 老沈摊开的地图 */ lines: [...(OPEN_SELF[ch] || []), ['laoshen', '都到齐了。'], ['laoshen', '上头的任务：去新京。路我来带。'],
+  ['zhaotieshan', '新京……那可是关东军的老窝。'], ['laoshen', '所以人要少，脚要快。还有：讨伐队往回送的档案箱，路上碰见了，能截就截。'],
+  ['chenmo', '档案？要那玩意儿干嘛。'], ['laoshen', '他们怕丢什么，我们就拿什么。'], ['hero', '什么时候动身？'], ['laoshen', '天亮前。']].filter(([w], k, a) => !(w === { hansong: 'hansong', chenmo: 'chenmo', tian: 'tianshouyi', zhao: 'zhaotieshan', shen: 'shenzhiqiu' }[ch] && k >= (OPEN_SELF[ch] || []).length)) });
 export const ADV_CH1_END = { bg: 'assets/story/adv_rail.jpg', lines: [['shenzhiqiu', '老沈，那份清单，你一路都贴身揣着。'], ['laoshen', '嗯。'],
   ['shenzhiqiu', '到了新京，就知道它是什么了吧？'], ['laoshen', '……也许吧。'], ['narr', '林子尽头就是铁路。顺着它往南，很远的地方，新京的灯一片一片亮着。']] };
 

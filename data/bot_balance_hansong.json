@@ -1,0 +1,115 @@
+{
+  "char": "hansong",
+  "n": 3,
+  "seeds": [
+    1,
+    2,
+    3
+  ],
+  "chapters": [
+    0,
+    0,
+    0
+  ],
+  "trueEnd": 0,
+  "trueAttempts": 0,
+  "trueWins": 0,
+  "bosses": {
+    "dog+kcap+dog": {
+      "attempts": 1,
+      "wins": 0
+    }
+  },
+  "chapterHp": [
+    null,
+    null,
+    null
+  ],
+  "clearHp": null,
+  "timeouts": 0,
+  "deaths": [
+    [
+      "1:boss:dog+kcap+dog",
+      1
+    ],
+    [
+      "1:elite:inf+hmg",
+      1
+    ],
+    [
+      "1:elite加强:inf+sergeant+inf",
+      1
+    ]
+  ],
+  "errors": [],
+  "weights": {
+    "powerEarly": 11,
+    "powerLate": 3,
+    "earlyTurns": 3,
+    "attack": 5,
+    "damage": 0.35,
+    "lethal": 24,
+    "blockNeeded": 14,
+    "blockIdle": 0.4,
+    "blockAmount": 0.4,
+    "skill": 3,
+    "zero": 4,
+    "cost": 0.4,
+    "ritual": 100,
+    "resource": 4,
+    "empty": 12,
+    "reload": 20,
+    "reloadNear": 9,
+    "lowAmmo": 2,
+    "rage": 12,
+    "rageDanger": 2,
+    "trim": 12,
+    "trimWait": -6,
+    "disrupt": 18,
+    "knifeKeep": 3,
+    "knifeLow": 2,
+    "knifeFull": 5,
+    "charge": 4,
+    "fort": 3,
+    "scry": 4,
+    "clue": 5,
+    "bloodSafe": 0.5,
+    "bloodRisk": 12,
+    "rest": 0.55,
+    "itemHp": 0.65,
+    "itemThreat": 8,
+    "tierC": 2,
+    "tierU": 3,
+    "tierR": 4,
+    "tierLoot": 2,
+    "personal": 0.5,
+    "archetype": 3,
+    "otherArch": 0.4,
+    "needBlock": 1.5,
+    "needAttack": 1.5,
+    "blockShare": 0.3,
+    "attackShare": 0.4,
+    "duplicate": 1.3,
+    "powerLimit": 3,
+    "powerPenalty": 2,
+    "skip": 1.8,
+    "deckMax": 24,
+    "deckPenalty": 0.65,
+    "routeIntel": 18,
+    "routeRest": 9,
+    "routeTreasure": 5,
+    "routeEvent": 2,
+    "routeShop": 3,
+    "routeElite": -2,
+    "foodReserve": 2,
+    "relicValue": 8,
+    "relicEnergy": 6,
+    "relicDraw": 3,
+    "relicDefense": 3,
+    "relicHidden": 5,
+    "relicWeak": 4,
+    "relicReload": 3,
+    "relicPersonal": 2
+  },
+  "source": null
+}
