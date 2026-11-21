@@ -4,7 +4,7 @@ import * as E from './engine.js';
 import { createAudio } from './audio.js';
 import { MENTOR, TUT, HIST, TERMS, MARTYRS, PEOPLE, ARCHIVE } from './content/codex.js';
 import { ITC } from './content/ch3.js';
-import { PID, FRAGS, FRAG_PLAN, TALK_HS_MURASE, ADV_CH1_OPEN, ADV_CH1_END } from './content/story.js';
+import { PID, FRAGS, FRAG_PLAN, NPC, TALK_HS_MURASE, ADV_CH1_OPEN, ADV_CH1_END, ADV_CH2_OPEN, ADV_CH2_END } from './content/story.js';
 const audio = createAudio();
 let SET = { shake: 1, tut: 1 }; try { Object.assign(SET, JSON.parse(localStorage.getItem('ithq_set') || '{}')); } catch (e) {}
 const saveSet = () => { try { localStorage.setItem('ithq_set', JSON.stringify(SET)); } catch (e) {} };
@@ -542,7 +542,7 @@ Object.assign(BOSS_TALK, {
 });
 /* —— 过场（日式文字冒险版面）：全屏场景 + 左右两个立绘 + 名字牌 + 对白框 —— */
 const PERSON = id => PEOPLE.find(p => p.id === id) || {};
-const spk = w => w === 'hero' ? { n: CHR().name, img: PERSON(PID[R.char]).big || PERSON(PID[R.char]).img } : w === 'narr' ? null : { n: PERSON(w).n || w, img: PERSON(w).big || PERSON(w).img };
+const spk = w => w === 'hero' ? { n: CHR().name, img: PERSON(PID[R.char]).big || PERSON(PID[R.char]).img } : w === 'narr' ? null : NPC[w] ? { n: NPC[w].n, img: NPC[w].img } : { n: PERSON(w).n || w, img: PERSON(w).big || PERSON(w).img };
 function adv(sc, done) {
   $('#dbg')?.remove(); let k = 0; const slot = [null, null]; let lastSide = 1;
   const o = document.createElement('div'); o.className = 'adv' + (sc.sharp ? ' sharp' : '');
@@ -562,10 +562,10 @@ function adv(sc, done) {
 const fragGot = id => !!SEEN['f:' + id];
 function giveFrag(id) { const f = FRAGS[id]; R.fragRun = [...new Set([...(R.fragRun || []), id])]; const nw = !fragGot(id); see('f:' + id); save();
   if (nw) tip(`人物拼图：${PERSON(f.who).n} · ${f.t}（${FRAG_PLAN[f.who].filter((_, i) => Object.values(FRAGS).some(x => x.who === f.who && x.i === i && fragGot(Object.keys(FRAGS).find(kk => FRAGS[kk] === x)))).length}/5）`); }
-function pickFrag(at) { const ok = Object.keys(FRAGS).filter(id => { const f = FRAGS[id]; return f.ch === CH().id && f.at === at && (!f.only || f.only === R.char) && !(R.fragRun || []).includes(id); });
-  if (!ok.length) return null; const fresh = ok.filter(id => !fragGot(id)); if (Math.random() > (fresh.length ? .5 : .2)) return null; return pickOne(fresh.length ? fresh : ok); }
+function pickFrag(at) { const ok = Object.keys(FRAGS).filter(id => { const f = FRAGS[id]; return f.ch === CH().id && f.at === at && (!f.only || f.only === R.char) && (!f.when || f.when(R)) && !(R.fragRun || []).includes(id); });
+  if (!ok.length) return null; const must = ok.find(id => FRAGS[id].force); if (must) return must; /* 主线要过的拼图（陈默的「路灯底下」）一定出 */ const fresh = ok.filter(id => !fragGot(id)); if (Math.random() > (fresh.length ? .5 : .2)) return null; return pickOne(fresh.length ? fresh : ok); }
 /* 事件格里的拼图：放完过场，说会儿话身上暖了些（体温 +2，生命 +5） */
-function fragScene(id, done) { const f = FRAGS[id]; adv(f, () => { giveFrag(id); R.temp = Math.min(TEMP_MAX, R.temp + 2); R.hp = Math.min(R.maxHp, R.hp + 5); save(); done(); }); }
+function fragScene(id, done) { const f = FRAGS[id]; adv(f, () => { giveFrag(id); if (f.fx) f.fx({ flag: k => { R.flags = [...new Set([...(R.flags || []), k])]; }, sus: n => addSus(n) }); R.temp = Math.min(TEMP_MAX, R.temp + 2); R.hp = Math.min(R.maxHp, R.hp + 5); save(); done(); }); }
 function bossTalk(key, done) {
   const hs = key === 'captain' && R.char === 'hansong', L = hs ? TALK_HS_MURASE : BOSS_TALK[key]; if (!L || (R.talked || []).includes(key)) return done();
   if (hs) { const d0 = done; done = () => { giveFrag('hs_murase'); d0(); }; }
@@ -1087,7 +1087,7 @@ function bossRelicScreen() {
 /* 结尾插画 → 战役地图 → 有下一章就进下一章（回血、体温回满、补口粮），没有就结算 */
 function actEnd() {
   const C = CH(), next = CHAPTERS[C.id];
-  const endAdv = C.id === 1 && (R.intel || 0) >= 1 ? ADV_CH1_END : null;
+  const endAdv = C.id === 1 ? ((R.intel || 0) >= 1 ? ADV_CH1_END : null) : C.id === 2 ? ADV_CH2_END : null;
   story([{ img: OUTRO[C.id], t: C.winText }], () => (endAdv ? f => adv(endAdv, f) : f => f())(() => campaign(C.id, () => next ? startAct(C.id + 1) : endScreen(true), next ? `第${'一二三'[C.id - 1]}章完。下一站：${next.name}。` : `第${'一二三'[C.id - 1]}章完。${C.id < 3 ? `第${'一二三'[C.id]}章正在制作中，敬请期待。` : ''}`)));
 }
 function startAct(n) {
@@ -1096,7 +1096,8 @@ function startAct(n) {
   R.floor0 = (R.floor0 || 0) + R.floor; R.floor = 0; R.fights = 0; R.pos = null; R.path = []; R.boss = null; delete R.pending;
   R.map = genMap(); save();
   const go = () => { tip(`进入${CH().name}：生命回复 ${heal}，口粮 +3${SAN() ? '。地底下，注意「理智」' : SUS() ? '。城里不比山里：注意「可疑度」' : '，体温回满'}`); mapScreen(); if (SUS()) teach('sus'); if (SAN()) teach('san'); };
-  CH().intro ? story(CH().intro, go) : go();
+  const op = n === 2 ? ADV_CH2_OPEN : null, go2 = op ? () => adv(op, go) : go;
+  CH().intro ? story(CH().intro, go2) : go2();
 }
 
 // ---------- 结束 ----------
@@ -1133,7 +1134,7 @@ function dbgPanel() {
   if (!DEBUG) return; $('#dbg')?.remove(); const d = document.createElement('div'); d.id = 'dbg';
   const btns = B && !B.over ? [['胜利', () => { E.alive(B).forEach(e => { e.hp = 0; e.dead = 1; e.deadAt = Date.now(); }); render(); checkEnd(); }], ...(B.mech.dbg || []).map(([t, f]) => [t, () => { f(B); render(); }]),
     ['+能量', () => { B.p.energy += 3; render(); }], ['抽牌', () => { E.drawCards(B, 3); render(); }], ['给牌', () => showPile('给一张牌（加入手牌）', Object.keys(CARDS).map(id => ({ id, up: 0, uid: uidN++ })), c => { B.hand.push(c); render(); })], ['满血', () => { R.hp = R.maxHp; render(); }], ...(SAN() ? [['神官1血', () => { const p = B.en.find(e => e.key === 'priest' && !e.dead); if (p) { p.hp = 1; p.block = 0; } render(); }], ['理智0', () => { R.san = 0; render(); }], ['点灯', () => { B.lit = 1; render(); }]] : [])]
-    : R ? [['拼图过场', () => { const ids = Object.keys(FRAGS).filter(k => FRAGS[k].lines); fragScene(pickOne(ids), mapScreen); }], ['开场过场', () => adv(ADV_CH1_OPEN, mapScreen)], ['去Boss', () => { R.pos = { r: ROWSOF() - 1, c: R.map[ROWSOF() - 1].findIndex(Boolean) }; mapScreen(); }], ['满血', () => { R.hp = R.maxHp; mapScreen(); }], ['口粮+5', () => { R.food += 5; mapScreen(); }], ['体温0', () => { R.temp = 0; mapScreen(); }], ['精英战', () => { const enc = pickOne(CH().enc.elite); R.pending = { t: 'elite', enc }; battle(enc, 'elite'); }], ['加强精英', () => { const enc = pickOne(CH().enc.elite); R.pending = { t: 'elite', enc, strong: true }; battle(enc, 'elite', true); }], ['犬机狙', () => battle(['dog', 'mg', 'sniper'], 'fight')], ['两个步兵', () => battle(['inf', 'inf'], 'fight')], ['重机枪', () => battle(['inf', 'hmg'], 'elite')], ['警察队长', () => battle(['puppet', 'pcap', 'puppet'], 'elite')], ['柏木', () => battle(['dog', 'kcap', 'dog'], 'boss')], ['Boss战', () => { bossKey(); R.pending = { t: 'boss', enc: R.bossEnc }; battle(R.bossEnc, 'boss'); }], ['换Boss', () => { R.boss = null; bossKey(); mapScreen(); }], ['第二章', () => { if (R.act < 2) startAct(2); }], ['第三章', () => { if (R.act < 3) startAct(3); }], ['平民战', () => battle(['ronin', 'jpcop', 'bureaucrat', 'merchant'], 'fight')], ['新兵种', () => battle(['cav', 'radio', 'ski'], 'fight')], ['步兵炮', () => battle(['supply', 'gun', 'medic'], 'elite')], ['装甲车', () => battle(['armorcar', 'kensei', 'informer'], 'elite')], ['溃兵', () => battle(['officer', 'oldsoldier', 'surgeon', 'depotchief'], 'elite')], ['城里四人', () => battle(['kempei', 'patrol', 'spy', 'escort2'], 'elite')], ['押运剑道', () => battle(['escort', 'kendo', 'agent', 'escort3'], 'elite')], ['桐野', () => battle(['kempei', 'kirino'], 'boss')], ['久我', () => battle(['spy', 'kuga'], 'boss')], ['禁卫监工', () => battle(['guard', 'reservist', 'overseer'], 'fight')], ['理智-3', () => { addSan(-3); mapScreen(); }], ['萨满', () => eventScreen('shaman')], ['神官', () => battle(['priest'], 'boss')], ['墓里', () => battle(['shadow', 'echo', 'tombkeeper'], 'fight')], ['可疑度+3', () => { addSus(3); mapScreen(); }], ['章节结尾', () => { R.pending = { t: 'actend' }; actEnd(); }], ['阵亡', () => { R.killer = '讨伐队长 · 村濑'; endScreen(false, `倒在了${CH().name}第 ${Math.max(1, R.floor)} 层`); }], ['老乡', () => enterNode('shop')], ['埋藏点', () => enterNode('treasure')], ['事件', () => enterNode('event')], ['逃兵', () => eventScreen('deserter')], ['黄皮子', () => eventScreen('weasel')], ['保家仙', () => eventScreen('baojiaxian')], ['给物品', () => { R.relics.push(...Object.keys(RELICS).filter(id => !has(id) && RELICS[id].rar !== 'boss' && (!RELICS[id].ch || RELICS[id].ch === R.char)).slice(0, 4)); mapScreen(); }], ['给背包', () => { R.items = Object.keys(ITEMS).slice(0, ITEM_SLOTS); mapScreen(); }]] : [];
+    : R ? [['拼图过场', () => { const all = Object.keys(FRAGS).filter(k => FRAGS[k].lines), cur = all.filter(k => FRAGS[k].ch === CH().id); fragScene(pickOne(cur.length ? cur : all), mapScreen); }], ['开场过场', () => adv(CH().id === 2 ? ADV_CH2_OPEN : ADV_CH1_OPEN, mapScreen)], ['去Boss', () => { R.pos = { r: ROWSOF() - 1, c: R.map[ROWSOF() - 1].findIndex(Boolean) }; mapScreen(); }], ['满血', () => { R.hp = R.maxHp; mapScreen(); }], ['口粮+5', () => { R.food += 5; mapScreen(); }], ['体温0', () => { R.temp = 0; mapScreen(); }], ['精英战', () => { const enc = pickOne(CH().enc.elite); R.pending = { t: 'elite', enc }; battle(enc, 'elite'); }], ['加强精英', () => { const enc = pickOne(CH().enc.elite); R.pending = { t: 'elite', enc, strong: true }; battle(enc, 'elite', true); }], ['犬机狙', () => battle(['dog', 'mg', 'sniper'], 'fight')], ['两个步兵', () => battle(['inf', 'inf'], 'fight')], ['重机枪', () => battle(['inf', 'hmg'], 'elite')], ['警察队长', () => battle(['puppet', 'pcap', 'puppet'], 'elite')], ['柏木', () => battle(['dog', 'kcap', 'dog'], 'boss')], ['Boss战', () => { bossKey(); R.pending = { t: 'boss', enc: R.bossEnc }; battle(R.bossEnc, 'boss'); }], ['换Boss', () => { R.boss = null; bossKey(); mapScreen(); }], ['第二章', () => { if (R.act < 2) startAct(2); }], ['第三章', () => { if (R.act < 3) startAct(3); }], ['平民战', () => battle(['ronin', 'jpcop', 'bureaucrat', 'merchant'], 'fight')], ['新兵种', () => battle(['cav', 'radio', 'ski'], 'fight')], ['步兵炮', () => battle(['supply', 'gun', 'medic'], 'elite')], ['装甲车', () => battle(['armorcar', 'kensei', 'informer'], 'elite')], ['溃兵', () => battle(['officer', 'oldsoldier', 'surgeon', 'depotchief'], 'elite')], ['城里四人', () => battle(['kempei', 'patrol', 'spy', 'escort2'], 'elite')], ['押运剑道', () => battle(['escort', 'kendo', 'agent', 'escort3'], 'elite')], ['桐野', () => battle(['kempei', 'kirino'], 'boss')], ['久我', () => battle(['spy', 'kuga'], 'boss')], ['禁卫监工', () => battle(['guard', 'reservist', 'overseer'], 'fight')], ['理智-3', () => { addSan(-3); mapScreen(); }], ['萨满', () => eventScreen('shaman')], ['神官', () => battle(['priest'], 'boss')], ['墓里', () => battle(['shadow', 'echo', 'tombkeeper'], 'fight')], ['可疑度+3', () => { addSus(3); mapScreen(); }], ['章节结尾', () => { R.pending = { t: 'actend' }; actEnd(); }], ['阵亡', () => { R.killer = '讨伐队长 · 村濑'; endScreen(false, `倒在了${CH().name}第 ${Math.max(1, R.floor)} 层`); }], ['老乡', () => enterNode('shop')], ['埋藏点', () => enterNode('treasure')], ['事件', () => enterNode('event')], ['逃兵', () => eventScreen('deserter')], ['黄皮子', () => eventScreen('weasel')], ['保家仙', () => eventScreen('baojiaxian')], ['给物品', () => { R.relics.push(...Object.keys(RELICS).filter(id => !has(id) && RELICS[id].rar !== 'boss' && (!RELICS[id].ch || RELICS[id].ch === R.char)).slice(0, 4)); mapScreen(); }], ['给背包', () => { R.items = Object.keys(ITEMS).slice(0, ITEM_SLOTS); mapScreen(); }]] : [];
   btns.forEach(([t, f]) => { const b = document.createElement('button'); b.textContent = t; b.onclick = ev => { ev.stopPropagation(); f(); }; d.appendChild(b); });
   if (btns.length) stage.appendChild(d);
 }
