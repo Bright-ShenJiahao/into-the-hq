@@ -720,6 +720,8 @@ function kwShow(el) {
   stage.appendChild(box);
 }
 function kwHide() { $('#kwbox')?.remove(); }
+/* 离开战斗画面（胜利奖励、地图……）时，手牌的说明框跟着收掉，免得盖住后面的按钮 */
+new MutationObserver(() => { if (!view.querySelector('#hand') || view.querySelector('.panel.loot')) kwHide(); }).observe(view, { childList: true });
 /* 敌人一排太宽、会挤到韩松身上时，整排按比例缩小 */
 /* 电脑：点一下打出（要选目标的牌先点牌再点敌人）。手机：点一下放大看牌，拖上去才打出（防误触） */
 function clickCard(i) {
