@@ -524,8 +524,8 @@ const BOSS_TALK = {
   captain: [['boss', '（日语）雪地上的脚印骗不了人。你们这些「匪贼」，今天一个也走不掉。'], ['hero', '我们不是匪。'], ['hero', '这片林子，是我们的。']],
   kcap: [['boss', '（日语）你们走过的每个屯子，我都去过了。总有人会开口。'], ['boss', '——把狗放出去。'], ['hero', '那你也该听说了：我们从来不跑。']],
 };
-const LIHUI = { captain: 'assets/portraits/captain_lihui.png', priest: 'assets/portraits/priest_lihui.png' };
-/* 第二章首领的开战对白（立绘还没画，先借头像） */
+const LIHUI = { captain: 'assets/portraits/captain_lihui.png', priest: 'assets/portraits/priest_lihui.png', kirino: 'assets/portraits/kirino_lihui.png', kuga: 'assets/portraits/kuga_lihui.png' };
+/* 第二章首领的开战对白 */
 Object.assign(BOSS_TALK, {
   kirino: [['boss', '（日语）新京有四十万人。每一个人，我都可以叫来问话。'], ['boss', '——你们，也不例外。'], ['hero', '那你问吧。'], ['hero', '我只会说一句：这是中国的地方。']],
   priest: [['boss', '（日语）你们也听见了吧？地底下的声音。'], ['boss', '（日语）这片土地的龙脉，由我来钉死。帝国撤走了，钉子会留下来。'], ['hero', '你们撤的时候，连自己的伤兵都不要了。'], ['boss', '（日语）……所以他们的刀，才配做成钉子。'], ['hero', '……疯子。']],
