@@ -483,7 +483,11 @@ function enterNode(t, nd) {
 /* 待机放慢（呼吸的节奏），4 帧的来回播（0-1-2-3-2-1），不从最后一帧跳回第一帧；模式 3 = 来回播 */
 const HA = { idle: [4, 460, 3], shoot: [4, 95, 0], hurt: [2, 160, 0], down: [3, 240, 2], stab: [2, 170, 0] };
 const EA = { idle: [2, 760, 1], atk: [2, 240, 0], hurt: [1, 340, 0], down: [2, 280, 2] };
-const HERO_ART = () => CHR().art;
+/* 第二章（新京）五个人换成便装：动作图 assets/<dir>_c/，头像 portraits/<dir>_c.png，立绘 portraits/<dir>_c_lihui.png */
+Object.assign(FRAMES, { hansong_c: { cw: 372, ch: 248, ax: 170, sw: 151, sh: 246 }, chenmo_c: { cw: 344, ch: 265, ax: 177, sw: 75, sh: 263 }, tian_c: { cw: 379, ch: 265, ax: 196, sw: 168, sh: 263 }, zhao_c: { cw: 332, ch: 301, ax: 188, sw: 122, sh: 299 }, shen_c: { cw: 311, ch: 271, ax: 166, sw: 86, sh: 269 } });
+const CITY = () => !!(R && R.act === 2);
+const HERO_ART = () => { const a = CHR().art; return CITY() && a.dir ? { ...a, dir: a.dir + '_c', muzzle: a.dir === 'hansong' ? [122, 59] : a.muzzle } : a; };
+const PDIR = { hansong: 'hansong', chenmo: 'chenmo', tianshouyi: 'tian', zhaotieshan: 'zhao', shenzhiqiu: 'shen' }; /* 图鉴人物 id → 美术目录 */
 /* 当前用哪套帧（村濑下车后换第二套） */
 const efr = e => (e.phase === 2 && e.d.frames2) ? [e.d.frames2, e.d.artH2] : [e.d.frames, e.d.artH];
 /* 帧图放进固定大小的框：框按站立姿势定大小，脚底锚点对准框的中线；倒地、前冲等超出部分露在框外 */
@@ -509,12 +513,12 @@ function heroBox() {
   if (!A.still) return `<div class="sprw"><div class="spr blk heroph" style="width:${Math.round(h * .42)}px;height:${h}px;background:${A.ph || '#444'}"><b>${CHR().name}</b><small>${CHR().title || ''}</small></div><i class="shd"></i></div>`;
   return `<div class="sprw"><img class="spr art still" src="${heroSrc()}" style="height:${h}px" alt="${CHR().name}" draggable="false"><i class="shd"></i></div>`;
 }
-const heroFace = () => CHR().art.dir ? `<img src="assets/portraits/${CHR().art.dir}.png" alt="">` : `<div class="faceph" style="background:${CHR().art.ph || '#444'}">${CHR().name}</div>`;
+const heroFace = () => CHR().art.dir ? `<img src="assets/portraits/${HERO_ART().dir}.png" alt="">` : `<div class="faceph" style="background:${CHR().art.ph || '#444'}">${CHR().name}</div>`;
 /* 陈默、田守义、赵铁山、沈知秋的 4 张待机图是四个不同的姿势（甩刀、扛刀、拿炸药包……），轮着放会像在抽动。
    改成：平时站着用第 1 张，每隔 6 秒左右换一个小动作停 1.3 秒，再回来。韩松的 4 张是呼吸，照常来回播 */
 const FIDGET = new Set(['chenmo', 'tian', 'zhao', 'shen']);
 const fidgetK = () => { const P = 6200, t = performance.now(), slot = Math.floor(t / P); return t % P > P - 1300 ? 1 + ((slot * 7 + 3) % 3) : 0; };
-function heroSrc() { const A = HERO_ART(); if (!A.frames) return `assets/units/${A.still}.png`; let [n, k] = frameOf(HA, hst, () => { hst = { n: 'idle', t: performance.now() }; }); if (n === 'idle' && FIDGET.has(A.dir)) k = fidgetK(); return `assets/${A.dir}/${n}${k}.png`; }
+function heroSrc() { const A = HERO_ART(); if (!A.frames) return `assets/units/${A.still}.png`; let [n, k] = frameOf(HA, hst, () => { hst = { n: 'idle', t: performance.now() }; }); if (n === 'idle' && FIDGET.has(A.dir.replace('_c', ''))) k = fidgetK(); return `assets/${A.dir}/${n}${k}.png`; }
 function enemySrc(e) { if (!e.d.frames) return `assets/units/${e.d.art}.png`; const fk = efr(e)[0]; const st = e.anim || { n: e.dead ? 'down' : 'idle', t: 0 }; if (e.dead && st.n !== 'down') { e.anim = { n: 'down', t: performance.now() }; } const [n, k] = frameOf(EA, e.anim || st, () => { e.anim = null; }); return `assets/enemies/${fk}/${n}${k}.png`; }
 function epose(e, n) { e.anim = { n, t: performance.now() }; }
 const pose = (n) => heroAct(n);
@@ -545,7 +549,7 @@ Object.assign(BOSS_TALK, {
 });
 /* —— 过场（日式文字冒险版面）：全屏场景 + 左右两个立绘 + 名字牌 + 对白框 —— */
 const PERSON = id => PEOPLE.find(p => p.id === id) || {};
-const spk = w => w === 'hero' ? { n: CHR().name, img: PERSON(PID[R.char]).big || PERSON(PID[R.char]).img } : w === 'narr' ? null : NPC[w] ? { n: NPC[w].n, img: NPC[w].img } : { n: PERSON(w).n || w, img: PERSON(w).big || PERSON(w).img };
+const spk = w => w === 'hero' ? spk(PID[R.char]) && { n: CHR().name, img: spk(PID[R.char]).img } : w === 'narr' ? null : NPC[w] ? { n: NPC[w].n, img: NPC[w].img } : { n: PERSON(w).n || w, img: CITY() && PDIR[w] ? `assets/portraits/${PDIR[w]}_c_lihui.png` : PERSON(w).big || PERSON(w).img };
 function adv(sc, done) {
   $('#dbg')?.remove(); let k = 0; const slot = [null, null]; let lastSide = 1;
   const o = document.createElement('div'); o.className = 'adv' + (sc.sharp ? ' sharp' : '');
@@ -575,7 +579,7 @@ function bossTalk(key, done) {
   R.talked = [...(R.talked || []), key]; save(); let k = 0; const d = ENEMIES[key]; $('#dbg')?.remove();
   view.innerHTML = `<div class="bg battle" style="background-image:${CH().bossBg && CH().bossBg[key] ? `url(${CH().bossBg[key]}), ` : ''}url(${CH().battleBg})"></div>`;
   const o = document.createElement('div'); o.className = 'overlay tutov btalk';
-  const A = CHR().art, hl = A.lihui ? `<div class="tutl hero full"><img src="assets/portraits/${A.dir}_lihui.png" alt=""></div>` : `<div class="tutl hero">${heroFace()}</div>`; /* 有立绘的主角用全身立绘，没有的（韩松）用头像 */
+  const A = HERO_ART(), hl = A.lihui ? `<div class="tutl hero full"><img src="assets/portraits/${A.dir}_lihui.png" alt=""></div>` : `<div class="tutl hero">${heroFace()}</div>`; /* 有立绘的主角用全身立绘，没有的（韩松）用头像 */
   o.innerHTML = `${hl}<div class="tutr"><img src="${LIHUI[key] || portraitOf(d)}" alt=""></div>
     <div class="tutbox"><b class="tutn"></b><p class="tutt"></p><span class="tutc"></span><button class="tutskip">跳过</button></div>`;
   const show = () => { const [w, t] = L[k]; o.classList.toggle('spk-hero', w !== 'boss'); const n = o.querySelector('.tutn'); n.textContent = w === 'hero' ? CHR().name : w === 'boss' ? d.name : w === 'narr' ? '' : PERSON(w).n; n.style.visibility = w === 'narr' ? 'hidden' : ''; o.querySelector('.tutt').textContent = t;
