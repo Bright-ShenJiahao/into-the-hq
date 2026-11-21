@@ -397,6 +397,28 @@ i.echo{color:#b8a0d0}.fxn.heal{color:#7ee08a}.nohp.civ{color:#d8d0b0;line-height
 #enemies.deep .unit.enemy[data-depth="1"] .sprw{zoom:.86;z-index:2}#enemies.deep .unit.enemy[data-depth="2"] .sprw{zoom:.74;z-index:1}
 #enemies.deep .unit.enemy[data-depth="1"] .uinfo,#enemies.deep .unit.enemy[data-depth="1"] .intent{zoom:.93}#enemies.deep .unit.enemy[data-depth="2"] .uinfo,#enemies.deep .unit.enemy[data-depth="2"] .intent{zoom:.86}
 .touch .btn.reload{bottom:300px}
+
+/* —— 过场（日式文字冒险）—— */
+.adv{position:absolute;inset:0;z-index:150;cursor:pointer;overflow:hidden}
+.advbg{position:absolute;inset:0;background:#0c0c0e center/cover;filter:brightness(.62) saturate(.85)}
+.advp{position:absolute;bottom:0;height:640px;display:flex;align-items:flex-end;pointer-events:none;opacity:.5;filter:brightness(.55);transition:opacity .2s,filter .2s}
+.advp.on{opacity:1;filter:none}.advp img{max-height:640px;max-width:460px;object-fit:contain;filter:drop-shadow(0 0 14px rgba(0,0,0,.75))}
+.advp.bust img{max-height:430px;max-width:480px}.advp.l{left:70px}.advp.r{right:70px}.advp.r img{transform:scaleX(-1)}
+.advbox{position:absolute;left:50%;bottom:26px;transform:translateX(-50%);width:min(1100px,90%);min-height:150px;padding:40px 56px 30px;isolation:isolate;color:#f0e6d0}
+.advbox::before{content:'';position:absolute;inset:0;z-index:-1;border-image:url(assets/ui/panel.png) 70 fill / 30px stretch;filter:brightness(.3) saturate(.8);opacity:.96}
+.advbox::after{content:'';position:absolute;inset:0;z-index:-1;border-image:url(assets/ui/panel.png) 70 / 30px stretch}
+.advn{position:absolute;left:40px;top:-22px;padding:6px 34px;font-size:22px;color:#3a2210;border-image:url(assets/ui/btn.png) 0 82 fill / 0 1.45em stretch;filter:drop-shadow(0 2px 3px rgba(0,0,0,.6))}
+.advt{font-size:25px;line-height:1.7;margin:0}.adv.narr .advt{color:#d8ccb0;font-style:italic}
+.advbox .tutc{position:absolute;right:34px;bottom:12px;font-size:14px;color:#c8b890}.advbox .tutskip{position:absolute;left:40px;bottom:10px;background:none;border:0;color:#8a7a62;font-size:13px;text-decoration:underline;cursor:pointer}
+.touch .advp,.touch .advp img{height:auto;max-height:600px}.touch .advp img{max-width:380px}.touch .advp.bust img{max-height:420px}.touch .advp.l{left:20px}.touch .advp.r{right:20px}
+.touch .advbox{width:94%;min-height:190px;padding:44px 50px 34px}.touch .advt{font-size:32px}.touch .advn{font-size:28px}.touch .advbox .tutc,.touch .advbox .tutskip{font-size:20px}
+/* 图鉴：人物拼图 */
+.pz{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:10px}.pz .pc{border:1px dashed rgba(200,180,130,.35);border-radius:6px;padding:6px;font-size:12px;color:#8a7a62;min-height:64px}
+.pz .pc b{display:block;font-size:13px;margin-bottom:3px}.pz .pc.on{border:1px solid #c9a35a;background:rgba(201,163,90,.12);color:#e8dcc0}.pz .pc.on b{color:#ffe9b8}
+.touch .pz .pc{font-size:15px}.touch .pz .pc b{font-size:17px}
+
+.advp.bust{bottom:150px}.touch .advp.bust{bottom:200px}
+.pz{grid-template-columns:1fr;gap:4px}.pz .pc{min-height:0;display:flex;gap:10px;align-items:baseline;padding:5px 8px}.pz .pc b{display:inline;flex:none;min-width:5.5em;margin:0}
 </style>
 </head>
 <body>

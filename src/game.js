@@ -4,6 +4,7 @@ import * as E from './engine.js';
 import { createAudio } from './audio.js';
 import { MENTOR, TUT, HIST, TERMS, MARTYRS, PEOPLE, ARCHIVE } from './content/codex.js';
 import { ITC } from './content/ch3.js';
+import { PID, FRAGS, FRAG_PLAN, TALK_HS_MURASE, ADV_CH1_OPEN, ADV_CH1_END } from './content/story.js';
 const audio = createAudio();
 let SET = { shake: 1, tut: 1 }; try { Object.assign(SET, JSON.parse(localStorage.getItem('ithq_set') || '{}')); } catch (e) {}
 const saveSet = () => { try { localStorage.setItem('ithq_set', JSON.stringify(SET)); } catch (e) {} };
@@ -246,7 +247,8 @@ function codex(tab = 'people') {
         <h4>行 动</h4><ul>${Object.values(d.moves).map(m => `<li><b>${typeof m.t === 'function' ? m.t({ t: 0 }) : m.t}</b>：${MOVE_TX(m)}</li>`).join('')}</ul>${HIST[d.key] ? `<h4>史 实</h4><p class="hist">${HIST[d.key]}</p>` : ''}`; }
     if (tab === 'card') { const d = e.d; return `<div class="pic cards">${cardHTML({ id: d.id, up: 0 })}${cardHTML({ id: d.id, up: 1 })}</div><p class="no">左：原版　右：升级后</p><span class="tg2">${RAR[d.rar] || ''} · ${TYPE[d.type] || ''}${d.sch ? ' · ' + (SCH[d.sch] || '') : ''}</span>${HIST[d.id] ? `<h4>史 实</h4><p class="hist">${HIST[d.id]}</p>` : ''}`; }
     if (tab === 'relic' || tab === 'item') { const d = e.d, id = d.id; return `<div class="pic"><b class="big huge">${d.icon}</b></div><h3>${d.name}</h3><span class="tg2">${tab === 'relic' ? `随身物品 · ${RARN[d.rar] || ''}${d.ch ? ' · 韩松专用' : ''}` : '背包用品'}</span><h4>效 果</h4><p>${d.desc}</p>${HIST[id] ? `<h4>史 实</h4><p class="hist">${HIST[id]}</p>` : ''}`; }
-    if (tab === 'people') { const p = e.p; return `<div class="pic">${p.img ? `<img src="${p.big || p.img}" alt="">` : '<div class="pph big">立绘制作中</div>'}</div><h3>${p.n}</h3><span class="tg2">${p.sub} · ${p.play}</span><h4>出 身</h4><p>${p.from}</p><h4>伤 疤</h4><p>${p.wound}</p><h4>性 子</h4><p>${p.heart}</p><h4>语 言</h4><p class="hist">${p.lang}</p><p class="no">人物为虚构。</p>`; }
+    if (tab === 'people') { const p = e.p; return `<div class="pic">${p.img ? `<img src="${p.big || p.img}" alt="">` : '<div class="pph big">立绘制作中</div>'}</div><h3>${p.n}</h3><span class="tg2">${p.sub} · ${p.play}</span><h4>出 身</h4><p>${p.from}</p><h4>伤 疤</h4><p>${p.wound}</p><h4>性 子</h4><p>${p.heart}</p>${FRAG_PLAN[p.id] ? `<h4>拼 图 · ${FRAG_PLAN[p.id].filter((_, i) => { const fid = Object.keys(FRAGS).find(k => FRAGS[k].who === p.id && FRAGS[k].i === i); return fid && fragGot(fid); }).length}/5</h4><div class="pz">${FRAG_PLAN[p.id].map((ch, i) => { const fid = Object.keys(FRAGS).find(k => FRAGS[k].who === p.id && FRAGS[k].i === i), f = fid && FRAGS[fid];
+      return f && fragGot(fid) ? `<div class="pc on"><b>${f.t}</b><span>${f.sum}</span></div>` : `<div class="pc"><b>？？？</b><span>${ch === '终' ? '真结局' : `第${'一二三'[ch - 1]}章`}${f && f.only ? ` · 只有用${p.n}时才会碰到` : ''}</span></div>`; }).join('')}</div>` : ''}<h4>语 言</h4><p class="hist">${p.lang}</p><p class="no">人物为虚构。</p>`; }
     if (tab === 'term') return `<h3>${e.n}</h3><span class="tg2">术语 · ${e.g}</span><p>${e.t}</p>`;
     if (tab === 'arch') return `<h3>${e.m.n}</h3><span class="tg2">${e.m.y}</span><p>${e.m.d}</p><p class="no">资料来源：${e.m.src}</p>`;
     return `<h3>${e.m.n}</h3><span class="tg2">${e.m.y}</span><p class="sub2">${e.m.t}</p><p>${e.m.d}</p><p class="no">资料来源：新华网、共产党员网、人民网等公开报道。</p>`;
@@ -341,7 +343,7 @@ function title() {
    <div class="trow"><button class="tbtn" id="t_new">新的一局</button>${s ? '<button class="tbtn" id="t_cont">继 续</button>' : ''}</div></div>
    <p class="tnote">最小可玩版 · 本作为虚构故事，除「英烈录」所记真实英烈外，人物均为虚构。</p>`;
   if (s) $('#t_cont').onclick = () => { R = s; resume(); };
-  $('#t_new').onclick = () => { if (s && !confirm('开始新的一局会覆盖当前进度，确定吗？')) return; pickChar(c => { newRun(c); story(intro(), () => campaign(0, mapScreen)); }); };
+  $('#t_new').onclick = () => { if (s && !confirm('开始新的一局会覆盖当前进度，确定吗？')) return; pickChar(c => { newRun(c); story(intro(), () => adv(ADV_CH1_OPEN, () => campaign(0, mapScreen))); }); };
   $('#t_rule').onclick = rules; $('#t_codex').onclick = () => codex(); $('#t_set').onclick = settings;
 }
 /* 设置：音效、画面震动、教程 */
@@ -403,6 +405,7 @@ function resume() {
 
 // ---------- 地图 ----------
 function mapScreen() {
+  if (R && R.advQ) { const id = R.advQ; R.advQ = null; save(); return adv(FRAGS[id], () => { giveFrag(id); mapScreen(); }); }
   B = null; delete R.pending; save(); refreshScreen = mapScreen;
   /* 第三章：理智 6 以下，只看得见往前两层（读了值班日志、跟了黄皮子就全看得见） */
   const dark = SAN() && MAPD().dark && R.san <= 6 && !hasFlag('reveal');
@@ -464,6 +467,7 @@ function enterNode(t, nd) {
     R.pending = { t, enc, strong: !!(nd && nd.strong) }; save(); return battle(enc, t, R.pending.strong);
   }
   if (t === 'rest') { R.pending = { t: 'rest' }; save(); return restScreen(); }
+  if (t === 'event' && !(C.fixedEv && nd && C.fixedEv[nd.r])) { const fid = pickFrag('event'); if (fid) { save(); return fragScene(fid, mapScreen); } }
   if (t === 'event') { save(); return eventScreen(C.fixedEv && nd && C.fixedEv[nd.r] && !(R.seenEv || []).includes(C.fixedEv[nd.r]) ? C.fixedEv[nd.r] : undefined); }
   if (t === 'shop') { R.pending = { t: 'shop' }; save(); return shopScreen(); }
   if (t === 'treasure') { R.pending = { t: 'treasure' }; save(); return treasureScreen(); }
@@ -531,15 +535,42 @@ Object.assign(BOSS_TALK, {
   priest: [['boss', '（日语）你们也听见了吧？地底下的声音。'], ['boss', '（日语）这片土地的龙脉，由我来钉死。帝国撤走了，钉子会留下来。'], ['hero', '你们撤的时候，连自己的伤兵都不要了。'], ['boss', '（日语）……所以他们的刀，才配做成钉子。'], ['hero', '……疯子。']],
   kuga: [['boss', '（日语）请坐。别紧张，我只是个做买卖的。'], ['boss', '（日语）……你们要的那份副本，我也想要。不如我们谈谈价钱？'], ['hero', '我们不谈价钱。'], ['hero', '我们是来拿回去的。']],
 });
+/* —— 过场（日式文字冒险版面）：全屏场景 + 左右两个立绘 + 名字牌 + 对白框 —— */
+const PERSON = id => PEOPLE.find(p => p.id === id) || {};
+const spk = w => w === 'hero' ? { n: CHR().name, img: PERSON(PID[R.char]).big || PERSON(PID[R.char]).img } : w === 'narr' ? null : { n: PERSON(w).n || w, img: PERSON(w).big || PERSON(w).img };
+function adv(sc, done) {
+  $('#dbg')?.remove(); let k = 0; const slot = [null, null]; let lastSide = 1;
+  const o = document.createElement('div'); o.className = 'adv';
+  o.innerHTML = `<div class="advbg" style="background-image:url(${sc.bg})"></div><div class="advp l"></div><div class="advp r"></div>
+    <div class="advbox"><b class="advn"></b><p class="advt"></p><span class="tutc"></span><button class="tutskip">跳过</button></div>`;
+  const show = () => { const [w, t] = sc.lines[k], who = w === 'hero' ? PID[R.char] : w, sp = spk(w);
+    if (sp) { let side = slot.indexOf(who); if (side < 0) { side = slot[0] == null ? 0 : slot[1] == null ? 1 : 1 - lastSide; slot[side] = who; const el = o.querySelector(side ? '.advp.r' : '.advp.l'); el.innerHTML = sp.img ? `<img src="${sp.img}" alt="">` : ''; el.classList.toggle('bust', !/_lihui/.test(sp.img || '')); } lastSide = side;
+      o.querySelector('.advp.l').classList.toggle('on', side === 0); o.querySelector('.advp.r').classList.toggle('on', side === 1); }
+    else { o.querySelectorAll('.advp').forEach(e => e.classList.remove('on')); }
+    const n = o.querySelector('.advn'); n.textContent = sp ? sp.n : ''; n.style.visibility = sp ? '' : 'hidden';
+    o.querySelector('.advt').textContent = t; o.classList.toggle('narr', !sp);
+    o.querySelector('.tutc').textContent = k < sc.lines.length - 1 ? '▼ 点击继续' : '▼ 结束'; };
+  o.onclick = ev => { if (ev.target.closest('.tutskip')) { o.remove(); return done(); } k++; if (k >= sc.lines.length) { o.remove(); done(); } else show(); };
+  show(); stage.appendChild(o);
+}
+/* 人物拼图：拿到的块跨局保存在图鉴里（SEEN['f:id']），这一局拿过的不再出 */
+const fragGot = id => !!SEEN['f:' + id];
+function giveFrag(id) { const f = FRAGS[id]; R.fragRun = [...new Set([...(R.fragRun || []), id])]; const nw = !fragGot(id); see('f:' + id); save();
+  if (nw) tip(`人物拼图：${PERSON(f.who).n} · ${f.t}（${FRAG_PLAN[f.who].filter((_, i) => Object.values(FRAGS).some(x => x.who === f.who && x.i === i && fragGot(Object.keys(FRAGS).find(kk => FRAGS[kk] === x)))).length}/5）`); }
+function pickFrag(at) { const ok = Object.keys(FRAGS).filter(id => { const f = FRAGS[id]; return f.ch === CH().id && f.at === at && (!f.only || f.only === R.char) && !(R.fragRun || []).includes(id); });
+  if (!ok.length) return null; const fresh = ok.filter(id => !fragGot(id)); if (Math.random() > (fresh.length ? .5 : .2)) return null; return pickOne(fresh.length ? fresh : ok); }
+/* 事件格里的拼图：放完过场，说会儿话身上暖了些（体温 +2，生命 +5） */
+function fragScene(id, done) { const f = FRAGS[id]; adv(f, () => { giveFrag(id); R.temp = Math.min(TEMP_MAX, R.temp + 2); R.hp = Math.min(R.maxHp, R.hp + 5); save(); done(); }); }
 function bossTalk(key, done) {
-  const L = BOSS_TALK[key]; if (!L || (R.talked || []).includes(key)) return done();
+  const hs = key === 'captain' && R.char === 'hansong', L = hs ? TALK_HS_MURASE : BOSS_TALK[key]; if (!L || (R.talked || []).includes(key)) return done();
+  if (hs) { const d0 = done; done = () => { giveFrag('hs_murase'); d0(); }; }
   R.talked = [...(R.talked || []), key]; save(); let k = 0; const d = ENEMIES[key]; $('#dbg')?.remove();
   view.innerHTML = `<div class="bg battle" style="background-image:${CH().bossBg && CH().bossBg[key] ? `url(${CH().bossBg[key]}), ` : ''}url(${CH().battleBg})"></div>`;
   const o = document.createElement('div'); o.className = 'overlay tutov btalk';
   const A = CHR().art, hl = A.lihui ? `<div class="tutl hero full"><img src="assets/portraits/${A.dir}_lihui.png" alt=""></div>` : `<div class="tutl hero">${heroFace()}</div>`; /* 有立绘的主角用全身立绘，没有的（韩松）用头像 */
   o.innerHTML = `${hl}<div class="tutr"><img src="${LIHUI[key] || portraitOf(d)}" alt=""></div>
     <div class="tutbox"><b class="tutn"></b><p class="tutt"></p><span class="tutc"></span><button class="tutskip">跳过</button></div>`;
-  const show = () => { const [w, t] = L[k]; o.classList.toggle('spk-hero', w === 'hero'); o.querySelector('.tutn').textContent = w === 'hero' ? CHR().name : d.name; o.querySelector('.tutt').textContent = t;
+  const show = () => { const [w, t] = L[k]; o.classList.toggle('spk-hero', w !== 'boss'); const n = o.querySelector('.tutn'); n.textContent = w === 'hero' ? CHR().name : w === 'boss' ? d.name : w === 'narr' ? '' : PERSON(w).n; n.style.visibility = w === 'narr' ? 'hidden' : ''; o.querySelector('.tutt').textContent = t;
     o.querySelector('.tutc').textContent = k < L.length - 1 ? '▼ 点击继续' : '▼ 开战'; };
   o.onclick = ev => { if (ev.target.closest('.tutskip')) { o.remove(); return done(); } k++; if (k >= L.length) { o.remove(); done(); } else show(); };
   show(); stage.appendChild(o);
@@ -791,7 +822,7 @@ async function checkEnd() {
   /* 击杀数在引擎 kill() 里已经计过，这里不再重复加 */ if (kind === 'elite') R.elites = (R.elites || 0) + 1; if (kind === 'boss') R.bosses = (R.bosses || 0) + 1;
   R.relics.forEach(id => { const r = RELICS[id]; if (r.fightWon) r.fightWon(R); });
   if (R.deck.some(c => c.id === 'it_curse')) { R.itN = (R.itN || 0) + 1; ITC.n = R.itN; } /* 「它」那张牌的说明又长了一行 */
-  if (gotIntel) { R.intel = (R.intel || 0) + 1; }
+  if (gotIntel) { R.intel = (R.intel || 0) + 1; if (CH().id === 1 && !(R.fragRun || []).includes('ls_list')) R.advQ = 'ls_list'; } /* 第一次截下档案箱：回到地图时放「运输清单」 */
   /* 城里打仗：打赢 +1（精英 +2），另外每开 6 枪再 +1 */
   const shots = B.noise || 0, susUp = SUS() && kind !== 'boss' ? (kind === 'elite' ? 2 : 1) + Math.floor(shots / 6) : 0; if (susUp) addSus(susUp); winRewards.sus = susUp ? [susUp, shots] : null;
   if (kind === 'boss') { R.hp = Math.max(1, R.hp); B = null; R.food += 3; R.pending = { t: 'loot', kind: 'boss', food: 3, list: [], cards: rollCards(3, 'boss'), then: { t: 'bossrelic', opts: rollBossRelics() } }; save(); return lootScreen(), true; }
@@ -1051,7 +1082,8 @@ function bossRelicScreen() {
 /* 结尾插画 → 战役地图 → 有下一章就进下一章（回血、体温回满、补口粮），没有就结算 */
 function actEnd() {
   const C = CH(), next = CHAPTERS[C.id];
-  story([{ img: OUTRO[C.id], t: C.winText }], () => campaign(C.id, () => next ? startAct(C.id + 1) : endScreen(true), next ? `第${'一二三'[C.id - 1]}章完。下一站：${next.name}。` : `第${'一二三'[C.id - 1]}章完。${C.id < 3 ? `第${'一二三'[C.id]}章正在制作中，敬请期待。` : ''}`));
+  const endAdv = C.id === 1 && (R.intel || 0) >= 1 ? ADV_CH1_END : null;
+  story([{ img: OUTRO[C.id], t: C.winText }], () => (endAdv ? f => adv(endAdv, f) : f => f())(() => campaign(C.id, () => next ? startAct(C.id + 1) : endScreen(true), next ? `第${'一二三'[C.id - 1]}章完。下一站：${next.name}。` : `第${'一二三'[C.id - 1]}章完。${C.id < 3 ? `第${'一二三'[C.id]}章正在制作中，敬请期待。` : ''}`)));
 }
 function startAct(n) {
   const heal = Math.floor(R.maxHp * .5);
@@ -1096,7 +1128,7 @@ function dbgPanel() {
   if (!DEBUG) return; $('#dbg')?.remove(); const d = document.createElement('div'); d.id = 'dbg';
   const btns = B && !B.over ? [['胜利', () => { E.alive(B).forEach(e => { e.hp = 0; e.dead = 1; e.deadAt = Date.now(); }); render(); checkEnd(); }], ...(B.mech.dbg || []).map(([t, f]) => [t, () => { f(B); render(); }]),
     ['+能量', () => { B.p.energy += 3; render(); }], ['抽牌', () => { E.drawCards(B, 3); render(); }], ['给牌', () => showPile('给一张牌（加入手牌）', Object.keys(CARDS).map(id => ({ id, up: 0, uid: uidN++ })), c => { B.hand.push(c); render(); })], ['满血', () => { R.hp = R.maxHp; render(); }], ...(SAN() ? [['神官1血', () => { const p = B.en.find(e => e.key === 'priest' && !e.dead); if (p) { p.hp = 1; p.block = 0; } render(); }], ['理智0', () => { R.san = 0; render(); }], ['点灯', () => { B.lit = 1; render(); }]] : [])]
-    : R ? [['去Boss', () => { R.pos = { r: ROWSOF() - 1, c: R.map[ROWSOF() - 1].findIndex(Boolean) }; mapScreen(); }], ['满血', () => { R.hp = R.maxHp; mapScreen(); }], ['口粮+5', () => { R.food += 5; mapScreen(); }], ['体温0', () => { R.temp = 0; mapScreen(); }], ['精英战', () => { const enc = pickOne(CH().enc.elite); R.pending = { t: 'elite', enc }; battle(enc, 'elite'); }], ['加强精英', () => { const enc = pickOne(CH().enc.elite); R.pending = { t: 'elite', enc, strong: true }; battle(enc, 'elite', true); }], ['犬机狙', () => battle(['dog', 'mg', 'sniper'], 'fight')], ['两个步兵', () => battle(['inf', 'inf'], 'fight')], ['重机枪', () => battle(['inf', 'hmg'], 'elite')], ['警察队长', () => battle(['puppet', 'pcap', 'puppet'], 'elite')], ['柏木', () => battle(['dog', 'kcap', 'dog'], 'boss')], ['Boss战', () => { bossKey(); R.pending = { t: 'boss', enc: R.bossEnc }; battle(R.bossEnc, 'boss'); }], ['换Boss', () => { R.boss = null; bossKey(); mapScreen(); }], ['第二章', () => { if (R.act < 2) startAct(2); }], ['第三章', () => { if (R.act < 3) startAct(3); }], ['平民战', () => battle(['ronin', 'jpcop', 'bureaucrat', 'merchant'], 'fight')], ['新兵种', () => battle(['cav', 'radio', 'ski'], 'fight')], ['步兵炮', () => battle(['supply', 'gun', 'medic'], 'elite')], ['装甲车', () => battle(['armorcar', 'kensei', 'informer'], 'elite')], ['溃兵', () => battle(['officer', 'oldsoldier', 'surgeon', 'depotchief'], 'elite')], ['城里四人', () => battle(['kempei', 'patrol', 'spy', 'escort2'], 'elite')], ['押运剑道', () => battle(['escort', 'kendo', 'agent', 'escort3'], 'elite')], ['桐野', () => battle(['kempei', 'kirino'], 'boss')], ['久我', () => battle(['spy', 'kuga'], 'boss')], ['禁卫监工', () => battle(['guard', 'reservist', 'overseer'], 'fight')], ['理智-3', () => { addSan(-3); mapScreen(); }], ['萨满', () => eventScreen('shaman')], ['神官', () => battle(['priest'], 'boss')], ['墓里', () => battle(['shadow', 'echo', 'tombkeeper'], 'fight')], ['可疑度+3', () => { addSus(3); mapScreen(); }], ['章节结尾', () => { R.pending = { t: 'actend' }; actEnd(); }], ['阵亡', () => { R.killer = '讨伐队长 · 村濑'; endScreen(false, `倒在了${CH().name}第 ${Math.max(1, R.floor)} 层`); }], ['老乡', () => enterNode('shop')], ['埋藏点', () => enterNode('treasure')], ['事件', () => enterNode('event')], ['逃兵', () => eventScreen('deserter')], ['黄皮子', () => eventScreen('weasel')], ['保家仙', () => eventScreen('baojiaxian')], ['给物品', () => { R.relics.push(...Object.keys(RELICS).filter(id => !has(id) && RELICS[id].rar !== 'boss' && (!RELICS[id].ch || RELICS[id].ch === R.char)).slice(0, 4)); mapScreen(); }], ['给背包', () => { R.items = Object.keys(ITEMS).slice(0, ITEM_SLOTS); mapScreen(); }]] : [];
+    : R ? [['拼图过场', () => { const ids = Object.keys(FRAGS).filter(k => FRAGS[k].lines); fragScene(pickOne(ids), mapScreen); }], ['开场过场', () => adv(ADV_CH1_OPEN, mapScreen)], ['去Boss', () => { R.pos = { r: ROWSOF() - 1, c: R.map[ROWSOF() - 1].findIndex(Boolean) }; mapScreen(); }], ['满血', () => { R.hp = R.maxHp; mapScreen(); }], ['口粮+5', () => { R.food += 5; mapScreen(); }], ['体温0', () => { R.temp = 0; mapScreen(); }], ['精英战', () => { const enc = pickOne(CH().enc.elite); R.pending = { t: 'elite', enc }; battle(enc, 'elite'); }], ['加强精英', () => { const enc = pickOne(CH().enc.elite); R.pending = { t: 'elite', enc, strong: true }; battle(enc, 'elite', true); }], ['犬机狙', () => battle(['dog', 'mg', 'sniper'], 'fight')], ['两个步兵', () => battle(['inf', 'inf'], 'fight')], ['重机枪', () => battle(['inf', 'hmg'], 'elite')], ['警察队长', () => battle(['puppet', 'pcap', 'puppet'], 'elite')], ['柏木', () => battle(['dog', 'kcap', 'dog'], 'boss')], ['Boss战', () => { bossKey(); R.pending = { t: 'boss', enc: R.bossEnc }; battle(R.bossEnc, 'boss'); }], ['换Boss', () => { R.boss = null; bossKey(); mapScreen(); }], ['第二章', () => { if (R.act < 2) startAct(2); }], ['第三章', () => { if (R.act < 3) startAct(3); }], ['平民战', () => battle(['ronin', 'jpcop', 'bureaucrat', 'merchant'], 'fight')], ['新兵种', () => battle(['cav', 'radio', 'ski'], 'fight')], ['步兵炮', () => battle(['supply', 'gun', 'medic'], 'elite')], ['装甲车', () => battle(['armorcar', 'kensei', 'informer'], 'elite')], ['溃兵', () => battle(['officer', 'oldsoldier', 'surgeon', 'depotchief'], 'elite')], ['城里四人', () => battle(['kempei', 'patrol', 'spy', 'escort2'], 'elite')], ['押运剑道', () => battle(['escort', 'kendo', 'agent', 'escort3'], 'elite')], ['桐野', () => battle(['kempei', 'kirino'], 'boss')], ['久我', () => battle(['spy', 'kuga'], 'boss')], ['禁卫监工', () => battle(['guard', 'reservist', 'overseer'], 'fight')], ['理智-3', () => { addSan(-3); mapScreen(); }], ['萨满', () => eventScreen('shaman')], ['神官', () => battle(['priest'], 'boss')], ['墓里', () => battle(['shadow', 'echo', 'tombkeeper'], 'fight')], ['可疑度+3', () => { addSus(3); mapScreen(); }], ['章节结尾', () => { R.pending = { t: 'actend' }; actEnd(); }], ['阵亡', () => { R.killer = '讨伐队长 · 村濑'; endScreen(false, `倒在了${CH().name}第 ${Math.max(1, R.floor)} 层`); }], ['老乡', () => enterNode('shop')], ['埋藏点', () => enterNode('treasure')], ['事件', () => enterNode('event')], ['逃兵', () => eventScreen('deserter')], ['黄皮子', () => eventScreen('weasel')], ['保家仙', () => eventScreen('baojiaxian')], ['给物品', () => { R.relics.push(...Object.keys(RELICS).filter(id => !has(id) && RELICS[id].rar !== 'boss' && (!RELICS[id].ch || RELICS[id].ch === R.char)).slice(0, 4)); mapScreen(); }], ['给背包', () => { R.items = Object.keys(ITEMS).slice(0, ITEM_SLOTS); mapScreen(); }]] : [];
   btns.forEach(([t, f]) => { const b = document.createElement('button'); b.textContent = t; b.onclick = ev => { ev.stopPropagation(); f(); }; d.appendChild(b); });
   if (btns.length) stage.appendChild(d);
 }
