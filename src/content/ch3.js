@@ -20,7 +20,7 @@ export const CARDS_CH3 = {
     desc: () => '仪式第一步。获得 8 格挡。保留（回合结束不弃掉）。', play: G => { G.block(8); G.ritual(1); } },
   rt_bell: { name: '腰铃', type: 'skill', cost: [1, 1], rar: 'c', sch: '通', ritual: 1, retain: 1, icon: 'cover',
     desc: () => '仪式第二步。抽 2，获得 6 格挡。保留。', play: G => { G.draw(2); G.block(6); G.ritual(2); } },
-  rt_knife: { name: '神刀', type: 'skill', cost: [1, 1], rar: 'c', sch: '通', ritual: 1, retain: 1, icon: 'bayonet',
+  rt_knife: { name: '神刀', type: 'skill', cost: [1, 1], rar: 'c', sch: '通', ritual: 1, retain: 1, icon: 'dadao',
     desc: () => '仪式最后一步：把它封回去。保留。', play: G => G.ritual(3) },
   fear: { name: '恐惧', type: 'skill', cost: [0, 0], rar: 'c', sch: '通', unplay: 1, ethereal: 1, icon: 'helmet',
     desc: () => '不能打出。回合结束时消失。' },

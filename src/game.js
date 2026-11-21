@@ -281,8 +281,8 @@ const dsc = (c, f = x => x) => CARDS[c.id].desc(c.up, f);
 const kwOf = c => { const d = CARDS[c.id], s = dsc(c) + (d.sch === '狙' && d.gun ? '狙击牌' : '') + (d.sch === '冲' ? '冲锋枪牌' : '') + (d.sch === '冲' || d.sch === '手' ? '枪感' : '') + (d.ex ? '消耗' : '') + (d.type === 'power' ? '能力' : '') + (d.gun ? '拼刺' : ''); return Object.keys(KW).filter(k => s.includes(k)); };
 
 /* 卡牌插图：每张牌的 icon 写在内容文件里；同类卡共用一个图标（同旧游戏） */
-const ICON_NAME = { pistol: '手枪', rifle: '步枪', apround: '穿甲弹', helmet: '钢盔', scope: '准星', binoc: '望远镜', round: '子弹', breath: '屏息', wind: '风向', smg: '冲锋枪', casings: '弹壳', mg: '机枪', belt: '弹带', barrel: '枪管', mag: '弹匣', medkit: '急救包', bayonet: '刺刀', cover: '掩体', grenade: '炸药', letter: '情报' };
-const ICONS_READY = new Set(Object.keys(ICON_NAME).filter(k => !['grenade', 'letter'].includes(k))); /* 新角色用的「炸药」「情报」图标还没出图，先显示文字 */
+const ICON_NAME = { pistol: '手枪', rifle: '步枪', apround: '穿甲弹', helmet: '钢盔', scope: '准星', binoc: '望远镜', round: '子弹', breath: '屏息', wind: '风向', smg: '冲锋枪', casings: '弹壳', mg: '机枪', belt: '弹带', barrel: '枪管', mag: '弹匣', medkit: '急救包', bayonet: '刺刀', cover: '掩体', grenade: '炸药', letter: '情报' , knife: '飞刀', dadao: '大刀', satchel: '炸药包', mine: '地雷', fuse: '导火索', map: '地图', codebook: '密码本', radio: '电台', lime: '石灰', torch: '火把'};
+const ICONS_READY = new Set(Object.keys(ICON_NAME));
 function cardHTML(c, extra = '', attrs = '') {
   see('c:' + c.id); /* 见过的牌在图鉴里解锁 */
   if (extra.includes('inhand') && B && SAN() && R.san <= 3 && hsh(c.uid, B.turn) % 7 === 0) return cardHTML0(c, extra, attrs).replace(/(<div class="cname[^>]*>)[^<]*/, `$1${GLITCH[hsh(c.uid) % GLITCH.length]}`);
@@ -303,7 +303,7 @@ function cardHTML0(c, extra = '', attrs = '') {
   return `<div class="card t-${d.type} s-${d.sch}${c.up ? ' up' : ''}${d.gun ? ' gun' : ''}${cls} ${extra}" data-cid="${c.id}" ${attrs}>
     <div class="art">${ICONS_READY.has(ic) ? `<img src="assets/icons/${ic}.png" alt="" draggable="false">` : `<span class="ph">${ICON_NAME[ic] || ''}</span>`}</div>
     <div class="cdesc"><span>${kwify(text)}${d.ex && !text.includes('消耗') ? '<br>消耗。' : ''}</span></div>
-    <img class="frame" src="assets/ui/frame_${d.type}_${rr}.png" alt="" draggable="false">
+    <img class="frame" src="assets/ui/frame_${d.type === 'curse' || d.type === 'status' ? 'skill' : d.type}_${rr}.png" alt="" draggable="false">
     <div class="cost">${cost}</div><div class="cname">${d.name}${c.up ? '+' : ''}</div>
     <div class="ctype">${d.sch !== '通' ? `<i class="sch s-${d.sch}">${SCH[d.sch]}</i>` : ''}${TYPE[d.type]}${d.rar === 'loot' ? '·缴获' : ''}</div>${badge}</div>`;
 }

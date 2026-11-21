@@ -43,7 +43,7 @@ export const CARDS_COLORLESS = {
     desc: () => '每回合开始多抽 1 张。', play: G => G.power('drawPlus', 1) },
   cl_veteran: { name: '老兵经验', type: 'power', cost: [3, 2], rar: 'r', icon: 'helmet',
     desc: () => '每回合开始能量 +1。', play: G => G.power('ePlus', 1) },
-  cl_map: { name: '苏联地图', type: 'skill', cost: [1, 1], rar: 'r', ex: 1, icon: 'letter',
+  cl_map: { name: '苏联地图', type: 'skill', cost: [1, 1], rar: 'r', ex: 1, icon: 'map',
     desc: u => `抽 ${V(u, 3, 4)}，能量 +1。消耗。`, play: (G, u) => { G.draw(V(u, 3, 4)); G.energy(1); } },
 };
 Object.values(CARDS_COLORLESS).forEach(d => { d.ch = null; d.sch = '通'; d.colorless = 1; });
@@ -62,7 +62,7 @@ export const CARDS_CURSE = {
 const STT = { type: 'status', cost: [0, 0], rar: 'status', sch: '通', unplay: 1, icon: 'medkit', ch: 'status' };
 export const CARDS_STATUS = {
   st_wound: { ...STT, name: '伤口', desc: () => '不能打出。占一格手牌。' },
-  st_burn: { ...STT, name: '烧伤', desc: () => '不能打出。回合结束还在手里：失去 2 生命。', inHandEnd: G => G.loseHp(2) },
+  st_burn: { ...STT, name: '烧伤', icon: 'torch', desc: () => '不能打出。回合结束还在手里：失去 2 生命。', inHandEnd: G => G.loseHp(2) },
   st_daze: { ...STT, name: '眩晕', ethereal: 1, desc: () => '不能打出。回合结束自己消失。' },
 };
 CARDS_COMMON.defend.icon = 'cover'; CARDS_COMMON.hs_medkit.icon = 'medkit';
