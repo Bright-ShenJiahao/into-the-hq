@@ -536,7 +536,8 @@ function bossTalk(key, done) {
   R.talked = [...(R.talked || []), key]; save(); let k = 0; const d = ENEMIES[key]; $('#dbg')?.remove();
   view.innerHTML = `<div class="bg battle" style="background-image:${CH().bossBg && CH().bossBg[key] ? `url(${CH().bossBg[key]}), ` : ''}url(${CH().battleBg})"></div>`;
   const o = document.createElement('div'); o.className = 'overlay tutov btalk';
-  o.innerHTML = `<div class="tutl hero">${heroFace()}</div><div class="tutr"><img src="${LIHUI[key] || portraitOf(d)}" alt=""></div>
+  const A = CHR().art, hl = A.lihui ? `<div class="tutl hero full"><img src="assets/portraits/${A.dir}_lihui.png" alt=""></div>` : `<div class="tutl hero">${heroFace()}</div>`; /* 有立绘的主角用全身立绘，没有的（韩松）用头像 */
+  o.innerHTML = `${hl}<div class="tutr"><img src="${LIHUI[key] || portraitOf(d)}" alt=""></div>
     <div class="tutbox"><b class="tutn"></b><p class="tutt"></p><span class="tutc"></span><button class="tutskip">跳过</button></div>`;
   const show = () => { const [w, t] = L[k]; o.classList.toggle('spk-hero', w === 'hero'); o.querySelector('.tutn').textContent = w === 'hero' ? CHR().name : d.name; o.querySelector('.tutt').textContent = t;
     o.querySelector('.tutc').textContent = k < L.length - 1 ? '▼ 点击继续' : '▼ 开战'; };
