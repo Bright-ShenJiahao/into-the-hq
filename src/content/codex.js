@@ -168,7 +168,7 @@ export const MARTYRS = [
 
 /* 人物：小分队五人 + 带路人老沈 + 剧情人物金永哲（都是虚构人物）。img 有立绘/头像就用，没有就显示占位 */
 export const PEOPLE = [
-  { id: 'hansong', n: '韩松', sub: '代号「雪貂」· 神枪手 · 22 岁', img: 'assets/portraits/hansong.png', play: '可玩',
+  { id: 'hansong', n: '韩松', sub: '代号「雪貂」· 神枪手 · 22 岁', img: 'assets/portraits/hansong.png', big: 'assets/portraits/hansong_lihui.png', play: '可玩',
     from: '长白山屯子里猎户的儿子，十来岁就跟着爹在林子里打紫貂，眼力和耐性都是这么练出来的。',
     wound: '1930 年代后期日伪「归屯并户」，把山里的散户强行赶进「集团部落」。他家不肯搬，房子被烧了，爹也没了。',
     heart: '心里只有报仇。枪法全队最好，话最少。老沈一直压着他，怕他为了一个仇人把全队搭进去。',
