@@ -132,11 +132,11 @@ function available() {
 function topBar() {
   view.classList.toggle('ch3', SAN()); /* 第三章：所有画面压暗 */
   const items = Array.from({ length: ITEM_SLOTS }, (_, i) => { const id = R.items[i]; return id ? `<b class="itm" data-item="${i}" title="${esc(ITEMS[id].name)}">${ITEMS[id].icon}</b>` : '<b class="itm empty"></b>'; }).join('');
-  return `<div id="top"><span class="hp">❤ ${R.hp}/${R.maxHp}</span>
-   ${SUS() ? `<span class="tmp sus ${R.sus >= 5 ? 'warn' : ''}" data-tip="可疑度（0—10）：城里打仗、开枪会让它上升，安全屋清零。到 5（警觉）：战斗里多一个伪满巡警。满 10（暴露）：下一格变成宪兵搜捕。">🕵 ${R.sus || 0}/10</span>` : ''}${SAN() ? `<span class="tmp sus ${R.san <= 3 ? 'warn' : ''}" data-tip="理智（0—10）：走进古墓每格 -1，有的敌人和事件也会让它下降。到 6 以下地图开始变黑；到 3 以下，眼前的东西不一定可信；到 0，下一场战斗多一个影子。火堆 +3。">🕯 理智 ${R.san}/10</span>` : ''}<span class="tmp ${R.temp < 3 ? 'warn' : ''}" ${SUS() || SAN() ? 'hidden ' : ''}data-tip="体温：每走一格 -1，到密营回满。低于 3 时，战斗第一回合少抽 1 张（不掉血）。">🌡 ${R.temp}/${TEMP_MAX}</span>
-   <span class="food ${R.food <= 0 ? 'warn' : ''}" data-tip="口粮：每走 2 格吃 1 口（${(R.steps || 0) % 2 ? '下一格要吃' : '下一格不吃'}）。打赢战斗能缴获，也能拿去跟老乡换东西。断粮时，该吃的那一格改为失去 3 生命（最少留 1 点）。">🍞 ${R.food}${(R.steps || 0) % 2 ? '<small class="nxt">-1</small>' : ''}</span>
+  return `<div id="top"><span class="hp"><img class="uic" src="assets/ui/ic_hp.png" alt="">${R.hp}/${R.maxHp}</span>
+   ${SUS() ? `<span class="tmp sus ${R.sus >= 5 ? 'warn' : ''}" data-tip="可疑度（0—10）：城里打仗、开枪会让它上升，安全屋清零。到 5（警觉）：战斗里多一个伪满巡警。满 10（暴露）：下一格变成宪兵搜捕。"><img class="uic" src="assets/ui/ic_sus.png" alt="">${R.sus || 0}/10</span>` : ''}${SAN() ? `<span class="tmp sus ${R.san <= 3 ? 'warn' : ''}" data-tip="理智（0—10）：走进古墓每格 -1，有的敌人和事件也会让它下降。到 6 以下地图开始变黑；到 3 以下，眼前的东西不一定可信；到 0，下一场战斗多一个影子。火堆 +3。"><img class="uic" src="assets/ui/ic_san.png" alt="">理智 ${R.san}/10</span>` : ''}<span class="tmp ${R.temp < 3 ? 'warn' : ''}" ${SUS() || SAN() ? 'hidden ' : ''}data-tip="体温：每走一格 -1，到密营回满。低于 3 时，战斗第一回合少抽 1 张（不掉血）。"><img class="uic" src="assets/ui/ic_temp.png" alt=""> ${R.temp}/${TEMP_MAX}</span>
+   <span class="food ${R.food <= 0 ? 'warn' : ''}" data-tip="口粮：每走 2 格吃 1 口（${(R.steps || 0) % 2 ? '下一格要吃' : '下一格不吃'}）。打赢战斗能缴获，也能拿去跟老乡换东西。断粮时，该吃的那一格改为失去 3 生命（最少留 1 点）。"><img class="uic" src="assets/ui/ic_food.png" alt="">${R.food}${(R.steps || 0) % 2 ? '<small class="nxt">-1</small>' : ''}</span>
    <span class="fl">第 ${Math.max(1, R.floor)} 层</span>
-   <span class="intel" data-tip="情报：地图上带「📜」的加强精英身边有押运档案箱的敌人，3 回合内打倒它就得到情报。集齐三份情报，才能走到真结局。">📜 ${R.intel || 0}/3</span>
+   <span class="intel" data-tip="情报：地图上带档案箱标记的加强精英身边有押运档案箱的敌人，3 回合内打倒它就得到情报。集齐三份情报，才能走到真结局。"><img class="uic" src="assets/ui/ic_intel.png" alt="">${R.intel || 0}/3</span>
    <span class="items" title="背包">${items}</span>
    <span class="relics">${R.relics.map(id => `<b class="rel" data-rel="${id}" title="${esc(RELICS[id].name)}">${RELICS[id].icon}</b>`).join('')}</span>
    <i class="sp"></i><button class="tb" id="tbdeck">牌组 ${R.deck.length}</button><button class="tb" id="tbrule">规则</button><button class="tb" id="tbmenu">菜单</button></div>`;
@@ -327,7 +327,7 @@ function rules() {
     '<b>口粮</b>：每走 2 格吃 1 口，打赢战斗能缴获，也能跟老乡换东西；断粮时该吃的那一格失去 3 生命（饿不死，最少留 1 点）。',
     '<b>随身物品</b>：一直生效的被动效果。精英、物资埋藏点、老乡那里能拿到。',
     `<b>背包</b>：一次性用品，最多 ${ITEM_SLOTS} 件，点顶栏的格子使用。`,
-    '<b>情报</b>：带「📜」的加强精英身边有一个押运档案箱的敌人，3 回合内把它打倒才能拿到情报；集齐三份，才能走到真结局。',
+    '<b>情报</b>：带档案箱标记的加强精英身边有一个押运档案箱的敌人，3 回合内把它打倒才能拿到情报；集齐三份，才能走到真结局。',
     '<b>缴获</b>：打赢后可能缴获敌人的枪，以卡牌的形式加入牌组。'];
   overlay(`<div class="panel rules"><h2>规则</h2>${L.map(x => `<p>· ${x}</p>`).join('')}
   <p class="sub">电脑快捷键：数字键出牌，${CHR().mech.actions ? 'R 装填，' : ''}E 结束回合，Esc 取消，M 静音。</p>
@@ -421,12 +421,12 @@ function mapScreen() {
   for (const row of R.map) for (const nd of row) if (nd) {
     const isAv = av.includes(nd), done = R.path.some(p => p.r === nd.r && p.c === nd.c), cur = R.pos && R.pos.r === nd.r && R.pos.c === nd.c, hide = rflag('hideMap') && !done;
     if (dark && nd.r > (R.pos ? R.pos.r : -1) + 2) { nodes += `<div class="node dk" style="left:${nodeX(nd)}px;top:${mapY(nd)}px"></div>`; continue; }
-    nodes += `<div class="node pic ${isAv ? 'av' : ''} ${done ? 'done' : ''} ${cur ? 'cur' : ''}" style="left:${nodeX(nd)}px;top:${mapY(nd)}px" data-r="${nd.r}" data-c="${nd.c}">${nodeIcon(hide ? 'event' : nd.type)}${nd.strong && !hide && !done ? '<i class="nintel" title="加强精英：有人押运档案箱，3 回合内打倒他才能拿到情报">📜</i>' : ''}${cur ? '<img class="curflag" src="assets/ui/node_cur.png" alt="">' : ''}</div>`;
+    nodes += `<div class="node pic ${isAv ? 'av' : ''} ${done ? 'done' : ''} ${cur ? 'cur' : ''}" style="left:${nodeX(nd)}px;top:${mapY(nd)}px" data-r="${nd.r}" data-c="${nd.c}">${nodeIcon(hide ? 'event' : nd.type)}${nd.strong && !hide && !done ? '<i class="nintel" title="加强精英：有人押运档案箱，3 回合内打倒他才能拿到情报"><img class="uic" src="assets/ui/ic_intel.png" alt=""></i>' : ''}${cur ? '<img class="curflag" src="assets/ui/node_cur.png" alt="">' : ''}</div>`;
   }
   nodes += `<div class="node boss ${NODE_ART ? 'pic' : ''} ${av[0] === 'boss' ? 'av' : ''}" style="left:${BOSS_X}px;top:${BOSS_Y}px">${NODE_ART ? nodeIcon('boss') : '讨伐队<br>据点'}</div><div class="maplab" style="left:${BOSS_X}px;top:${BOSS_Y - 82}px">${ENEMIES[bossKey()].name}</div>
    <div class="maplab start" style="left:${M.w / 2}px;top:${Math.round(M.h * (M.startLabelY || .93))}px">${M.startLabel}</div>`;
   view.innerHTML = `${topBar()}<div id="map" class="${SAN() ? 'under' : ''} ${dark ? 'dark' : ''}"><div id="mapin" style="width:${M.w}px;height:${H}px;background-image:url(${M.img})"><svg width="${M.w}" height="${H}">${lines}</svg>${nodes}</div></div>
-   <div id="legend"><div class="lgt">图例</div>${Object.keys(NODE).map(k => `<div><b class="pic">${nodeIcon(k)}</b>${placeName(k)}</div>`).join('')}<div><b class="pic">${nodeIcon('boss')}</b>${CH().bossLabel || '讨伐队据点'}</div><div><b class="pic nint">📜</b>加强精英（情报）</div><div class="lg2"><i class="redl"></i>走过的路线<br>${SAN() ? `每两格口粮 -1；进了古墓每格理智 -1<br>现在：${CH().segName[segOf(R.pos ? R.pos.r : 0)]}` : SUS() ? '每两格口粮 -1；城里打仗会抬高可疑度' : '每走一格体温 -1，每两格口粮 -1'}</div></div>`;
+   <div id="legend"><div class="lgt">图例</div>${Object.keys(NODE).map(k => `<div><b class="pic">${nodeIcon(k)}</b>${placeName(k)}</div>`).join('')}<div><b class="pic">${nodeIcon('boss')}</b>${CH().bossLabel || '讨伐队据点'}</div><div><b class="pic nint"><img class="uic" src="assets/ui/ic_intel.png" alt=""></b>加强精英（情报）</div><div class="lg2"><i class="redl"></i>走过的路线<br>${SAN() ? `每两格口粮 -1；进了古墓每格理智 -1<br>现在：${CH().segName[segOf(R.pos ? R.pos.r : 0)]}` : SUS() ? '每两格口粮 -1；城里打仗会抬高可疑度' : '每走一格体温 -1，每两格口粮 -1'}</div></div>`;
   bindTop();
   const m = $('#map'), down = M.startY < M.endY, y = R.pos ? mapY(R.map[R.pos.r][R.pos.c]) : down ? 0 : H; m.scrollTop = Math.max(0, down ? y - 200 : y - m.clientHeight + 200); /* 第三章从上往下走 */
   teach('map'); if (MAPD().startY < MAPD().endY) teach('mapdown'); if (SAN() && dark) teach('dark'); if (!rflag('hideMap') && R.map.flat().some(n => n && n.strong)) teach('intel'); if (R.temp < 3) teach('cold'); if (R.food <= 0) teach('hunger');
@@ -536,7 +536,7 @@ const BOSS_TALK = {
   kcap: [['boss', '（日语）你们走过的每个屯子，我都去过了。总有人会开口。'], ['boss', '——把狗放出去。'], ['hero', '那你也该听说了：我们从来不跑。']],
 };
 BOSS_TALK.staff = TE_BOSS_TALK;
-const LIHUI = { captain: 'assets/portraits/captain_lihui.png', priest: 'assets/portraits/priest_lihui.png', kirino: 'assets/portraits/kirino_lihui.png', kuga: 'assets/portraits/kuga_lihui.png', staff: 'assets/portraits/staff_lihui.png' };
+const LIHUI = { captain: 'assets/portraits/captain_lihui.png', priest: 'assets/portraits/priest_lihui.png', kirino: 'assets/portraits/kirino_lihui.png', kuga: 'assets/portraits/kuga_lihui.png', kcap: 'assets/portraits/kcap_lihui.png', staff: 'assets/portraits/staff_lihui.png' };
 /* 第二章首领的开战对白 */
 Object.assign(BOSS_TALK, {
   kirino: [['boss', '（日语）新京有四十万人。每一个人，我都可以叫来问话。'], ['boss', '——你们，也不例外。'], ['hero', '那你问吧。'], ['hero', '我只会说一句：这是中国的地方。']],
@@ -672,7 +672,8 @@ function scryUI() {
   draw(); stage.appendChild(o);
 }
 function flushMsgs() { if (B && B.msgs.length) { say(B.msgs.join('\n'), 3600); B.msgs = []; } }
-const ICON = { atk: '⚔', def: '🛡', buff: '⬆', debuff: '⬇', charge: '⏳', flee: '🏃', reload: '🔄', unk: '？', dazed: '💫' };
+const UIC = k => `<img class="uic" src="assets/ui/ic_${k}.png" alt="">`;
+const ICON = Object.fromEntries(['atk', 'def', 'buff', 'debuff', 'charge', 'flee', 'reload', 'unk', 'dazed'].map(k => [k, UIC(k)]));
 
 /* 第三章：黑暗（第一回合只看得见轮廓，点了灯或用马灯就看清）；理智 3 以下，有的意图是假的、有的牌名不对。不告诉你哪条是假的 */
 const darkNow = () => SAN() && CH().under && B && B.turn === 1 && !B.lit && !hasFlag('lamp');
@@ -692,7 +693,7 @@ function enemyHTML(e) {
   return `<div class="unit enemy ${tg ? 'tg' : ''} ${e.dead ? 'dead' : ''} ${d.frames ? '' : 'noanim'} ${d.ghost ? 'ghost' : ''} ${dk ? 'dk' : ''}" data-eid="${e.id}">
     <div class="intent" ${it && it.name.includes('（') ? `title="${it.name}"` : ''}>${it ? `<i class="ii ii-${it.i}">${ICON[it.i]}</i>${it.text}<small>${it.name.split('（')[0]}</small>` : ''}</div>
     ${d.frames ? frameBox(efr(e)[0], Math.round(efr(e)[1] * SZ()), enemySrc(e), '', d.name) : `<div class="sprw">${d.art ? `<img class="spr art still" src="${enemySrc(e)}" style="height:${d.artH}px" alt="${d.name}" draggable="false">` : `<div class="spr blk ${d.boss ? 'bossb' : ''}" style="width:${w}px;height:${h}px;background:${d.col}">${dk ? '' : label}</div>`}<i class="shd"></i></div>`}
-    <div class="uinfo">${dk ? `<div class="dkname">？？？</div>` : d.civ ? `<div class="nohp civ">平民 · 不能攻击<br>打倒护着他的人，他就投降</div>` : d.nohp ? `<div class="nohp">${e.block ? `<b class="blkv">${e.block}</b>` : ''}打不动 · 只能用仪式封回去</div>` : barHTML(e.hp, e.max, e.block)}${e.ammo != null && !e.dead && (d.elite || d.boss || d.showAmmo) ? `<div class="eammo ${e.ammo ? '' : 'zero'}" data-k="敌人弹仓">${Array.from({ length: e.d.ammo }, (_, k) => `<i class="${k < e.ammo ? 'f' : ''}"></i>`).join('')}${e.ammo ? '' : '<b>空</b>'}</div>` : ''}<div class="badges">${e.armor ? `<b class="arm" data-k="装甲">🛡 装甲 ${e.armor}</b>` : ''}${d.intel && !e.dead ? '<b class="arm intelc" data-k="档案箱">📜 档案箱</b>' : ''}${B.mech.enemyChips ? B.mech.enemyChips(e) : ''}${stsHTML(e.st)}</div></div></div>`;
+    <div class="uinfo">${dk ? `<div class="dkname">？？？</div>` : d.civ ? `<div class="nohp civ">平民 · 不能攻击<br>打倒护着他的人，他就投降</div>` : d.nohp ? `<div class="nohp">${e.block ? `<b class="blkv">${e.block}</b>` : ''}打不动 · 只能用仪式封回去</div>` : barHTML(e.hp, e.max, e.block)}${e.ammo != null && !e.dead && (d.elite || d.boss || d.showAmmo) ? `<div class="eammo ${e.ammo ? '' : 'zero'}" data-k="敌人弹仓">${Array.from({ length: e.d.ammo }, (_, k) => `<i class="${k < e.ammo ? 'f' : ''}"></i>`).join('')}${e.ammo ? '' : '<b>空</b>'}</div>` : ''}<div class="badges">${e.armor ? `<b class="arm" data-k="装甲"><img class="uic" src="assets/ui/ic_armor.png" alt="">装甲 ${e.armor}</b>` : ''}${d.intel && !e.dead ? '<b class="arm intelc" data-k="档案箱"><img class="uic" src="assets/ui/ic_box.png" alt="">档案箱</b>' : ''}${B.mech.enemyChips ? B.mech.enemyChips(e) : ''}${stsHTML(e.st)}</div></div></div>`;
 }
 /* 血条：格挡是左边的蓝色圆圈（同旧游戏） */
 function barHTML(hp, max, blk) {
@@ -963,7 +964,7 @@ function lootScreen() {
   view.innerHTML = `<div class="bg ${P.kind === 'boss' ? 'ev ch' + CH().id : 'battle dim'}"></div>${topBar()}`; bindTop();
   if (P.cards) {
     view.insertAdjacentHTML('beforeend', `<div class="panel loot"><h2>${P.kind === 'boss' ? (SUS() ? '打垮了追捕！' : '击溃了讨伐队！') : P.kind === 'elite' ? '打退了精英！' : '战斗胜利'}</h2>
-     <p>缴获口粮 +${P.food || 1}${P.strong ? (P.intel ? (SUS() ? '　📜 抢下了公文包，得到一份情报' : '　📜 抢下了档案箱，得到一份情报') : (SUS() ? '　公文包被带走了，这份情报没拿到' : '　档案箱被带走了，这份情报没拿到')) : ''}${P.sus ? `　🕵 枪声惊动了巡警：可疑度 +${P.sus[0]}${P.sus[1] ? `（开了 ${P.sus[1]} 枪）` : ''}` : ''}</p>${P.relicShown ? `<p class="gain">得到随身物品：${RELICS[P.relicShown].icon} <b>${RELICS[P.relicShown].name}</b>　<small>${RELICS[P.relicShown].desc}</small></p>` : ''}${P.itemShown ? `<p class="gain">缴获背包用品：${ITEMS[P.itemShown].icon} <b>${ITEMS[P.itemShown].name}</b>${R.items.includes(P.itemShown) ? '' : '（背包满了，没拿）'}</p>` : ''}<p class="sub">${P.kind === 'boss' ? '选一张稀有牌加入牌组：' : '选一张牌加入牌组：'}</p><div class="row">${P.cards.map((c, i) => cardHTML(c, '', `data-k="${i}"`)).join('')}</div>
+     <p>缴获口粮 +${P.food || 1}${P.strong ? (P.intel ? (SUS() ? '　<img class="uic" src="assets/ui/ic_intel.png" alt=""> 抢下了公文包，得到一份情报' : '　<img class="uic" src="assets/ui/ic_intel.png" alt=""> 抢下了档案箱，得到一份情报') : (SUS() ? '　公文包被带走了，这份情报没拿到' : '　档案箱被带走了，这份情报没拿到')) : ''}${P.sus ? `　<img class="uic" src="assets/ui/ic_sus.png" alt=""> 枪声惊动了巡警：可疑度 +${P.sus[0]}${P.sus[1] ? `（开了 ${P.sus[1]} 枪）` : ''}` : ''}</p>${P.relicShown ? `<p class="gain">得到随身物品：${RELICS[P.relicShown].icon} <b>${RELICS[P.relicShown].name}</b>　<small>${RELICS[P.relicShown].desc}</small></p>` : ''}${P.itemShown ? `<p class="gain">缴获背包用品：${ITEMS[P.itemShown].icon} <b>${ITEMS[P.itemShown].name}</b>${R.items.includes(P.itemShown) ? '' : '（背包满了，没拿）'}</p>` : ''}<p class="sub">${P.kind === 'boss' ? '选一张稀有牌加入牌组：' : '选一张牌加入牌组：'}</p><div class="row">${P.cards.map((c, i) => cardHTML(c, '', `data-k="${i}"`)).join('')}</div>
      <button class="btn ghost" id="l_skip">不要牌</button></div>`); bindTop();
     const next = () => { delete P.cards; save(); lootScreen(); };
     view.querySelectorAll('.loot .card').forEach(el => el.onclick = () => { const c = P.cards[+el.dataset.k]; R.deck.push(c); tip('加入牌组：' + CARDS[c.id].name); next(); });
@@ -1027,7 +1028,7 @@ function eventScreen(force) {
       const after = () => { if (R.hp <= 0) { R.hp = 0; return endScreen(false, `倒在了${CH().name}里`); } if (fightEnc) { R.pending = { t: 'fight', enc: fightEnc }; save(); return battle(fightEnc, 'fight'); } mapScreen(); };
       const cont = () => { const w = waits.shift(); if (w === 'up') return upgradePick(() => cont()); if (w === 'rm') return removePick(() => cont()); after(); };
       const aweP = aweN ? `<p class="awe">敬畏 ${aweN > 0 ? '+' : ''}${aweN}（现在 ${R.awe}）<br><b>${MENTOR.name}</b>：「${aweLine || (aweN > 0 ? AWE_UP : AWE_DN)[Math.floor(Math.random() * 2)]}」</p>` : '';
-      const susP = (susN ? `<p class="awe">🕵 可疑度 ${susN > 0 ? '+' : ''}${susN}（现在 ${R.sus}/10）</p>` : '') + (sanN ? `<p class="awe">🕯 理智 ${sanN > 0 ? '+' : ''}${sanN}（现在 ${R.san}/10）</p>` : '');
+      const susP = (susN ? `<p class="awe"><img class="uic" src="assets/ui/ic_sus.png" alt=""> 可疑度 ${susN > 0 ? '+' : ''}${susN}（现在 ${R.sus}/10）</p>` : '') + (sanN ? `<p class="awe"><img class="uic" src="assets/ui/ic_san.png" alt="">理智 ${sanN > 0 ? '+' : ''}${sanN}（现在 ${R.san}/10）</p>` : '');
       if (msg) { view.querySelector('.evp').innerHTML = `<h2>${ev.title}</h2><p>${msg}</p>${aweP}${susP}<button class="btn" id="ev_ok">继续</button>`; bindTop(); $('#ev_ok').onclick = cont; } else cont();
     });
   };
@@ -1044,12 +1045,12 @@ function shopScreen() {
   const P = R.pending;
   if (!P.stock) { P.stock = { cards: [...rollCards(3).map(c => ({ c, price: 2 })), { c: mk(rollColorless()), price: 3 }], item: { id: rollItem(), price: 2 }, relic: { id: rollRelic({ c: 40, u: 40, r: 20 }), price: 5 }, remove: 3 }; save(); }
   const S = P.stock; refreshScreen = shopScreen;
-  const pr = (n, sold) => sold ? '<span class="price no">已换</span>' : `<span class="price ${R.food < n ? 'no' : ''}">🍞 ${n}</span>`;
+  const pr = (n, sold) => sold ? '<span class="price no">已换</span>' : `<span class="price ${R.food < n ? 'no' : ''}"><img class="uic" src="assets/ui/ic_food.png" alt=""> ${n}</span>`;
   view.innerHTML = `<div class="bg shop ch${CH().id}"></div>${topBar()}<div class="panel shop wide"><h2>${placeName('shop')}</h2><p>${placeText('shop', '一个赶爬犁的老乡在林边歇脚。他不要钱，只想换点吃的。')}</p>
     <div class="row">${S.cards.map((x, i) => `<div class="shopitem ${x.sold ? 'sold' : ''}" data-buy="c${i}">${cardHTML(x.c)}${pr(x.price, x.sold)}</div>`).join('')}
       ${S.item.id ? `<div class="shopitem rel ${S.item.sold ? 'sold' : ''}" data-buy="item"><b class="big">${ITEMS[S.item.id].icon}</b><b>${ITEMS[S.item.id].name}</b><small>${ITEMS[S.item.id].desc}</small>${pr(S.item.price, S.item.sold)}</div>` : ''}
       ${S.relic.id ? `<div class="shopitem rel ${S.relic.sold ? 'sold' : ''}" data-buy="relic"><b class="big">${RELICS[S.relic.id].icon}</b><b>${RELICS[S.relic.id].name}</b><small>${RELICS[S.relic.id].desc}</small>${pr(S.relic.price, S.relic.sold)}</div>` : ''}
-      <div class="shopitem rel ${S.removed ? 'sold' : ''}" data-buy="rm"><b class="big">✂</b><b>去掉一张牌</b><small>让牌组更精简</small>${pr(S.remove, S.removed)}</div></div>
+      <div class="shopitem rel ${S.removed ? 'sold' : ''}" data-buy="rm"><b class="big"><img class="uic" src="assets/ui/ic_cut.png" alt=""></b><b>去掉一张牌</b><small>让牌组更精简</small>${pr(S.remove, S.removed)}</div></div>
     <button class="btn" id="s_leave">道个谢，继续赶路</button></div>`;
   bindTop();
   const pay = n => { if (R.food < n) { tip('口粮不够'); return false; } R.food -= n; return true; };
