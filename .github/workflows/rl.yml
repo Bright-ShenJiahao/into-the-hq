@@ -1,0 +1,29 @@
+# 强化学习测试：五个角色并行，各训练一个会打牌的 AI，再让它打整局（三章 + 真结局），统计通关率、找漏洞。
+# 手动触发：Actions → RL 测试 → Run workflow（可填训练分钟数）
+name: RL 测试
+on:
+  workflow_dispatch:
+    inputs:
+      minutes: { description: '每个角色的总时长（分钟）', default: '28' }
+jobs:
+  sim:
+    strategy: { fail-fast: false, matrix: { char: [hansong, chenmo, tian, zhao, shen] } }
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: node tools/rl/sim.mjs ${{ matrix.char }} ${{ inputs.minutes }} rl-out
+      - uses: actions/upload-artifact@v4
+        with: { name: rl-${{ matrix.char }}, path: rl-out }
+  report:
+    needs: sim
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with: { path: rl-out, merge-multiple: true }
+      - run: node tools/rl/report.mjs rl-out >> $GITHUB_STEP_SUMMARY && node tools/rl/report.mjs rl-out > rl-out/report.md
+      - uses: actions/upload-artifact@v4
+        with: { name: rl-report, path: rl-out/report.md }
