@@ -185,7 +185,7 @@ function mkG(B) {
     selfWeak: n => { addSt(B.p, 'weak', n); fx(B, 'hero', `虚弱+${n}`, 'st'); },
     energy: n => { B.p.energy += n; fx(B, 'hero', `能量+${n}`, 'st'); },
     temp: n => { B.R.temp = Math.max(0, Math.min(10, B.R.temp + n)); fx(B, 'hero', `体温+${n}`, 'st'); },
-    loseHp: n => { B.R.hp = Math.max(1, B.R.hp - n); fx(B, 'hero', '-' + n, 'dmg'); if (B.mech.onHurt) B.mech.onHurt(B, n); },
+    loseHp: n => { B.R.hp = Math.max(1, B.R.hp - n); fx(B, 'hero', '-' + n, 'dmg'); if (B.mech.onHurt) B.mech.onHurt(B, n); trigger(B, 'hurt', B, n); },
     meleeAll: n => { for (const e of alive(B)) hitEnemy(B, e, atkMod(B, e, n)); },
     vuln: (e, n) => { if (e && !e.dead) { addSt(e, 'vuln', n); fx(B, e.id, `易伤+${n}`, 'st'); } },
     bleed: (e, n) => bleed(B, e, n),
@@ -218,8 +218,9 @@ export function resolveScry(B, uids) {
   const k = B.scryQ.shift(); if (!k) return;
   const top = B.draw.slice(-k), out = top.filter(c => uids.includes(c.uid));
   B.draw = B.draw.filter(c => !out.includes(c)); B.disc.push(...out);
-  for (const c of out) { const d = CARDS[c.id]; if (d.clue) { fx(B, 'hero', '线索', 'st'); d.clue(B.G, c.up); } }
+  for (const c of out) { const d = CARDS[c.id]; if (d.clue) { fx(B, 'hero', '线索', 'st'); d.clue(B.G, c.up); trigger(B, 'clue'); } }
   if (B.mech.onScry) B.mech.onScry(B, k, out.length);
+  trigger(B, 'scry', B);
 }
 
 /* 角色按钮（韩松：装填） */
@@ -265,6 +266,7 @@ function hitPlayer(B, amt, src) {
   if (left && B.p.fort) { const w = Math.min(B.p.fort, left); B.p.fort -= w; left -= w; fx(B, 'hero', `工事-${w}`, 'blk'); }
   B.R.hp -= left; fx(B, 'hero', left ? '-' + left : '格挡', left ? 'dmg' : 'blk');
   if (left > 0 && B.mech.onHurt) B.mech.onHurt(B, left);
+  if (left > 0) trigger(B, 'hurt', B, left);
   const ctr = (B.p.counter || 0) + (B.p.pw.mine || 0);
   if (src && !src.dead && ctr > 0) { fx(B, src.id, '反击', 'st'); hitEnemy(B, src, ctr); }
   if (src && !src.dead && B.mech.onHitBy) B.mech.onHitBy(B, src);

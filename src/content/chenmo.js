@@ -148,6 +148,7 @@ export const MECH_CM = {
       throwK: (t, k, d) => {
         k = Math.min(k, kn(B)); if (!k) { K.fx('hero', '没刀了', 'st'); return 0; }
         B.p.knife -= k;
+        d += K.sum('knifeBonus'); /* 开过刃的飞刀 */
         for (let i = 0; i < k; i++) { const a = K.alive(); if (!a.length) break; const tg = t && !t.dead ? t : a[0]; K.hitEnemy(tg, K.atkMod(tg, d)); if (!tg.dead) B.G.bleed(tg, 1); }
         return k;
       },

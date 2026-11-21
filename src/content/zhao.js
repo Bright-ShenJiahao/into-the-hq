@@ -124,12 +124,13 @@ Object.values(CARDS_ZT).forEach(d => { d.ch = 'zhao'; });
 
 const mul = B => 1 + (B.p.pw.tnt || 0);
 function place(B, e, dmg, fuse) {
-  if (!e || e.dead) return; (e.charges = e.charges || []).push({ dmg, fuse }); B.K.fx(e.id, `炸药包 ${dmg}`, 'st');
+  if (!e || e.dead) return; dmg += B.K.sum('chargeBonus'); (e.charges = e.charges || []).push({ dmg, fuse }); B.K.fx(e.id, `炸药包 ${dmg}`, 'st');
 }
 /* 一个炸药包炸：splashOnly = 目标已经死了（殉爆，只炸其他敌人） */
 function boom(B, e, c, splashOnly) {
   const d = Math.floor(c.dmg * mul(B)), K = B.K;
   B.G.noise(3); K.fx(e.id, '轰！', 'boom');
+  const bb = K.sum('boomBlock'); if (bb) B.G.block(bb); /* 爆破组的哨子 */
   if (B.p.pw.bag && !B.p.bagUsed) { B.p.bagUsed = 1; K.drawCards(B.p.pw.bag); } /* 工兵背囊 */
   const hit = (x, n) => { if (x.dead) return; let v = n; if (x.st.vuln) v *= 1.5; if (x.armor) v *= 2; K.hitEnemy(x, Math.floor(v)); };
   if (!splashOnly) hit(e, d);
@@ -174,9 +175,9 @@ export const MECH_ZT = {
   },
   actions(B) {
     const any = B.en.some(e => !e.dead && (e.charges || []).length), ok = any && B.p.energy >= 1;
-    return [{ id: 'trim', key: 'R', label: `剪短引信 <small>1 费</small>`, dis: !any ? '没有装好的炸药包' : B.p.energy < 1 ? '能量不够' : null, hot: ok }];
+    return [{ id: 'trim', key: 'R', label: `剪短引信 <small>${B.trimFree ? 0 : 1} 费</small>`, dis: !any ? '没有装好的炸药包' : B.p.energy < (B.trimFree ? 0 : 1) ? '能量不够' : null, hot: ok }];
   },
-  act(B, id) { if (id !== 'trim' || B.p.energy < 1 || !B.en.some(e => !e.dead && (e.charges || []).length)) return false; B.p.energy--; tick(B); return true; },
+  act(B, id) { const c = B.trimFree ? 0 : 1; if (id !== 'trim' || B.p.energy < c || !B.en.some(e => !e.dead && (e.charges || []).length)) return false; B.p.energy -= c; B.trimFree = 0; tick(B); return true; },
   info(B) {
     const f = B.p.fort;
     return { main: `<div class="ammo fortv" data-k="工事"><b>🧱 工事 ${f}</b></div>`, chips: '',

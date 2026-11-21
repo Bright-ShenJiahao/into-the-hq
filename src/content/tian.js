@@ -165,7 +165,7 @@ export const MECH_TS = {
     const p = B.p, ok = p.qi >= QI_MAX && !p.rage;
     return [{ id: 'rage', key: 'R', label: p.rage ? `突击中 <small>还剩 ${p.rage} 回合</small>` : `突击 <small>血气 ${p.qi}/${QI_MAX}</small>`, dis: ok ? null : '血气不够', hot: ok, urgent: ok }];
   },
-  act(B, id) { const p = B.p; if (id !== 'rage' || p.qi < QI_MAX || p.rage) return false; p.rage = RAGE_TURNS; p.energy += 1; B.K.fx('hero', '突击！', 'st'); return true; },
+  act(B, id) { const p = B.p; if (id !== 'rage' || p.qi < QI_MAX || p.rage) return false; p.rage = RAGE_TURNS + B.K.sum('rageTurns'); p.energy += 1; B.K.fx('hero', '突击！', 'st'); return true; },
   info(B) {
     const p = B.p;
     return { main: `<div class="ammo qi ${p.rage ? 'rage' : ''}" data-k="血气"><span class="pips">${Array.from({ length: QI_MAX }, (_, i) => `<i class="${i < p.qi || p.rage ? 'f' : ''}"></i>`).join('')}</span><b>${p.rage ? `突击 ${p.rage}` : `血气 ${p.qi}`}</b></div>`,

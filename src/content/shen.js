@@ -126,7 +126,7 @@ export const CARDS_SQ = {
 };
 Object.values(CARDS_SQ).forEach(d => { d.ch = 'shen'; });
 
-const imax = B => B.p.pw.net ? 9 : INTEL_MAX; /* 情报网：上限 9 */
+const imax = B => (B.p.pw.net ? 9 : INTEL_MAX) + B.K.sum('intelMax'); /* 情报网：上限 9 */
 function addIntel(B, n) { const p = B.p, k = Math.max(0, Math.min(imax(B), p.intel + n)); if (k > p.intel) B.K.fx('hero', `情报+${k - p.intel}`, 'st'); p.intel = k; }
 const cost = B => B.p.pw.master ? 2 : DISRUPT;
 /* 最危险的敌人：这回合打你最疼的；都不打就挑生命最多的 */
