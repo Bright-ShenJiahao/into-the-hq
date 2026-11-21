@@ -1,0 +1,21 @@
+# 把某次 RL 测试的结果打印到日志里（产物下载不方便时用）
+name: RL 结果打印
+on:
+  workflow_dispatch:
+    inputs:
+      run_id: { description: 'RL 测试那次运行的编号', required: true }
+permissions:
+  actions: read
+  contents: read
+jobs:
+  show:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: rl-out
+          merge-multiple: true
+          run-id: ${{ inputs.run_id }}
+          github-token: ${{ github.token }}
+      - run: node tools/rl/report.mjs rl-out && for f in rl-out/*.json; do echo "=== $f"; cat $f; done

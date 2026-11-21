@@ -26,6 +26,6 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
         with: { path: rl-out, merge-multiple: true }
-      - run: node tools/rl/report.mjs rl-out >> $GITHUB_STEP_SUMMARY && node tools/rl/report.mjs rl-out > rl-out/report.md
+      - run: node tools/rl/report.mjs rl-out > rl-out/report.md && cat rl-out/report.md >> $GITHUB_STEP_SUMMARY && cat rl-out/report.md && for f in rl-out/*.json; do echo "=== $f"; cat $f; done
       - uses: actions/upload-artifact@v4
         with: { name: rl-report, path: rl-out/report.md }
