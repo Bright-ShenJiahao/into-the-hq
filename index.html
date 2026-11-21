@@ -382,6 +382,12 @@ i.echo{color:#b8a0d0}.fxn.heal{color:#7ee08a}.nohp.civ{color:#d8d0b0;line-height
 .tbtn{padding:.45em 2.2em}.codex .tb2{padding:.35em 1.9em}.codex .tb2.on{padding:.35em 1.7em .35em 2.4em}
 .codex .hd h2{white-space:nowrap}
 .codex .hd{flex-wrap:wrap;row-gap:6px;gap:4px}.codex .hd>*{white-space:nowrap}.codex .tb2,.touch .codex .tb2{font-size:15px;padding:.35em 1.65em}.codex .tb2.on,.touch .codex .tb2.on{padding:.35em 1.5em .35em 2.3em}.touch .codex .tb2,.touch .codex .tb2.on{font-size:19px}
+
+/* 小格子（抽牌/弃牌/消耗、商店的物品格）：小号木框旧纸 */
+.pile,.shopitem.rel{background:none;border:0;border-radius:0;isolation:isolate}
+.pile::before,.shopitem.rel::before{content:'';position:absolute;inset:0;z-index:-1;border-image:url(assets/ui/panel.png) 70 fill / 16px stretch;filter:brightness(.36) saturate(.8);pointer-events:none}
+.pile::after,.shopitem.rel::after{content:'';position:absolute;inset:0;z-index:-1;border-image:url(assets/ui/panel.png) 70 / 16px stretch;pointer-events:none}
+.shopitem.rel{padding:16px 14px}.pile{color:#e0d0a8}.pile:hover::after,.shopitem.rel:hover::after{filter:brightness(1.25)}
 </style>
 </head>
 <body>
