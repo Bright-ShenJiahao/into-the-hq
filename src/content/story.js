@@ -122,3 +122,41 @@ export const ADV_CH2_OPEN = { bg: 'assets/story/adv2_gate.jpg', lines: [['narr',
 export const ADV_CH2_END = { bg: 'assets/story/adv2_drain.jpg', lines: [['narr', '宪兵还在一条街一条街地搜。城北的排水渠口，结着一层薄冰。'],
   ['zhaotieshan', '老沈，下头通哪儿？'], ['laoshen', '通到底下去。'], ['laoshen', '底下有一样东西，他们走之前一定要烧掉。'], ['shenzhiqiu', '什么东西？'],
   ['laoshen', '一份目录。……把三份凑齐，就知道那四十件「特殊物资」是什么了。'], ['narr', '他第一个钻进了黑暗里。']] };
+
+/* —— 第三章「地下」的拼图（1945 年 8 月；背景先借第三章场景图，以后按内容单独出） —— */
+const B3 = { fire: 'assets/bg/rest_ch3.jpg', tunnel: 'assets/bg/ev_ch3.jpg', depot: 'assets/bg/treasure_ch3.jpg', cave: 'assets/bg/shop_ch3.jpg' };
+Object.assign(NPC, { jpkid: { n: '被丢下的日本兵' }, krsol: { n: '朝鲜人部队的逃兵' } });
+Object.assign(FRAGS, {
+  hs_kid: { who: 'hansong', i: 3, ch: 3, at: 'event', t: '留着这条命', bg: B3.tunnel, sum: '被丢下的日本伤兵才十八九岁。韩松的枪口放下了：「我娘还活着。我得留着这条命去见她。」',
+    lines: [['narr', '防空壕的岔道里，一个日本兵靠墙坐着，腿上的绷带已经发黑。他的部队撤走的时候，没带上他。'], ['jpkid', '（日语）……杀了我吧。反正也没人回来接了。'],
+      ['narr', '韩松的枪口对着他，很久没有动。'], ['chenmo', '他说，杀了他吧，反正也没人回来接他。'], ['hansong', '……他多大？'], ['chenmo', '看着不到二十。'],
+      ['narr', '韩松把枪放了下来，从干粮袋里掏出半块饼子，扔在他腿边。'], ['hansong', '我娘还活着。'], ['hansong', '我得留着这条命，去见她。']] },
+  cm_seal: { who: 'chenmo', i: 3, ch: 3, at: 'event', t: '同一枚章', bg: B3.depot, sum: '要烧掉的档案里，有一张盖着他父亲私章的单据。编号，和交接副本对得上。',
+    lines: [['narr', '仓库里堆着等着进炉子的档案，一捆一捆码到房顶。陈默一张一张往下翻。'], ['zhaotieshan', '找啥呢？'], ['chenmo', '……找到了。'],
+      ['narr', '他抽出一张发黄的单据。角上那枚私章，他从小在父亲书桌上看到大。'], ['chenmo', '编号和交接副本对得上。四十件，从牡丹江运出去。'], ['chenmo', '他盖了不止一回。'],
+      ['narr', '他把单据折好，塞进贴身的口袋，和那一页副本放在一起。']] },
+  ts_voice: { who: 'tianshouyi', i: 4, ch: 3, at: 'event', only: 'tian', t: '那一声', bg: B3.tunnel, sum: '黑暗里有人喊「爹」。是假的，他知道。他还是答应了一声——这辈子头一回。',
+    lines: [['narr', '火把快灭了。墓道深处，有人在喊。'], ['narr', '「爹——」'], ['zhaotieshan', '老田，别听。底下的东西会学人说话。'], ['tianshouyi', '我知道。'],
+      ['narr', '「爹，你在哪儿——」'], ['tianshouyi', '……哎。'], ['tianshouyi', '爹在这儿。'], ['narr', '喊声停了。田守义握着大刀，在黑暗里站了很久。他这辈子，头一回答应了那一声。']] },
+  zt_night: { who: 'zhaotieshan', i: 2, ch: 3, at: 'event', only: 'zhao', t: '十二个人', bg: B3.fire, sum: '赵铁山终于问出口了。老沈说：「十二个人冲出去，回来我一个。」',
+    lines: [['narr', '别人都睡了。赵铁山往火堆里添了根木头，坐到老沈对面。'], ['zhaotieshan', '九一八那晚，冲出北大营的沈营副，是你吧。'], ['laoshen', '……是我。'],
+      ['zhaotieshan', '你为啥从来不说？我骂了自己十四年。'], ['laoshen', '十二个人冲出去，回来我一个。我有啥好说的。'], ['laoshen', '你骂着自己，才能活到今天。我也一样。'],
+      ['zhaotieshan', '……'], ['zhaotieshan', '这回我不退。'], ['laoshen', '我知道。']] },
+  sq_log: { who: 'shenzhiqiu', i: 3, ch: 3, at: 'event', only: 'shen', t: '移送', bg: B3.depot, sum: '值班日志里，一行一行写着「移送」和编号。她读得懂每一个字，却不懂它们连在一起是什么意思。',
+    lines: [['narr', '值班室的桌上摊着一本日志。沈知秋拿起来，一页一页往下读。'], ['shenzhiqiu', '「某月某日，自牡丹江分队接收，移送。」后面是编号。'], ['shenzhiqiu', '下一行也是。再下一行也是。'],
+      ['hansong', '移送到哪儿？'], ['shenzhiqiu', '没写。只写「移送」。'], ['narr', '她翻到最后一页。日期停在八月九日。'], ['shenzhiqiu', '这些编号……老沈清单上的，也是这个样子。']] },
+  ls_one: { who: 'laoshen', i: 2, ch: 3, at: 'event', t: '有一个', bg: B3.fire, sum: '「清单上的人，你认识？」老沈说：「有一个。」他没说是谁。',
+    lines: [['narr', '老沈把那份运输清单摊在火边，一行一行看，看了很久。'], ['shenzhiqiu', '老沈，清单上的人……你认识？'], ['laoshen', '……'], ['laoshen', '有一个。'],
+      ['shenzhiqiu', '是谁？'], ['laoshen', '等出去了，我告诉你。'], ['narr', '他把清单折回去，揣进怀里。那一夜，他一直没睡。']] },
+  jy_north: { who: 'jinyongzhe', i: 3, ch: 3, at: 'event', t: '往北去了', bg: B3.cave, sum: '朝鲜人部队散了。一个逃兵说，金永植往北去了：「他说要去找弟弟。」',
+    lines: [['narr', '岔洞里躲着几个穿伪军军服的人，枪都扔了。是朝鲜人部队的，队伍已经散了。'], ['jinyongzhe', '（朝鲜语）你们认识金永植吗？'], ['krsol', '（朝鲜语）……认识。前天夜里，他一个人往北去了。'],
+      ['krsol', '（朝鲜语）他说，要去找他弟弟。'], ['jinyongzhe', '……'], ['narr', '金永哲把身上剩的药全给了他们。转过身的时候，他在笑，眼泪却止不住。']] },
+});
+
+/* 第三章开场（八月九日，钻进防空壕）和结尾（八月十五日，爬出地面） */
+export const ADV_CH3_OPEN = { bg: B3.tunnel, lines: [['narr', '1945 年 8 月 9 日，苏联出兵。新京乱了：关东军在撤，侨民在逃，宪兵在烧东西。'],
+  ['laoshen', '建国神庙后头有条防空壕，一直通到地底下。他们的仓库，就在下面。'], ['zhaotieshan', '烧东西的仓库？'], ['laoshen', '对。拟销毁目录在那儿。他们走之前，一定要把它烧掉。'],
+  ['shenzhiqiu', '底下……听说不干净。'], ['laoshen', '底下有啥，都比上头的人干净。'], ['hero', '走吧。']] };
+export const ADV_CH3_END = { bg: B3.fire, lines: [['narr', '1945 年 8 月 15 日正午。地面上，收音机里传出一个尖细的声音，断断续续。'],
+  ['shenzhiqiu', '（她听了一会儿）……他们投降了。'], ['tianshouyi', '投降了？'], ['hansong', '……'], ['chenmo', '那些没烧完的档案呢？'],
+  ['laoshen', '在司令部。他们还在烧。'], ['laoshen', '把清单、副本、目录凑齐的人——跟我走。']] };
