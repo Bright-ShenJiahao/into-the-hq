@@ -68,57 +68,57 @@ export const ADV_CH1_END = { bg: 'assets/story/adv_rail.jpg', lines: [['shenzhiq
   ['shenzhiqiu', '到了新京，就知道它是什么了吧？'], ['laoshen', '……也许吧。'], ['narr', '林子尽头就是铁路。顺着它往南，很远的地方，新京的灯一片一片亮着。']] };
 
 /* 没有图鉴条目的说话人（名字牌用；立绘以后补） */
-export const NPC = { chenfu: { n: '陈默的父亲' }, xing: { n: '邢二嫂' }, oldzhou: { n: '老周（东北军旧部）' }, uncle: { n: '三道沟的孙大叔' }, kimpat: { n: '受伤的伪军' } };
+export const NPC = { chenfu: { n: '陈默的父亲', img: 'assets/portraits/chenfu_lihui.png' }, xing: { n: '邢二嫂', img: 'assets/portraits/xing_lihui.png' }, oldzhou: { n: '老周（东北军旧部）' }, uncle: { n: '三道沟的孙大叔' }, kimpat: { n: '受伤的伪军' } };
 
-/* —— 第二章「新京」的拼图（背景先借第二章场景图，以后按内容单独出） —— */
+/* —— 第二章「新京」的拼图 —— */
 const B2 = { alley: 'assets/bg/ev_ch2.jpg', room: 'assets/bg/rest_ch2.jpg', shop: 'assets/bg/shop_ch2.jpg', drop: 'assets/bg/treasure_ch2.jpg' };
 const hasF = k => R => (R.flags || []).includes(k);
 Object.assign(FRAGS, {
-  hs_uncle: { who: 'hansong', i: 2, ch: 2, at: 'event', t: '你娘还活着', bg: B2.alley, sum: '抓劳工的卡车上，有三道沟的孙大叔。他隔着车板喊：「你娘还活着！在部落里！」',
+  hs_uncle: { who: 'hansong', i: 2, ch: 2, at: 'event', t: '你娘还活着', bg: 'assets/story/adv2_truck.jpg', sum: '抓劳工的卡车上，有三道沟的孙大叔。他隔着车板喊：「你娘还活着！在部落里！」',
     lines: [['narr', '街口停着抓劳工的卡车，车斗里挤满了人。韩松本来已经走过去了，又停了下来。'], ['uncle', '……松子？是松子吧！'], ['hansong', '孙大叔？'],
       ['uncle', '别过来！听着——你娘还活着！那年没烧着她，她被赶进部落了，还在！'], ['narr', '巡警的警棍敲在车板上。卡车发动了。'], ['hansong', '……'],
       ['shenzhiqiu', '韩松——'], ['hansong', '我听见了。'], ['narr', '他攥着枪带的手，很久都没松开。']] },
-  cm_father: { who: 'chenmo', i: 1, ch: 2, at: 'event', only: 'chenmo', force: 1, when: R => hasF('hand1')(R) && !hasF('hand2')(R), t: '路灯底下', bg: B2.alley,
+  cm_father: { who: 'chenmo', i: 1, ch: 2, at: 'event', only: 'chenmo', force: 1, when: R => hasF('hand1')(R) && !hasF('hand2')(R), t: '路灯底下', bg: 'assets/story/adv2_lamp.jpg',
     sum: '经手人之二，是他父亲。「我只管盖章。」「你从来都只管盖章。」', fx: H => { H.flag('hand2'); H.flag('clerk'); H.sus(2); },
     lines: [['narr', '顺天大街，经济部的人下班了。单据上第二个签章的主人，一个穿灰呢大衣的中年人，在路灯底下停住了脚。'], ['chenfu', '……默儿？'],
       ['chenmo', '「特殊物资」，四十件，从牡丹江运到齐齐哈尔。章是你盖的。'], ['chenfu', '我只管盖章。运的是什么，不归我们科管。'], ['chenmo', '你问过吗？'],
       ['chenfu', '……'], ['chenmo', '你从来都只管盖章。'], ['narr', '父亲从公文包里抽出一页纸，手在抖，递过来。'], ['chenfu', '拿去。……你娘身子不好，她总念叨你。'],
       ['chenmo', '替我跟她说，我吃得饱。'], ['narr', '他转身走了，没有回头。身后的路灯底下，那个人站了很久。']] },
-  cm_desk: { who: 'chenmo', i: 2, ch: 2, at: 'event', when: hasF('clerk'), t: '空桌子', bg: B2.room, sum: '第二天，那个盖章的人没有去上班。只剩一张空桌子，茶杯还是满的。',
+  cm_desk: { who: 'chenmo', i: 2, ch: 2, at: 'event', when: hasF('clerk'), t: '空桌子', bg: 'assets/story/adv2_desk.jpg', sum: '第二天，那个盖章的人没有去上班。只剩一张空桌子，茶杯还是满的。',
     lines: [['narr', '沈知秋去经济部门口转了一圈，回来的时候脸色不好。'], ['shenzhiqiu', '他今天没去上班。'], ['shenzhiqiu', '传达室的人说，昨天夜里宪兵来过。他桌上的茶还是满的。'],
       ['chenmo', '……'], ['tianshouyi', '少爷，你——'], ['chenmo', '别说了。'], ['narr', '陈默把飞刀一把一把擦干净，擦了一夜。']] },
-  ts_xiulan: { who: 'tianshouyi', i: 2, ch: 2, at: 'event', when: hasF('xing'), t: '左手腕上的疤', bg: B2.shop, sum: '邢二嫂左手腕上有块疤，是她三岁那年他烧的炕烫的。他认出来了，没敢认。',
+  ts_xiulan: { who: 'tianshouyi', i: 2, ch: 2, at: 'event', when: hasF('xing'), t: '左手腕上的疤', bg: 'assets/story/adv2_window.jpg', sum: '邢二嫂左手腕上有块疤，是她三岁那年他烧的炕烫的。他认出来了，没敢认。',
     lines: [['narr', '夜里，田守义一个人又绕回了豆腐坊。窗户纸透着灯，邢二嫂在推磨。'], ['shenzhiqiu', '老田？你怎么在这儿。'], ['tianshouyi', '……丫头，你看她左手腕。'],
       ['shenzhiqiu', '有块疤。'], ['tianshouyi', '她三岁那年，我烧的炕，烫的。'], ['shenzhiqiu', '她是……'], ['tianshouyi', '秀兰。'],
       ['shenzhiqiu', '你不进去认她？'], ['tianshouyi', '认了，她就多一样叫人抓的把柄。'], ['narr', '磨盘转了一圈又一圈。他在窗外站到灯灭。']] },
-  ts_seal: { who: 'tianshouyi', i: 3, ch: 2, at: 'event', when: hasF('sealed'), t: '啥也没说', bg: B2.shop, sum: '封条贴上的第二天，他在对面台阶上坐了一下午，只说了两个字：「随我。」',
+  ts_seal: { who: 'tianshouyi', i: 3, ch: 2, at: 'event', when: hasF('sealed'), t: '啥也没说', bg: 'assets/story/adv2_seal.jpg', sum: '封条贴上的第二天，他在对面台阶上坐了一下午，只说了两个字：「随我。」',
     lines: [['narr', '豆腐坊的封条还在。田守义在街对面的台阶上坐了一下午，谁叫都不走。'], ['chenmo', '老田，该走了。'], ['tianshouyi', '纸条上写的啥？'],
       ['shenzhiqiu', '……「啥也没说」。'], ['tianshouyi', '随我。'], ['narr', '他站起来，把大刀往肩上一扛，头也不回地走了。他到最后也没叫出那一声闺女。']] },
-  zt_oldzhou: { who: 'zhaotieshan', i: 1, ch: 2, at: 'event', t: '沈营副', bg: B2.alley, sum: '东北军的老战友说：九一八那晚，也有人没听命令——沈营副带着十几个人冲了出去。',
+  zt_oldzhou: { who: 'zhaotieshan', i: 1, ch: 2, at: 'event', t: '沈营副', bg: 'assets/story/adv2_booth.jpg', sum: '东北军的老战友说：九一八那晚，也有人没听命令——沈营副带着十几个人冲了出去。',
     lines: [['narr', '巡警的岗亭里，一个上了年纪的伪满警察盯着赵铁山看了半天。'], ['oldzhou', '……赵铁山？炮兵营的赵铁山？'], ['zhaotieshan', '老周。你穿上这身皮了。'],
       ['oldzhou', '你骂吧。……我跟你说件事。九一八那晚，不是所有人都听了不抵抗的命令。'], ['oldzhou', '沈营副带着十几个人冲出去了。后来都说他死在城外了。'],
       ['zhaotieshan', '……沈营副。'], ['oldzhou', '你们走吧。今天我没看见人。'], ['narr', '回去的路上，赵铁山一直走在老沈后面，盯着他的背影。']] },
-  sq_gate: { who: 'shenzhiqiu', i: 2, ch: 2, at: 'event', t: '查无此人', bg: B2.alley, sum: '她在宪兵司令部门口排了一上午队，递上去的纸条上写的不是「沈」。窗口里只回了四个字：查无此人。',
+  sq_gate: { who: 'shenzhiqiu', i: 2, ch: 2, at: 'event', t: '查无此人', bg: 'assets/story/adv2_kempei.jpg', sum: '她在宪兵司令部门口排了一上午队，递上去的纸条上写的不是「沈」。窗口里只回了四个字：查无此人。',
     lines: [['narr', '宪兵司令部门口排着打听人的家属。沈知秋把围巾往上拉了拉，也站了进去。'], ['laoshen', '太险了。'], ['shenzhiqiu', '就一回。'],
       ['narr', '轮到她的时候，她把一张折好的纸条从窗口递进去。纸条上写的名字，姓林。'], ['narr', '窗口里的人看都没看，把纸条推了回来。'], ['shenzhiqiu', '……查无此人。'],
       ['laoshen', '走吧。'], ['shenzhiqiu', '老沈，你听见那个姓了。'], ['laoshen', '……听见了。'], ['narr', '他走在她前面，没有回头。']] },
-  ls_xing: { who: 'laoshen', i: 1, ch: 2, at: 'event', when: hasF('xing'), t: '别告诉他', bg: B2.shop, sum: '把秀兰安排进交通线的人，是老沈。她知道她爹就在这支小分队里，她不让说。',
+  ls_xing: { who: 'laoshen', i: 1, ch: 2, at: 'event', when: hasF('xing'), t: '别告诉他', bg: 'assets/story/adv2_tofu.jpg', sum: '把秀兰安排进交通线的人，是老沈。她知道她爹就在这支小分队里，她不让说。',
     lines: [['narr', '老沈一个人去豆腐坊取消息。邢二嫂把门插上了。'], ['xing', '他还好吗？'], ['laoshen', '好。能吃能走。'], ['xing', '……还使那把大刀？'], ['laoshen', '使。'],
       ['xing', '别告诉他我在这儿。'], ['laoshen', '他早晚会认出来。'], ['xing', '认出来，也别让他进来。进来了，就是两个人。'], ['narr', '老沈把那块热豆腐揣进怀里，很久没说话。']] },
-  jy_name: { who: 'jinyongzhe', i: 1, ch: 2, at: 'event', when: hasF('kim'), t: '永植', bg: B2.room, sum: '沈知秋日记里记的那个名字，他认得：被俘的伪军念着的「永哲」，就是他。哥哥叫金永植。',
+  jy_name: { who: 'jinyongzhe', i: 1, ch: 2, at: 'event', when: hasF('kim'), t: '永植', bg: 'assets/story/adv2_clinic.jpg', sum: '沈知秋日记里记的那个名字，他认得：被俘的伪军念着的「永哲」，就是他。哥哥叫金永植。',
     lines: [['narr', '诊所关了门以后，金永哲给大家换药。沈知秋翻开日记，指着一行字给他看。'], ['shenzhiqiu', '去年冬天，我们抓过一个朝鲜族的伪军，嘴里一直念着这个名字。'],
       ['jinyongzhe', '……「永哲」。'], ['jinyongzhe', '他长什么样？左边眉毛上有没有一道疤？'], ['shenzhiqiu', '有。'], ['jinyongzhe', '是我哥哥。金永植。'],
       ['jinyongzhe', '他还活着。他还……念着我。'], ['narr', '他低下头接着缠绷带，缠得比哪一次都慢。']] },
-  jy_letter: { who: 'jinyongzhe', i: 2, ch: 2, at: 'event', when: hasF('kim'), t: '别回家', bg: B2.room, sum: '一个受伤的朝鲜族伪军逃兵带来哥哥的口信：「弟弟，别回家。家里没人了。」',
+  jy_letter: { who: 'jinyongzhe', i: 2, ch: 2, at: 'event', when: hasF('kim'), t: '别回家', bg: 'assets/story/adv2_backdoor.jpg', sum: '一个受伤的朝鲜族伪军逃兵带来哥哥的口信：「弟弟，别回家。家里没人了。」',
     lines: [['narr', '夜里有人敲诊所的后门。是个受了伤的朝鲜族伪军，从队伍里跑出来的。'], ['kimpat', '（朝鲜语）你是金永哲？你哥哥让我带句话。'], ['jinyongzhe', '……你说。'],
       ['kimpat', '「弟弟，别回家。家里没人了。」'], ['jinyongzhe', '……'], ['kimpat', '他还说，他打仗的时候，枪口都往天上抬。'], ['narr', '金永哲给他包好伤，塞给他一包药，送他出了后门。然后一个人在黑地里站了很久。']] },
 });
 
 /* 第二章开场（进城）和结尾（排水渠） */
-export const ADV_CH2_OPEN = { bg: B2.alley, lines: [['narr', '1945 年春。德国投降的消息，是从苏联电台里听来的。新京的大街上，「日满一德一心」的标语还挂着。'],
+export const ADV_CH2_OPEN = { bg: 'assets/story/adv2_gate.jpg', lines: [['narr', '1945 年春。德国投降的消息，是从苏联电台里听来的。新京的大街上，「日满一德一心」的标语还挂着。'],
   ['laoshen', '分开进城。扮苦力的走北门，扮小贩的走南门，晚上在粮店后门碰头。'], ['laoshen', '这回要找的是一份「交接副本」。一批「特殊物资」从新京驿发出去，单子上有三个经手人签过章。'],
   ['chenmo', '经手人在哪儿？'], ['laoshen', '一个在新京驿货运科，一个在顺天大街的经济部，一个在大同大街。'], ['chenmo', '……经济部。'],
   ['tianshouyi', '少爷，你家老爷子不就在——'], ['chenmo', '我知道。'], ['hero', '那就一个一个摸过去。']] };
-export const ADV_CH2_END = { bg: B2.drop, lines: [['narr', '宪兵还在一条街一条街地搜。城北的排水渠口，结着一层薄冰。'],
+export const ADV_CH2_END = { bg: 'assets/story/adv2_drain.jpg', lines: [['narr', '宪兵还在一条街一条街地搜。城北的排水渠口，结着一层薄冰。'],
   ['zhaotieshan', '老沈，下头通哪儿？'], ['laoshen', '通到底下去。'], ['laoshen', '底下有一样东西，他们走之前一定要烧掉。'], ['shenzhiqiu', '什么东西？'],
   ['laoshen', '一份目录。……把三份凑齐，就知道那四十件「特殊物资」是什么了。'], ['narr', '他第一个钻进了黑暗里。']] };
