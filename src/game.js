@@ -4,7 +4,7 @@ import * as E from './engine.js';
 import { createAudio } from './audio.js';
 import { MENTOR, TUT, HIST, TERMS, MARTYRS, PEOPLE, ARCHIVE } from './content/codex.js';
 import { ITC } from './content/ch3.js';
-import { PID, FRAGS, FRAG_PLAN, NPC, TALK_HS_MURASE, ADV_CH1_OPEN, ADV_CH1_END, ADV_CH2_OPEN, ADV_CH2_END, ADV_CH3_OPEN, ADV_CH3_END } from './content/story.js';
+import { PID, FRAGS, FRAG_PLAN, NPC, TALK_HS_MURASE, ADV_CH1_OPEN, ADV_CH1_END, ADV_CH2_OPEN, ADV_CH2_END, ADV_CH3_OPEN, ADV_CH3_END, ADV_TE_OPEN, TE_REVEAL_HI, TE_REVEAL_LO, TE_DAWN, TE_EPI, TE_BOSS_TALK } from './content/story.js';
 const audio = createAudio();
 let SET = { shake: 1, tut: 1 }; try { Object.assign(SET, JSON.parse(localStorage.getItem('ithq_set') || '{}')); } catch (e) {}
 const saveSet = () => { try { localStorage.setItem('ithq_set', JSON.stringify(SET)); } catch (e) {} };
@@ -227,7 +227,7 @@ function codex(tab = 'people') {
     people: () => PEOPLE.map(p => ({ k: 'p:' + p.id, p })),
     arch: () => ARCHIVE.map(m => ({ k: 'a:' + m.n, m })),
   };
-  const open = e => tab === 'term' || tab === 'hero' || tab === 'people' || tab === 'arch' || SEEN[e.k] || DEBUG && SEEN.__all;
+  const open = e => tab === 'term' || tab === 'hero' || tab === 'people' || tab === 'arch' && !e.m.lock || SEEN[e.k] || DEBUG && SEEN.__all;
   const RARN = { start: '初始', c: '普通', u: '罕见', r: '稀有', boss: 'Boss' };
   const cell = e => {
     const ok = open(e);
@@ -236,11 +236,13 @@ function codex(tab = 'people') {
     if (tab === 'relic' || tab === 'item') return `<div class="cd ic ${ok ? '' : 'lk'}" data-k="${e.k}"><b class="big">${e.d.icon}</b><span>${ok ? e.d.name : '？？？'}</span></div>`;
     if (tab === 'term') return `<div class="cd tm" data-k="${e.k}"><i>${e.g}</i><b>${e.n}</b></div>`;
     if (tab === 'people') return `<div class="cd pp" data-k="${e.k}">${e.p.img ? `<img src="${e.p.img}" alt="">` : '<div class="pph">立绘<br>制作中</div>'}<span>${e.p.n}</span><i class="tg ${e.p.play === '可玩' ? 'ok' : ''}">${e.p.play}</i></div>`;
+    if (tab === 'arch' && !ok) return `<div class="cd tm hero arch lk" data-k="${e.k}"><i>？？？</i><b>打通真结局后解锁</b></div>`;
     return `<div class="cd tm hero ${tab}" data-k="${e.k}"><i>${e.m.y}</i><b>${e.m.n}</b></div>`;
   };
   const detail = e => {
     if (!e && tab === 'arch') return '<p class="no">这一页记的是真实发生过的事。游戏里的人物是虚构的，但这些不是。<br><br>点左边的条目查看。每条都写明了资料来源。</p>';
     if (!e) return `<p class="no">${tab === 'hero' ? '东北抗日联军在白山黑水间坚持了十四年。这一页记的是真实的英烈；游戏里的其他人物都是虚构的。<br><br>点左边的名字看生平。' : '点左边的条目看详情。'}</p>`;
+    if (!open(e) && tab === 'arch') return '<h3>？？？</h3><p class="no">打通真结局「长夜将尽」后解锁。</p>';
     if (!open(e)) return `<div class="pic lk">${tab === 'card' ? '<div class="cback">？</div>' : tab === 'relic' || tab === 'item' ? `<b class="big">${e.d.icon}</b>` : `<img src="${enemyImg(e.d)}" alt="">`}</div><h3>？？？</h3><p class="no">${tab === 'enemy' || tab === 'boss' ? '在战斗中第一次遇到后解锁。' : tab === 'card' ? '在战利品、老乡那里见过或拿到后解锁。' : '第一次拿到后解锁。'}</p>`;
     if (tab === 'enemy' || tab === 'boss') { const d = e.d;
       return `<div class="pic"><img src="${portraitOf(d)}" alt="" onerror="this.src='${enemyImg(d)}'"></div><h3>${d.name}</h3><span class="tg2">${d.boss ? '首领' : d.elite ? '精英' : '敌人'} · 生命 ${d.hp[0] === d.hp[1] ? d.hp[0] : d.hp.join('–')}${d.armor ? ` · 装甲 ${d.armor}` : ''}${d.ammo && (d.elite || d.boss || d.showAmmo) ? ` · 弹数 ${d.ammo}` : ''}</span>
@@ -533,6 +535,7 @@ const BOSS_TALK = {
   captain: [['boss', '（日语）雪地上的脚印骗不了人。你们这些「匪贼」，今天一个也走不掉。'], ['hero', '我们不是匪。'], ['hero', '这片林子，是我们的。']],
   kcap: [['boss', '（日语）你们走过的每个屯子，我都去过了。总有人会开口。'], ['boss', '——把狗放出去。'], ['hero', '那你也该听说了：我们从来不跑。']],
 };
+BOSS_TALK.staff = TE_BOSS_TALK;
 const LIHUI = { captain: 'assets/portraits/captain_lihui.png', priest: 'assets/portraits/priest_lihui.png', kirino: 'assets/portraits/kirino_lihui.png', kuga: 'assets/portraits/kuga_lihui.png', staff: 'assets/portraits/staff_lihui.png' };
 /* 第二章首领的开战对白 */
 Object.assign(BOSS_TALK, {
@@ -830,6 +833,7 @@ async function checkEnd() {
   if (gotIntel) { R.intel = (R.intel || 0) + 1; if (CH().id === 1 && !(R.fragRun || []).includes('ls_list')) R.advQ = 'ls_list'; } /* 第一次截下档案箱：回到地图时放「运输清单」 */
   /* 城里打仗：打赢 +1（精英 +2），另外每开 6 枪再 +1 */
   const shots = B.noise || 0, susUp = SUS() && kind !== 'boss' ? (kind === 'elite' ? 2 : 1) + Math.floor(shots / 6) : 0; if (susUp) addSus(susUp); winRewards.sus = susUp ? [susUp, shots] : null;
+  if (kind === 'boss' && en.some(e => e.key === 'staff')) { R.evid = B.evid == null ? 100 : B.evid; R.hp = Math.max(1, R.hp); B = null; delete R.pending; save(); teReveal(); return true; } /* 真结局打赢参谋 */
   if (kind === 'boss') { R.hp = Math.max(1, R.hp); B = null; R.food += 3; R.pending = { t: 'loot', kind: 'boss', food: 3, list: [], cards: rollCards(3, 'boss'), then: { t: 'bossrelic', opts: rollBossRelics() } }; save(); return lootScreen(), true; }
   winRewards(kind, en, strong, gotIntel); return true;
 }
@@ -1088,8 +1092,16 @@ function bossRelicScreen() {
 function actEnd() {
   const C = CH(), next = CHAPTERS[C.id];
   const endAdv = C.id === 1 ? ((R.intel || 0) >= 1 ? ADV_CH1_END : null) : C.id === 2 ? ADV_CH2_END : C.id === 3 ? ADV_CH3_END : null;
-  story([{ img: OUTRO[C.id], t: C.winText }], () => (endAdv ? f => adv(endAdv, f) : f => f())(() => campaign(C.id, () => next ? startAct(C.id + 1) : endScreen(true), next ? `第${'一二三'[C.id - 1]}章完。下一站：${next.name}。` : `第${'一二三'[C.id - 1]}章完。${C.id < 3 ? `第${'一二三'[C.id]}章正在制作中，敬请期待。` : ''}`)));
+  const te = C.id === 3 && (R.intel || 0) >= 3; /* 三份证据都在：进真结局 */
+  story([{ img: OUTRO[C.id], t: C.winText }], () => (endAdv ? f => adv(endAdv, f) : f => f())(te ? trueEnding : () => campaign(C.id, () => next ? startAct(C.id + 1) : endScreen(true), next ? `第${'一二三'[C.id - 1]}章完。下一站：${next.name}。` : `第${'一二三'[C.id - 1]}章完。${C.id < 3 ? `第${'一二三'[C.id]}章正在制作中，敬请期待。` : ''}`)));
 }
+/* —— 真结局「长夜将尽」：司令部过场 → 参谋两阶段 → 名单 → 天亮 →（拼图全齐）尾声 → 结算 —— */
+function trueEnding() { R.te = 1; if (R.san == null) R.san = 10; R.pending = { t: 'boss', enc: ['staff'] }; save(); adv(ADV_TE_OPEN, () => battle(['staff'], 'boss')); }
+function teReveal() { const hi = (R.evid || 0) >= 40;
+  adv(hi ? TE_REVEAL_HI : TE_REVEAL_LO, () => { ['zt_stay', 'ls_door', ...(hi ? ['ls_me'] : [])].forEach(giveFrag);
+    adv(TE_DAWN(hi), () => { ['hs_home', 'cm_hand', 'zt_hat', 'jy_go', ...(hi ? ['sq_write'] : [])].forEach(giveFrag); see('a:「特别移送」');
+      they('老沈', '留在了关东军司令部档案室的铁门后面', 1); they('赵铁山', '守住了司令部的楼梯，天亮时走了出来', 1);
+      const fin = () => endScreen(true); Object.keys(FRAGS).every(fragGot) ? adv(TE_EPI, fin) : fin(); }); }); }
 function startAct(n) {
   const heal = Math.floor(R.maxHp * .5);
   R.act = n; R.hp = Math.min(R.maxHp, R.hp + heal); R.temp = TEMP_MAX; R.food += 3; R.sus = 0; R.san = 10; R.lure = 0;
@@ -1104,9 +1116,10 @@ function startAct(n) {
 function endScreen(win, how = '') {
   $('#dbg')?.remove(); B = null; clearSave(); const C = CH(), floor = (R.floor0 || 0) + Math.max(1, R.floor);
   const rare = R.deck.filter(c => CARDS[c.id] && (CARDS[c.id].rar === 'r' || CARDS[c.id].rar === 'loot'));
-  view.innerHTML = `<div class="tbg ${win ? 'endwin' : 'endlose'}"></div><div class="endw2">
-   <div class="ribbon ${win ? 'win' : ''}">${win ? `第${'一二三'[C.id - 1] || C.id}章 完` : '阵 亡'}</div>
-   <p class="endsub">${win ? (C.id >= 3 ? `天亮了。你们带着 ${R.intel || 0} 份证据爬出了地底。<br><b>真结局「长夜将尽」正在制作中${(R.intel || 0) >= 3 ? '：三份证据都在你手里。' : '：集齐三份证据才能看到。'}</b>` : `第${'一二三'[C.id - 1]}章完。`) : `${CHR().name}${how}${R.killer ? `，被<b>${R.killer}</b>击倒` : ''}。`}</p>
+  const te = win && R.te, nf = Object.keys(FRAGS).filter(fragGot).length;
+  view.innerHTML = `<div class="tbg ${te ? 'endte' : win ? 'endwin' : 'endlose'}"></div><div class="endw2">
+   <div class="ribbon ${win ? 'win' : ''}">${te ? '长夜将尽' : win ? `第${'一二三'[C.id - 1] || C.id}章 完` : '阵 亡'}</div>
+   <p class="endsub">${te ? `天亮了。你们带着 ${R.evid}% 的证据走出了关东军司令部${R.evid >= 40 ? '' : '，名单烧掉了太多'}。<br>图鉴「史实档案」解锁了一条：「特别移送」。人物拼图 ${nf}/35。` : win ? (C.id >= 3 ? `天亮了。你们带着 ${R.intel || 0} 份证据爬出了地底。<br><b>集齐三份证据，才能走进关东军司令部，看到真结局「长夜将尽」。</b>` : `第${'一二三'[C.id - 1]}章完。`) : `${CHR().name}${how}${R.killer ? `，被<b>${R.killer}</b>击倒` : ''}。`}</p>
    <div class="endgrid">
     <table class="score"><tr><td>走过的层数</td><td>${floor}</td></tr><tr><td>击倒敌人</td><td>${R.kills || 0}</td></tr><tr><td>打退精英</td><td>${R.elites || 0}</td></tr><tr><td>击溃首领</td><td>${R.bosses || 0}</td></tr><tr><td>情报</td><td>${R.intel || 0} / 3</td></tr><tr><td>剩余生命</td><td>${Math.max(0, R.hp)} / ${R.maxHp}</td></tr></table>
     <div class="endbag"><h4>随身物品 ${R.relics.length}</h4><div class="erel">${R.relics.map(id => `<b title="${esc(RELICS[id].name)}">${RELICS[id].icon}</b>`).join('')}</div>
@@ -1134,7 +1147,7 @@ function dbgPanel() {
   if (!DEBUG) return; $('#dbg')?.remove(); const d = document.createElement('div'); d.id = 'dbg';
   const btns = B && !B.over ? [['胜利', () => { E.alive(B).forEach(e => { e.hp = 0; e.dead = 1; e.deadAt = Date.now(); }); render(); checkEnd(); }], ...(B.mech.dbg || []).map(([t, f]) => [t, () => { f(B); render(); }]),
     ['+能量', () => { B.p.energy += 3; render(); }], ['抽牌', () => { E.drawCards(B, 3); render(); }], ['给牌', () => showPile('给一张牌（加入手牌）', Object.keys(CARDS).map(id => ({ id, up: 0, uid: uidN++ })), c => { B.hand.push(c); render(); })], ['满血', () => { R.hp = R.maxHp; render(); }], ...(SAN() ? [['神官1血', () => { const p = B.en.find(e => e.key === 'priest' && !e.dead); if (p) { p.hp = 1; p.block = 0; } render(); }], ['理智0', () => { R.san = 0; render(); }], ['点灯', () => { B.lit = 1; render(); }]] : [])]
-    : R ? [['拼图过场', () => { const all = Object.keys(FRAGS).filter(k => FRAGS[k].lines), cur = all.filter(k => FRAGS[k].ch === CH().id); fragScene(pickOne(cur.length ? cur : all), mapScreen); }], ['开场过场', () => adv([ADV_CH1_OPEN, ADV_CH2_OPEN, ADV_CH3_OPEN][CH().id - 1], mapScreen)], ['去Boss', () => { R.pos = { r: ROWSOF() - 1, c: R.map[ROWSOF() - 1].findIndex(Boolean) }; mapScreen(); }], ['满血', () => { R.hp = R.maxHp; mapScreen(); }], ['口粮+5', () => { R.food += 5; mapScreen(); }], ['体温0', () => { R.temp = 0; mapScreen(); }], ['精英战', () => { const enc = pickOne(CH().enc.elite); R.pending = { t: 'elite', enc }; battle(enc, 'elite'); }], ['加强精英', () => { const enc = pickOne(CH().enc.elite); R.pending = { t: 'elite', enc, strong: true }; battle(enc, 'elite', true); }], ['犬机狙', () => battle(['dog', 'mg', 'sniper'], 'fight')], ['两个步兵', () => battle(['inf', 'inf'], 'fight')], ['重机枪', () => battle(['inf', 'hmg'], 'elite')], ['警察队长', () => battle(['puppet', 'pcap', 'puppet'], 'elite')], ['柏木', () => battle(['dog', 'kcap', 'dog'], 'boss')], ['Boss战', () => { bossKey(); R.pending = { t: 'boss', enc: R.bossEnc }; battle(R.bossEnc, 'boss'); }], ['换Boss', () => { R.boss = null; bossKey(); mapScreen(); }], ['第二章', () => { if (R.act < 2) startAct(2); }], ['第三章', () => { if (R.act < 3) startAct(3); }], ['平民战', () => battle(['ronin', 'jpcop', 'bureaucrat', 'merchant'], 'fight')], ['新兵种', () => battle(['cav', 'radio', 'ski'], 'fight')], ['步兵炮', () => battle(['supply', 'gun', 'medic'], 'elite')], ['装甲车', () => battle(['armorcar', 'kensei', 'informer'], 'elite')], ['溃兵', () => battle(['officer', 'oldsoldier', 'surgeon', 'depotchief'], 'elite')], ['城里四人', () => battle(['kempei', 'patrol', 'spy', 'escort2'], 'elite')], ['押运剑道', () => battle(['escort', 'kendo', 'agent', 'escort3'], 'elite')], ['桐野', () => battle(['kempei', 'kirino'], 'boss')], ['久我', () => battle(['spy', 'kuga'], 'boss')], ['禁卫监工', () => battle(['guard', 'reservist', 'overseer'], 'fight')], ['理智-3', () => { addSan(-3); mapScreen(); }], ['萨满', () => eventScreen('shaman')], ['神官', () => battle(['priest'], 'boss')], ['墓里', () => battle(['shadow', 'echo', 'tombkeeper'], 'fight')], ['可疑度+3', () => { addSus(3); mapScreen(); }], ['章节结尾', () => { R.pending = { t: 'actend' }; actEnd(); }], ['阵亡', () => { R.killer = '讨伐队长 · 村濑'; endScreen(false, `倒在了${CH().name}第 ${Math.max(1, R.floor)} 层`); }], ['老乡', () => enterNode('shop')], ['埋藏点', () => enterNode('treasure')], ['事件', () => enterNode('event')], ['逃兵', () => eventScreen('deserter')], ['黄皮子', () => eventScreen('weasel')], ['保家仙', () => eventScreen('baojiaxian')], ['给物品', () => { R.relics.push(...Object.keys(RELICS).filter(id => !has(id) && RELICS[id].rar !== 'boss' && (!RELICS[id].ch || RELICS[id].ch === R.char)).slice(0, 4)); mapScreen(); }], ['给背包', () => { R.items = Object.keys(ITEMS).slice(0, ITEM_SLOTS); mapScreen(); }]] : [];
+    : R ? [['真结局', () => { R.act = 3; R.intel = 3; trueEnding(); }], ['拼图过场', () => { const all = Object.keys(FRAGS).filter(k => FRAGS[k].lines), cur = all.filter(k => FRAGS[k].ch === CH().id); fragScene(pickOne(cur.length ? cur : all), mapScreen); }], ['开场过场', () => adv([ADV_CH1_OPEN, ADV_CH2_OPEN, ADV_CH3_OPEN][CH().id - 1], mapScreen)], ['去Boss', () => { R.pos = { r: ROWSOF() - 1, c: R.map[ROWSOF() - 1].findIndex(Boolean) }; mapScreen(); }], ['满血', () => { R.hp = R.maxHp; mapScreen(); }], ['口粮+5', () => { R.food += 5; mapScreen(); }], ['体温0', () => { R.temp = 0; mapScreen(); }], ['精英战', () => { const enc = pickOne(CH().enc.elite); R.pending = { t: 'elite', enc }; battle(enc, 'elite'); }], ['加强精英', () => { const enc = pickOne(CH().enc.elite); R.pending = { t: 'elite', enc, strong: true }; battle(enc, 'elite', true); }], ['犬机狙', () => battle(['dog', 'mg', 'sniper'], 'fight')], ['两个步兵', () => battle(['inf', 'inf'], 'fight')], ['重机枪', () => battle(['inf', 'hmg'], 'elite')], ['警察队长', () => battle(['puppet', 'pcap', 'puppet'], 'elite')], ['柏木', () => battle(['dog', 'kcap', 'dog'], 'boss')], ['Boss战', () => { bossKey(); R.pending = { t: 'boss', enc: R.bossEnc }; battle(R.bossEnc, 'boss'); }], ['换Boss', () => { R.boss = null; bossKey(); mapScreen(); }], ['第二章', () => { if (R.act < 2) startAct(2); }], ['第三章', () => { if (R.act < 3) startAct(3); }], ['平民战', () => battle(['ronin', 'jpcop', 'bureaucrat', 'merchant'], 'fight')], ['新兵种', () => battle(['cav', 'radio', 'ski'], 'fight')], ['步兵炮', () => battle(['supply', 'gun', 'medic'], 'elite')], ['装甲车', () => battle(['armorcar', 'kensei', 'informer'], 'elite')], ['溃兵', () => battle(['officer', 'oldsoldier', 'surgeon', 'depotchief'], 'elite')], ['城里四人', () => battle(['kempei', 'patrol', 'spy', 'escort2'], 'elite')], ['押运剑道', () => battle(['escort', 'kendo', 'agent', 'escort3'], 'elite')], ['桐野', () => battle(['kempei', 'kirino'], 'boss')], ['久我', () => battle(['spy', 'kuga'], 'boss')], ['禁卫监工', () => battle(['guard', 'reservist', 'overseer'], 'fight')], ['理智-3', () => { addSan(-3); mapScreen(); }], ['萨满', () => eventScreen('shaman')], ['神官', () => battle(['priest'], 'boss')], ['墓里', () => battle(['shadow', 'echo', 'tombkeeper'], 'fight')], ['可疑度+3', () => { addSus(3); mapScreen(); }], ['章节结尾', () => { R.pending = { t: 'actend' }; actEnd(); }], ['阵亡', () => { R.killer = '讨伐队长 · 村濑'; endScreen(false, `倒在了${CH().name}第 ${Math.max(1, R.floor)} 层`); }], ['老乡', () => enterNode('shop')], ['埋藏点', () => enterNode('treasure')], ['事件', () => enterNode('event')], ['逃兵', () => eventScreen('deserter')], ['黄皮子', () => eventScreen('weasel')], ['保家仙', () => eventScreen('baojiaxian')], ['给物品', () => { R.relics.push(...Object.keys(RELICS).filter(id => !has(id) && RELICS[id].rar !== 'boss' && (!RELICS[id].ch || RELICS[id].ch === R.char)).slice(0, 4)); mapScreen(); }], ['给背包', () => { R.items = Object.keys(ITEMS).slice(0, ITEM_SLOTS); mapScreen(); }]] : [];
   btns.forEach(([t, f]) => { const b = document.createElement('button'); b.textContent = t; b.onclick = ev => { ev.stopPropagation(); f(); }; d.appendChild(b); });
   if (btns.length) stage.appendChild(d);
 }

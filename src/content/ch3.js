@@ -34,7 +34,20 @@ Object.values(CARDS_CH3).forEach(d => { d.ch = 'ch3'; }); /* 不进任何人的�
    新字段：ghost 墓里的东西（画面上发虚）；dodge 每回合一次、按几率「散开」躲掉一下；immune 打不动；
    招式 san 理智 -n；echo 学你上一下的伤害；allHurt 连同伙一起炸；steal 拿走你一张牌两回合；curse 往你牌堆里塞废牌；fn 自定义 */
 const priestOf = B => B.en.find(x => !x.dead && x.key === 'priest');
+/* 真结局：参谋烧证据。B.evid 从 100 往下掉，打赢时剩多少，名单上就看得清多少 */
+const burnEv = (B, G, n) => { B.evid = Math.max(0, (B.evid == null ? 100 : B.evid) - n); G.fx('hero', `档案烧掉了（证据还剩 ${B.evid}%）`, 'st'); };
 export const ENEMIES_CH3 = {
+  /* —— 真结局：不肯投降的关东军参谋（虚构）。第一阶段边打边烧证据；半血起身成「军神」，背后的刀一回合多一把，每把多打一下 —— */
+  staff: { name: '关东军参谋·大槻中佐', hp: [240, 240], col: '#4a3a24', frames: 'staff', artH: 290, frames2: 'wargod', artH2: 320, boss: 1,
+    moves: Object.assign({
+      saber: { t: '军刀（顺手烧掉一摞档案）', i: 'atk', d: 14, fn: (e, B, G) => burnEv(B, G, 10) },
+      toss: { t: '把档案扔进火里', i: 'def', blk: 12, fn: (e, B, G) => burnEv(B, G, 18) },
+      order: { t: '念「玉碎」命令', i: 'debuff', weak: 2, fn: (e, B, G) => burnEv(B, G, 10) },
+      rise: { t: '「军神」', i: 'buff', str: 2 },
+    }, Object.fromEntries(Array.from({ length: 9 }, (_, k) => ['b' + (k + 1), { t: `背后的军刀（${k + 1} 把，打完再多一把）`, i: 'atk', d: 5, x: k + 1, fn: e => { e.blades = (e.blades || 2) + 1; } }]))),
+    ai: (e, B) => e.phase === 2 ? 'b' + Math.min(9, e.blades || 2) : ['saber', 'toss', 'saber', 'order'][e.t % 4],
+    onHurt: (e, G) => { if (e.phase !== 2 && e.hp <= e.max / 2) { e.phase = 2; e.block = 0; e.blades = 2; e.t = 0; e.move = 'rise'; e.anim = null;
+      G.say('火光里，他慢慢站了起来。背后……插满了军刀。'); G.fx(e.id, '军神', 'st'); } } },
   /* —— 防空壕 —— */
   shrineguard: { name: '神庙卫兵', hp: [24, 28], col: '#4a4a30', frames: 'shrineguard', artH: 240, sup: 1, ammo: 2,
     moves: { shoot: { t: '射击', i: 'atk', d: 8, shot: 1 }, stab: { t: '刺刀', i: 'atk', d: 11 }, reload: { t: '装弹', i: 'reload', blk: 6 } },
@@ -245,7 +258,7 @@ export const CHAPTER3 = {
   res: 'san', /* 用理智代替可疑度 */
   nodes: { fight: 40, event: 32, elite: 14, rest: 10, shop: 4 }, fixed: { 0: 'fight', 4: 'shop', 8: 'treasure', 10: 'event', 14: 'rest' }, fixedEv: { 10: 'shaman' }, earliest: 5, easyFights: 2,
   map: { img: 'assets/bg/map_ch3.jpg', w: 1000, h: 1779, startY: .1, endY: .82, bossX: .5, bossY: .905, xMin: .25, xMax: .75, startLabel: '▼ 钻进排水渠', startLabelY: .045, dark: 1 }, /* 从上往下走：防空壕 → 仓库 → 古墓 */
-  battleBg: 'assets/bg/battle_shelter25.jpg', segBg: [['assets/bg/battle_shelter25.jpg', 'assets/bg/battle_culvert25.jpg'], 'assets/bg/battle_warehouse25.jpg', 'assets/bg/battle_tomb25.jpg'], bossBg: { priest: 'assets/bg/battle_tomb25.jpg' },
+  battleBg: 'assets/bg/battle_shelter25.jpg', segBg: [['assets/bg/battle_shelter25.jpg', 'assets/bg/battle_culvert25.jpg'], 'assets/bg/battle_warehouse25.jpg', 'assets/bg/battle_tomb25.jpg'], bossBg: { priest: 'assets/bg/battle_tomb25.jpg', staff: 'assets/story/adv3_depot.jpg' },
   under: 1, enemies: ENEMIES_CH3, frames: FRAMES_CH3, blockSize: {}, enc: ENC_CH3, segEnc: SEG_ENC, seg: SEG, segName: SEG_NAME,
   events: EVENTS_CH3, places: PLACES_CH3, escort: 'escort3', bossLabel: '最深处',
   intro: [
