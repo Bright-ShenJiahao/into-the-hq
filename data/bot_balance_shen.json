@@ -304,149 +304,145 @@
     2000300
   ],
   "chapters": [
-    0.8,
-    0.7633333333333333,
-    0.7633333333333333
+    0.93,
+    0.9066666666666666,
+    0.9066666666666666
   ],
-  "trueEnd": 0.006666666666666667,
-  "trueAttempts": 2,
-  "trueWins": 2,
+  "trueEnd": 0,
+  "trueAttempts": 0,
+  "trueWins": 0,
   "bosses": {
     "dog+kcap+dog": {
-      "attempts": 123,
-      "wins": 118
-    },
-    "spy+kuga": {
-      "attempts": 123,
-      "wins": 119
-    },
-    "priest": {
-      "attempts": 229,
-      "wins": 229
+      "attempts": 137,
+      "wins": 137
     },
     "kirino": {
-      "attempts": 111,
-      "wins": 110
+      "attempts": 126,
+      "wins": 121
+    },
+    "priest": {
+      "attempts": 272,
+      "wins": 272
     },
     "inf+captain": {
-      "attempts": 126,
-      "wins": 122
+      "attempts": 145,
+      "wins": 142
     },
-    "staff": {
-      "attempts": 2,
-      "wins": 2
+    "spy+kuga": {
+      "attempts": 153,
+      "wins": 151
     }
   },
   "chapterHp": [
-    48.50416666666667,
-    60.004366812227076,
-    67.87336244541484
+    43.04659498207885,
+    52.661764705882355,
+    65.83088235294117
   ],
-  "clearHp": 67.87336244541484,
+  "clearHp": 65.83088235294117,
   "timeouts": 6,
   "deaths": [
     [
+      "2:boss:kirino",
+      5
+    ],
+    [
       "1:elite加强:inf+sergeant+inf",
-      27
-    ],
-    [
-      "1:elite加强:inf+hmg",
-      6
-    ],
-    [
-      "1:elite:inf+sergeant+inf",
       5
     ],
     [
-      "1:boss:dog+kcap+dog",
-      5
-    ],
-    [
-      "2:boss:spy+kuga",
-      4
+      "1:elite:inf+hmg",
+      3
     ],
     [
       "1:boss:inf+captain",
-      4
-    ],
-    [
-      "1:elite加强:puppet+pcap+puppet",
-      4
-    ],
-    [
-      "1:fight:medic+inf+inf",
       3
+    ],
+    [
+      "1:elite加强:inf+hmg",
+      2
+    ],
+    [
+      "1:fight:cav+puppet+puppet",
+      2
+    ],
+    [
+      "1:elite:inf+sergeant+inf",
+      2
+    ],
+    [
+      "2:boss:spy+kuga",
+      2
     ]
   ],
   "errors": [],
   "weights": {
-    "powerEarly": 16.0433,
-    "powerLate": 3.1442,
-    "earlyTurns": 4.5972,
-    "attack": 4.0063,
-    "damage": 0.6796,
-    "lethal": 27.2415,
-    "blockNeeded": 7.4433,
-    "blockIdle": 1.4519,
-    "blockAmount": 0.6133,
-    "skill": 2.1559,
-    "zero": 7.0025,
-    "cost": 0.6175,
-    "ritual": 121.376,
-    "resource": 4.9784,
-    "empty": 12.3535,
-    "reload": 18.5476,
-    "reloadNear": 3.3294,
-    "lowAmmo": 2.2557,
-    "rage": 12.8728,
-    "rageDanger": 1.1546,
-    "trim": 17.0638,
-    "trimWait": -3.4353,
-    "disrupt": 0.35,
-    "knifeKeep": 2.8061,
-    "knifeLow": 1.1108,
-    "knifeFull": 1.8416,
-    "charge": 8.4966,
-    "fort": 1.853,
-    "scry": 2.3288,
-    "clue": 8.8454,
-    "bloodSafe": 0.4744,
-    "bloodRisk": 13.8935,
-    "rest": 0.9326,
-    "itemHp": 0.8346,
-    "itemThreat": 12.2388,
-    "tierC": 2.9031,
-    "tierU": 3.5733,
-    "tierR": 2.3464,
-    "tierLoot": -0.0795,
-    "personal": 0.0687,
-    "archetype": 2.814,
-    "otherArch": 1.3045,
-    "needBlock": 2.4088,
-    "needAttack": 0.7374,
-    "blockShare": 0.6174,
-    "attackShare": 0.355,
-    "duplicate": 1.4082,
-    "powerLimit": 5.6799,
-    "powerPenalty": 0.1323,
-    "skip": 2.5274,
-    "deckMax": 17.5825,
-    "deckPenalty": 0.0586,
-    "routeIntel": 28.7645,
-    "routeRest": 17.0471,
-    "routeTreasure": 8.7523,
-    "routeEvent": 1.9832,
-    "routeShop": 6.5667,
-    "routeElite": -1.8951,
-    "foodReserve": 1.9187,
-    "relicValue": 10.1359,
-    "relicEnergy": 9.2777,
-    "relicDraw": 1.3977,
-    "relicDefense": 3.9882,
-    "relicHidden": 4.0333,
-    "relicWeak": 3.0026,
-    "relicReload": 2.8924,
-    "relicPersonal": 3.312
+    "powerEarly": 22.8977,
+    "powerLate": 3.6387,
+    "earlyTurns": 5.5668,
+    "attack": 5.5107,
+    "damage": 1.1812,
+    "lethal": 19.4443,
+    "blockNeeded": 12.8355,
+    "blockIdle": 1.2863,
+    "blockAmount": 0.3036,
+    "skill": 2.6499,
+    "zero": 13.4315,
+    "cost": 1.3313,
+    "ritual": 71.2007,
+    "resource": 3.3417,
+    "empty": 16.1699,
+    "reload": 22.2887,
+    "reloadNear": 5.8731,
+    "lowAmmo": 4.8012,
+    "rage": 19.2729,
+    "rageDanger": 1.5734,
+    "trim": -2.9413,
+    "trimWait": -0.2876,
+    "disrupt": 1.3188,
+    "knifeKeep": 2.5641,
+    "knifeLow": 0.0737,
+    "knifeFull": 1.2687,
+    "charge": 1.55,
+    "fort": 1.2134,
+    "scry": 1.2269,
+    "clue": 8.3776,
+    "bloodSafe": 0.532,
+    "bloodRisk": 13.2875,
+    "rest": 0.5588,
+    "itemHp": 0.4437,
+    "itemThreat": 11.2165,
+    "tierC": 2.8003,
+    "tierU": 4.2814,
+    "tierR": -0.2467,
+    "tierLoot": 0.3986,
+    "personal": -0.112,
+    "archetype": 3.3159,
+    "otherArch": 1.7995,
+    "needBlock": 3.6242,
+    "needAttack": 0.9972,
+    "blockShare": 0.5661,
+    "attackShare": 0.6441,
+    "duplicate": 0.6626,
+    "powerLimit": 1.0168,
+    "powerPenalty": 1.3076,
+    "skip": 3.0914,
+    "deckMax": 18.6019,
+    "deckPenalty": 0.2619,
+    "routeIntel": 0,
+    "routeRest": 4.6533,
+    "routeTreasure": 2.2719,
+    "routeEvent": 0.998,
+    "routeShop": 11.0517,
+    "routeElite": -1.2836,
+    "foodReserve": 0.7697,
+    "relicValue": -2.8498,
+    "relicEnergy": 7.7723,
+    "relicDraw": 0.5422,
+    "relicDefense": 6.8195,
+    "relicHidden": 0.9728,
+    "relicWeak": 4.7913,
+    "relicReload": 0.2823,
+    "relicPersonal": 2.3561
   },
-  "source": "182e462db8bdf8baabe4cc8773a6d852236f3f37"
+  "source": "84310945980a080d1b214692418d09ab13c093df"
 }
