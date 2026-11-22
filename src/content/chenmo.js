@@ -59,8 +59,8 @@ export const CARDS_CM = {
     desc: () => '流血每回合只减 1。', play: G => G.power('bleedSlow', 1) },
   cm_flood: { name: '血流不止', type: 'atk', cost: [2, 2], rar: 'r', sch: '血', icon: 'bayonet',
     desc: u => `对每个敌人造成等于它流血层数 ×${V(u, 2, 3)} 的伤害。`, play: (G, u) => G.alive().forEach(e => G.melee(e, (e.st.bleed || 0) * V(u, 2, 3))) },
-  cm_tokyo: { name: '东京的雪', type: 'power', cost: [1, 1], rar: 'r', sch: '血', icon: 'cover',
-    desc: u => `敌人每次因流血失去生命，你抽 1（每回合最多 ${V(u, 1, 2)} 张）。`, play: (G, u) => G.power('tokyo', V(u, 1, 2)) },
+  cm_tokyo: { name: '乘隙追击', type: 'power', cost: [1, 1], rar: 'r', sch: '血', icon: 'cover',
+    desc: u => `敌人受到流血伤害时，抽 1 张牌。每回合最多触发 ${V(u, 1, 2)} 次。`, play: (G, u) => G.power('tokyo', V(u, 1, 2)) },
   // —— 通用 ——
   cm_halt: { name: '「（日语）站住！」', type: 'skill', cost: [1, 1], rar: 'c', sch: '通', tgt: 'one', icon: 'helmet',
     desc: u => `冒充宪兵喝住对方：目标虚弱 2，获得 ${V(u, 5, 8)} 格挡。`, play: (G, u, t) => { G.weak(t, 2); G.block(V(u, 5, 8)); } },
@@ -158,7 +158,7 @@ export const MECH_CM = {
   info(B) {
     const k = kn(B);
     return { main: `<div class="ammo knives" data-k="飞刀"><span class="pips">${Array.from({ length: KNIFE_MAX }, (_, i) => `<i class="${i < k ? 'f' : ''}"></i>`).join('')}</span><b>飞刀 ${k}</b></div>`,
-      chips: '', powers: { gen: '刀意', ward: '绑腿', bleedSlow: '血债', tokyo: '东京的雪', quickH: '快手', wind: '出手如风', spread: '余血', seeb: '见血' } };
+      chips: '', powers: { gen: '刀意', ward: '绑腿', bleedSlow: '血债', tokyo: '乘隙追击', quickH: '快手', wind: '出手如风', spread: '余血', seeb: '见血' } };
   },
   enemyChips() { return ''; },
   shotKind() { return null; },
@@ -183,3 +183,4 @@ export const CHENMO = {
   startRelic: 'legknife', mech: MECH_CM, kw: KW_CM, tut: TUT_CM, lang: { ja: 3, ru: 2 },
   art: { dir: 'chenmo', frames: true, lihui: true, fr: { cw: 339, ch: 334, ax: 179, sw: 121, sh: 332 }, h: 252, hTouch: 237 },
 };
+

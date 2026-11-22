@@ -316,3 +316,39 @@ export function result(B) {
 }
 /* 战斗结束（界面在结算前调用） */
 export function endBattle(B, win) { trigger(B, 'battleEnd', win); }
+
+/* 预览在独立快照里调用同一套出牌规则，不扣真实资源、不推进真实随机数。 */
+export function previewCard(B, i, tid) {
+  const c = B.hand[i]; if (!c) return null;
+  const why = cantPlay(B, c); if (why) return { why, enemies: [] };
+  const seen = new WeakMap();
+  const copy = value => {
+    if (!value || typeof value !== 'object') return value;
+    if (seen.has(value)) return seen.get(value);
+    const out = Array.isArray(value) ? [] : {}; seen.set(value, out);
+    for (const [key, v] of Object.entries(value)) out[key] = copy(v);
+    return out;
+  };
+  const S = {};
+  for (const [key, value] of Object.entries(B)) if (!['K', 'G', 'rng', 'char', 'mech', 'fx', 'msgs'].includes(key)) S[key] = copy(value);
+  S.char = B.char; S.mech = B.mech; S.fx = []; S.msgs = []; S.autoScry = false;
+  let random = false;
+  S.rng = () => { random = true; return .5; };
+  S.K = { fx: (w, t, c) => fx(S, w, t, c), hitEnemy: (e, a, p) => hitEnemy(S, e, a, p), atkMod: (e, d, sh) => atkMod(S, e, d, sh), alive: () => alive(S), drawCards: n => drawCards(S, n), sum: (ev, ...a) => sum(S, ev, ...a) };
+  S.G = mkG(S);
+  const nativeRandom = Math.random;
+  try {
+    Math.random = S.rng;
+    playCard(S, i, tid);
+  } finally { Math.random = nativeRandom; }
+  return { random, enemies: B.en.filter(e => !e.dead && !e.d.civ).map(e => {
+    const after = S.en.find(x => x.id === e.id);
+    if (!after) return { id: e.id, hp: 0, block: 0, damage: 0, bleed: 0, charges: [], killed: false, phase: false };
+    return { id: e.id, hp: Math.max(0, after.hp), block: Math.max(0, after.block),
+      damage: Math.max(0, e.hp - Math.max(0, after.hp)), blocked: Math.max(0, e.block - after.block),
+      bleed: Math.max(0, (after.st.bleed || 0) - (e.st.bleed || 0)),
+      charges: (after.charges || []).slice((e.charges || []).length),
+      killed: !!after.dead && !after.fled, phase: after.phase !== e.phase };
+  }) };
+}
+

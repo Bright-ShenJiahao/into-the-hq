@@ -472,7 +472,7 @@ function enterNode(t, nd) {
     R.pending = { t, enc, strong: !!(nd && nd.strong) }; save(); return battle(enc, t, R.pending.strong);
   }
   if (t === 'rest') { R.pending = { t: 'rest' }; save(); return restScreen(); }
-  if (t === 'event' && !(C.fixedEv && nd && C.fixedEv[nd.r])) { const fid = pickFrag('event'); if (fid) { save(); return fragScene(fid, mapScreen); } }
+  if (t === 'event' && !(C.fixedEv && nd && C.fixedEv[nd.r])) { R.eventNodes = (R.eventNodes || 0) + 1; const fid = pickFrag('event'); if (fid) { R.lastFragEvent = R.eventNodes; save(); return fragScene(fid, mapScreen); } }
   if (t === 'event') { save(); return eventScreen(C.fixedEv && nd && C.fixedEv[nd.r] && !(R.seenEv || []).includes(C.fixedEv[nd.r]) ? C.fixedEv[nd.r] : undefined); }
   if (t === 'shop') { R.pending = { t: 'shop' }; save(); return shopScreen(); }
   if (t === 'treasure') { R.pending = { t: 'treasure' }; save(); return treasureScreen(); }
@@ -580,7 +580,10 @@ const fragGot = id => !!SEEN['f:' + id];
 function giveFrag(id) { const f = FRAGS[id]; R.fragRun = [...new Set([...(R.fragRun || []), id])]; const nw = !fragGot(id); see('f:' + id); save();
   if (nw) tip(`人物拼图：${PERSON(f.who).n} · ${f.t}（${FRAG_PLAN[f.who].filter((_, i) => Object.values(FRAGS).some(x => x.who === f.who && x.i === i && fragGot(Object.keys(FRAGS).find(kk => FRAGS[kk] === x)))).length}/5）`); }
 function pickFrag(at) { const ok = Object.keys(FRAGS).filter(id => { const f = FRAGS[id]; return f.ch === CH().id && f.at === at && (!f.only || f.only === R.char) && (!f.when || f.when(R)) && !(R.fragRun || []).includes(id); });
-  if (!ok.length) return null; const must = ok.find(id => FRAGS[id].force); if (must) return must; /* 主线要过的拼图（陈默的「路灯底下」）一定出 */ const fresh = ok.filter(id => !fragGot(id)); if (Math.random() > (fresh.length ? .5 : .2)) return null; return pickOne(fresh.length ? fresh : ok); }
+  if (!ok.length) return null; const must = ok.find(id => FRAGS[id].force); if (must) return must; /* 必要主线保留；普通问号以有选择的事件为主。 */
+  const fresh = ok.filter(id => !fragGot(id));
+  if (!fresh.length || R.lastFragEvent != null && (R.eventNodes || 0) - R.lastFragEvent < 3 || Math.random() >= .2) return null;
+  return pickOne(fresh); }
 /* 事件格里的拼图：放完过场，说会儿话身上暖了些（体温 +2，生命 +5） */
 function fragScene(id, done) { const f = FRAGS[id]; adv(f, () => { giveFrag(id); if (f.fx) f.fx({ flag: k => { R.flags = [...new Set([...(R.flags || []), k])]; }, sus: n => addSus(n) }); R.temp = Math.min(TEMP_MAX, R.temp + 2); R.hp = Math.min(R.maxHp, R.hp + 5); save(); done(); }); }
 function bossTalk(key, done) {
@@ -732,6 +735,8 @@ function handLayout() {
 }
 function render() {
   if (!B) return;
+  clearDamagePreview();
+  if (DR) { DR = null; $('#aimline')?.remove(); aimMark(null); }
   const { n, gap, x0 } = handLayout();
   const hand = B.hand.map((c, i) => {
     const mid = (n - 1) / 2, sel = B.sel === i, rot = (i - mid) * 3, dy = Math.abs(i - mid) ** 2 * 2.2, off = E.cantPlay(B, c);
@@ -857,8 +862,59 @@ async function checkEnd() {
 // ---------- 拖动出牌（移植自旧游戏）：手机只拖动，电脑点击和拖动都可以 ----------
 let DR = null, DRAGGED = false;
 const stXY = ev => { const s = stage._s || 1, r = stage.getBoundingClientRect(); return [(ev.clientX - r.left) / s, (ev.clientY - r.top) / s]; };
-const enemyAt = ev => { const el = document.elementFromPoint(ev.clientX, ev.clientY); const en = el && el.closest && el.closest('.enemy'); const e = en && B && B.en.find(x => x.id === en.dataset.eid); return e && !e.dead ? e : null; };
+/* 精灵图片带有透明画布，不能用 elementFromPoint 命中整张图片；先判定实际显示框，再判定信息条。 */
+const enemyAt = ev => {
+  if (!B) return null;
+  const units = E.alive(B).map(e => ({ e, el: view.querySelector(`.enemy[data-eid="${e.id}"]`) })).filter(x => x.el);
+  const inside = r => r.width > 0 && r.height > 0 && ev.clientX >= r.left && ev.clientX <= r.right && ev.clientY >= r.top && ev.clientY <= r.bottom;
+  const body = units.map(x => ({ ...x, rect: x.el.querySelector('.sprw')?.getBoundingClientRect() })).filter(x => x.rect && inside(x.rect));
+  if (body.length) {
+    /* 两个人物边缘略有重叠时，选离指针更近的人物中心。 */
+    const distance = r => ((ev.clientX - r.left - r.width / 2) / r.width) ** 2 + ((ev.clientY - r.top - r.height / 2) / r.height) ** 2;
+    body.sort((a, b) => distance(a.rect) - distance(b.rect));
+    return body[0].e;
+  }
+  return units.find(x => [...x.el.querySelectorAll('.intent, .hpw, .badges')].some(el => inside(el.getBoundingClientRect())))?.e || null;
+};
+const aimPoint = (e, ev) => {
+  const box = e && view.querySelector(`.enemy[data-eid="${e.id}"] .sprw`);
+  if (!box) return stXY(ev);
+  const r = box.getBoundingClientRect();
+  return stXY({ clientX: r.left + r.width / 2, clientY: r.top + r.height / 2 });
+};
 const aimMark = id => { view.querySelectorAll('.enemy.aim').forEach(x => x.classList.remove('aim')); if (id) view.querySelector(`.enemy[data-eid="${id}"]`)?.classList.add('aim'); };
+function clearDamagePreview() { stage.querySelectorAll('.damage-preview').forEach(el => el.remove()); view.querySelectorAll('.preview-loss').forEach(el => el.remove()); }
+function damagePreview(i, target) {
+  clearDamagePreview();
+  if (!B || darkNow()) return; /* 黑暗里不能靠预览偷看敌人的生命。 */
+  const c = B.hand[i]; if (!c || E.needTarget(c) && !target) return;
+  let preview;
+  try { preview = E.previewCard(B, i, target?.id); } catch (error) { console.error('伤害预览失败', c.id, error); return; }
+  if (!preview || preview.why) return;
+  const sr = stage.getBoundingClientRect(), scale = stage._s || 1;
+  for (const p of preview.enemies) {
+    const unit = view.querySelector(`.enemy[data-eid="${p.id}"]`), enemy = B.en.find(e => e.id === p.id); if (!unit || !enemy) continue;
+    const parts = [];
+    if (preview.random) { if (CARDS[c.id].type === 'atk' && (!E.needTarget(c) || target?.id === p.id)) parts.push('伤害含随机效果'); }
+    else {
+      if (p.blocked) parts.push(`破盾 ${p.blocked}`);
+      if (p.damage) parts.push(`扣血 ${p.damage}`);
+      if (p.killed) parts.push('斩杀'); else if (p.phase) parts.push('进入下一阶段');
+    }
+    if (p.bleed) parts.push(`流血 +${p.bleed}`);
+    for (const charge of p.charges) parts.push(`炸药 ${charge.dmg} · 引信 ${charge.fuse}`);
+    if (!parts.length) continue;
+    const bar = unit.querySelector('.bar'), rect = (bar || unit).getBoundingClientRect(), label = document.createElement('div');
+    label.className = `damage-preview${p.killed && !preview.random ? ' lethal' : ''}`;
+    label.textContent = parts.join(' · ');
+    label.style.left = `${(rect.left + rect.width / 2 - sr.left) / scale}px`; label.style.top = `${(rect.top - sr.top) / scale - (TOUCH ? 38 : 28)}px`;
+    stage.appendChild(label);
+    if (bar && p.damage && !preview.random && !p.phase) {
+      const loss = document.createElement('b'); loss.className = 'preview-loss';
+      loss.style.left = `${p.hp / enemy.max * 100}%`; loss.style.width = `${p.damage / enemy.max * 100}%`; bar.appendChild(loss);
+    }
+  }
+}
 view.addEventListener('pointerdown', ev => {
   const el = ev.target.closest && ev.target.closest('#hand .card'); if (!el || !B || B.busy || B.over || B.anim || ev.button > 0) return;
   const i = +el.dataset.i, c = B.hand[i]; if (!c) return; const [x, y] = stXY(ev), r = el.getBoundingClientRect(), s = stage._s || 1, sr = stage.getBoundingClientRect();
@@ -873,27 +929,29 @@ addEventListener('pointermove', ev => {
     DR.el.style.setProperty('--dt', 'translateY(-40px) scale(1.05) rotate(0deg)'); let ln = $('#aimline');
     if (!ln) { ln = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); ln.id = 'aimline'; ln.setAttribute('style', `position:absolute;left:0;top:0;width:${SW}px;height:720px;z-index:85;pointer-events:none;overflow:visible`); stage.appendChild(ln); }
     /* 杀戮尖塔式箭头：沿曲线排一串由小变大的箭头块，指到敌人时变红 */
-    const e = enemyAt(ev), col = e ? '#ff5a4a' : '#ffd35a', x0 = DR.cx, y0 = DR.cy - 40, cx = (x0 + x) / 2, cy = Math.min(y0, y) - 160, N = 11;
-    const P = t => [(1 - t) * (1 - t) * x0 + 2 * (1 - t) * t * cx + t * t * x, (1 - t) * (1 - t) * y0 + 2 * (1 - t) * t * cy + t * t * y];
+    const e = enemyAt(ev), [tx, ty] = aimPoint(e, ev), col = e ? '#ff5a4a' : '#ffd35a', x0 = DR.cx, y0 = DR.cy - 40, cx = (x0 + tx) / 2, cy = Math.min(y0, ty) - 160, N = 11;
+    DR.targetId = e ? e.id : null; /* 高亮、箭头终点和松手出牌共用本次判定。 */
+    const P = t => [(1 - t) * (1 - t) * x0 + 2 * (1 - t) * t * cx + t * t * tx, (1 - t) * (1 - t) * y0 + 2 * (1 - t) * t * cy + t * t * ty];
     let h = '';
-    for (let k = 1; k < N; k++) { const t = k / N, [px, py] = P(t), [qx, qy] = P(t + .01), a = Math.atan2(qy - py, qx - px) * 180 / Math.PI, sz = 9 + 15 * t;
+    for (let k = 1; k < N; k++) { const t = k / N, [px, py] = P(t), [qx, qy] = P(t + .01), a = Math.atan2(qy - py, qx - px) * 180 / Math.PI, sz = 5 + 8 * t;
       h += `<path d="M${-sz},${-sz} L${sz * .6},0 L${-sz},${sz} L${-sz * .4},0 Z" fill="${col}" stroke="#2a1a08" stroke-width="3" transform="translate(${px},${py}) rotate(${a})"/>`; }
-    const [ex, ey] = P(.97), ang = Math.atan2(y - ey, x - ex) * 180 / Math.PI;
-    h += `<path d="M-38,-38 L30,0 L-38,38 L-18,0 Z" fill="${col}" stroke="#2a1a08" stroke-width="3" transform="translate(${x},${y}) rotate(${ang})"/>`;
-    ln.innerHTML = h; aimMark(e ? e.id : null);
-  } else { DR.el.style.setProperty('--dt', `translate(${x - DR.x0}px,${y - DR.y0}px) scale(1.08)`); DR.el.classList.toggle('ready', y < 470); }
+    const [ex, ey] = P(.97), ang = Math.atan2(ty - ey, tx - ex) * 180 / Math.PI;
+    h += `<path d="M-26,-17 L0,0 L-26,17 L-18,0 Z" fill="${col}" stroke="#2a1a08" stroke-width="3" transform="translate(${tx},${ty}) rotate(${ang})"/>`;
+    ln.innerHTML = h; aimMark(e ? e.id : null); damagePreview(DR.i, e);
+  } else { DR.el.style.setProperty('--dt', `translate(${x - DR.x0}px,${y - DR.y0}px) scale(1.08)`); DR.el.classList.toggle('ready', y < 470); if (y < 470) damagePreview(DR.i, null); else clearDamagePreview(); }
 });
 addEventListener('pointerup', ev => {
   if (!DR || !B) { DR = null; return; } const d = DR, [, y] = stXY(ev);
   if (!d.moved) { DR = null; return; }
-  const e = d.tgt ? enemyAt(ev) : null; DR = null; $('#aimline')?.remove(); aimMark(null); setTimeout(() => { DRAGGED = false; }, 50);
+  const hit = d.tgt ? enemyAt(ev) : null, e = hit && hit.id === d.targetId ? hit : null; /* 松手位置若与最后显示的目标不同，取消，绝不悄悄改打旁人。 */
+  DR = null; $('#aimline')?.remove(); aimMark(null); clearDamagePreview(); setTimeout(() => { DRAGGED = false; }, 50);
   const c = B.hand[d.i], why = c && E.cantPlay(B, c);
   if (why && (e || y < 470)) { tip(why); render(); return; }
-  if (d.tgt) { const a = E.alive(B); if (e) return play(d.i, e.id); if (a.length === 1 && y < 470) return play(d.i, a[0].id); }
+  if (d.tgt) { if (e) return play(d.i, e.id); }
   else if (y < 470) return play(d.i);
   render();
 });
-addEventListener('pointercancel', () => { if (DR) { DR = null; $('#aimline')?.remove(); aimMark(null); render(); } });
+addEventListener('pointercancel', () => { if (DR) { DR = null; $('#aimline')?.remove(); aimMark(null); clearDamagePreview(); render(); } });
 
 // ---------- 打击感：子弹、枪口火光、弹壳、伤害数字、重击停顿、震屏 ----------
 function flushFx() {
@@ -1170,3 +1228,4 @@ function dbgPanel() {
 setInterval(() => { if (B && !B.busy && !B.over && E.result(B)) checkEnd(); }, 600);
 
 title();
+

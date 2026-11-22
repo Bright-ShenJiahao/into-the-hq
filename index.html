@@ -158,6 +158,11 @@ i.echo{color:#b8a0d0}.fxn.heal{color:#7ee08a}.nohp.civ{color:#d8d0b0;line-height
 /* 战斗：人物位置同旧游戏 */
 .unit{position:relative;display:flex;flex-direction:column;align-items:center}
 .unit .sprw{position:relative}
+/* 透明精灵画布和脚下阴影不拦截邻近人物的点击，目标由可见人物框承接。 */
+.unit .spr.art,.unit .shd{pointer-events:none}
+.damage-preview{position:absolute;z-index:90;pointer-events:none;transform:translate(-50%,-100%);padding:4px 8px;border:1px solid #f2c46b;border-radius:6px;background:#21160fee;color:#ffe5a8;font-size:17px;font-weight:bold;white-space:nowrap;text-shadow:0 1px 2px #000}
+.damage-preview.lethal{border-color:#ff6955;color:#ffb49f}.touch .damage-preview{font-size:23px;padding:6px 10px}
+.unit .bar .preview-loss{position:absolute;top:0;bottom:0;background:repeating-linear-gradient(135deg,#fff4b7aa 0 4px,#ff6a4a99 4px 8px);z-index:1;pointer-events:none}.unit .bar span{z-index:2}
 .unit .spr.blk{display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:bold;color:#fff;text-shadow:0 2px 3px #000;border:3px solid rgba(0,0,0,.55);border-radius:10px;position:relative;z-index:1;padding:4px;text-align:center}
 .unit .spr.bossb{border-radius:18px 18px 8px 8px;border-color:#2a0a0a}
 .unit .spr.art{display:block;position:relative;z-index:1;filter:drop-shadow(0 4px 4px rgba(0,0,0,.35));transform-origin:50% 100%;-webkit-user-drag:none}
@@ -462,3 +467,4 @@ img.uic{height:1.15em;width:auto;vertical-align:-.22em;margin-right:3px;filter:d
 <script type="module" src="src/game.js"></script>
 </body>
 </html>
+
