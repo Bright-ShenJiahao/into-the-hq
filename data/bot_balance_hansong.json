@@ -306,11 +306,11 @@
   "chapters": [
     0.54,
     0.38666666666666666,
-    0.38
+    0.38666666666666666
   ],
-  "trueEnd": 0.35333333333333333,
-  "trueAttempts": 108,
-  "trueWins": 106,
+  "trueEnd": 0.36,
+  "trueAttempts": 110,
+  "trueWins": 108,
   "bosses": {
     "dog+kcap+dog": {
       "attempts": 101,
@@ -322,11 +322,11 @@
     },
     "priest": {
       "attempts": 116,
-      "wins": 114
+      "wins": 116
     },
     "staff": {
-      "attempts": 108,
-      "wins": 106
+      "attempts": 110,
+      "wins": 108
     },
     "inf+captain": {
       "attempts": 100,
@@ -340,9 +340,9 @@
   "chapterHp": [
     32.48148148148148,
     33.73275862068966,
-    65.04385964912281
+    65.09482758620689
   ],
-  "clearHp": 50.982142857142854,
+  "clearHp": 50.92982456140351,
   "timeouts": 0,
   "deaths": [
     [
@@ -448,5 +448,5 @@
     "relicReload": 4.2485,
     "relicPersonal": 3.7516
   },
-  "source": "cb6d49420c86f18e53da77d03fe05833968d7df7"
+  "source": "182e462db8bdf8baabe4cc8773a6d852236f3f37"
 }

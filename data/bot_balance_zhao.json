@@ -306,7 +306,7 @@
   "chapters": [
     0.9633333333333334,
     0.96,
-    0.8766666666666667
+    0.96
   ],
   "trueEnd": 0.01,
   "trueAttempts": 3,
@@ -322,7 +322,7 @@
     },
     "priest": {
       "attempts": 288,
-      "wins": 263
+      "wins": 288
     },
     "spy+kuga": {
       "attempts": 159,
@@ -340,15 +340,11 @@
   "chapterHp": [
     55.017301038062286,
     70.51041666666667,
-    77.16730038022814
+    77.21875
   ],
-  "clearHp": 77.10646387832699,
-  "timeouts": 25,
+  "clearHp": 77.16319444444444,
+  "timeouts": 0,
   "deaths": [
-    [
-      "3:boss:priest",
-      25
-    ],
     [
       "1:elite加强:inf+sergeant+inf",
       7
@@ -436,5 +432,5 @@
     "relicReload": -1.0047,
     "relicPersonal": 1.4386
   },
-  "source": "cb6d49420c86f18e53da77d03fe05833968d7df7"
+  "source": "182e462db8bdf8baabe4cc8773a6d852236f3f37"
 }
