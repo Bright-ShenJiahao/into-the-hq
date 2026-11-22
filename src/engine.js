@@ -55,7 +55,11 @@ export function startTurn(B, first) {
   if (B.taken && B.taken.length) { for (const x of B.taken) x.t--; const back = B.taken.filter(x => x.t <= 0); B.taken = B.taken.filter(x => x.t > 0); for (const x of back) { B.hand.push(x.c); B.msgs.push(`${CARDS[x.c.id].name}回到了你手里。`); } }
   drawCards(B, n);
   /* 仪式：每回合给你下一张仪式牌（神鼓 → 腰铃 → 神刀），手里已经有了就不再给 */
-  if (B.ritual && B.ritual.step < 3 && !B.hand.some(c => CARDS[c.id].ritual)) B.hand.push({ id: RITUAL[B.ritual.step], up: 0, uid: 90000 + B.turn });
+  /* 洗牌后可能抽回已经用过的旧仪式牌：它们没用了，却会占着名额让下一步的牌发不出来，把仪式卡死，所以先清掉 */
+  if (B.ritual && B.ritual.step < 3) {
+    for (let i = B.hand.length - 1; i >= 0; i--) if (CARDS[B.hand[i].id].ritual && B.hand[i].id !== RITUAL[B.ritual.step]) B.hand.splice(i, 1);
+    if (!B.hand.some(c => CARDS[c.id].ritual)) B.hand.push({ id: RITUAL[B.ritual.step], up: 0, uid: 90000 + B.turn });
+  }
   if (B.mech.afterDraw) B.mech.afterDraw(B);
   trigger(B, 'turnStart', B);
 }
