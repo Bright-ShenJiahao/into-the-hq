@@ -38,7 +38,7 @@ const priestOf = B => B.en.find(x => !x.dead && x.key === 'priest');
 const burnEv = (B, G, n) => { B.evid = Math.max(0, (B.evid == null ? 100 : B.evid) - n); G.fx('hero', `档案烧掉了（证据还剩 ${B.evid}%）`, 'st'); };
 export const ENEMIES_CH3 = {
   /* —— 真结局：不肯投降的关东军参谋（虚构）。第一阶段边打边烧证据；半血起身成「军神」，背后的刀一回合多一把，每把多打一下 —— */
-  staff: { name: '关东军参谋·大槻中佐', hp: [240, 240], col: '#4a3a24', frames: 'staff', artH: 290, frames2: 'wargod', artH2: 320, boss: 1,
+  staff: { name: '关东军参谋·大槻中佐', hp: [290, 290], col: '#4a3a24', frames: 'staff', artH: 290, frames2: 'wargod', artH2: 320, boss: 1,
     moves: Object.assign({
       saber: { t: '军刀（顺手烧掉一摞档案）', i: 'atk', d: 14, fn: (e, B, G) => burnEv(B, G, 10) },
       toss: { t: '把档案扔进火里', i: 'def', blk: 12, fn: (e, B, G) => burnEv(B, G, 18) },
@@ -102,7 +102,7 @@ export const ENEMIES_CH3 = {
   nail: { name: '镇龙钉', hp: [16, 16], col: '#3a3a40', noAtk: 1, frames: 'nail', artH: 150, noKill: 1, noBleed: 1, hurtMul: B => ((B.R.relics || []).includes('hilt') ? 2 : 1),
     moves: { hold: { t: '镇（神官格挡 +6）', i: 'def', fn: (e, B) => { const p = priestOf(B); if (p) { p.block += 6; B.G.fx(p.id, '+6', 'blk'); } } } },
     ai: () => 'hold' },
-  priest: { name: '随军神官·鹫尾', hp: [170, 170], col: '#2a2a2a', frames: 'priest', artH: 285, boss: 1,
+  priest: { name: '随军神官·鹫尾', hp: [210, 210], col: '#2a2a2a', frames: 'priest', artH: 285, boss: 1,
     moves: { nail: { t: '钉下镇龙钉', i: 'buff', summon: 'nail', blk: 6 }, norito: { t: '祝词（每颗钉格挡 +8）', i: 'def', fn: (e, B) => { const n = B.en.filter(x => !x.dead && x.key === 'nail').length; if (n) { e.block += 8 * n; B.G.fx(e.id, '+' + 8 * n, 'blk'); } } },
       sword: { t: '神刀', i: 'atk', d: 16 }, curse: { t: '咒', i: 'debuff', weak: 2, san: 1 } },
     ai: (e, B) => {

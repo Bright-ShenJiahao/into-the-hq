@@ -18,7 +18,7 @@ export const CARDS_ZT = {
   zt_spade: { name: '工兵锹', type: 'atk', cost: [1, 1], rar: 'basic', sch: '工', tgt: 'one', icon: 'bayonet',
     desc: u => `造成 ${V(u, 6, 9)} 伤害。`, play: (G, u, t) => G.melee(t, V(u, 6, 9)) },
   zt_pack: { name: '炸药包', type: 'skill', cost: [1, 1], rar: 'basic', sch: '爆', tgt: 'one', icon: 'satchel',
-    desc: u => `给目标装炸药包：${V(u, 14, 19)} 伤害，引信 2。`, play: (G, u, t) => G.charge(t, V(u, 14, 19), 2) },
+    desc: u => `给目标装炸药包：${V(u, 12, 16)} 伤害，引信 2。`, play: (G, u, t) => G.charge(t, V(u, 12, 16), 2) },
   zt_dig: { name: '挖掩体', type: 'skill', cost: [1, 1], rar: 'basic', sch: '工', icon: 'cover',
     desc: u => `工事 +${V(u, 6, 9)}。`, play: (G, u) => G.fort(V(u, 6, 9)) },
   // —— 爆 ——
@@ -35,7 +35,7 @@ export const CARDS_ZT = {
   zt_bangalore: { name: '爆破筒', type: 'atk', cost: [2, 2], rar: 'u', sch: '爆', tgt: 'one', icon: 'grenade',
     desc: u => `造成 ${V(u, 13, 17)} 伤害，无视装甲（会出声）。`, play: (G, u, t) => { G.blast(t, V(u, 13, 17)); G.noise(2); } },
   zt_bundle: { name: '集束手榴弹', type: 'skill', cost: [2, 2], rar: 'u', sch: '爆', tgt: 'one', icon: 'satchel',
-    desc: u => `给目标装炸药包：${V(u, 26, 34)} 伤害，引信 2。`, play: (G, u, t) => G.charge(t, V(u, 26, 34), 2) },
+    desc: u => `给目标装炸药包：${V(u, 22, 29)} 伤害，引信 2。`, play: (G, u, t) => G.charge(t, V(u, 22, 29), 2) },
   zt_detonate: { name: '定向爆破', type: 'skill', cost: [1, 0], rar: 'u', sch: '爆', tgt: 'one', icon: 'satchel',
     desc: () => '立刻引爆目标身上所有炸药包。', play: (G, u, t) => G.detonate(t) },
   zt_mines: { name: '埋雷', type: 'power', cost: [1, 1], rar: 'u', sch: '爆', icon: 'mine',
@@ -45,7 +45,7 @@ export const CARDS_ZT = {
   zt_bridge: { name: '炸桥', type: 'skill', cost: [3, 2], rar: 'r', sch: '爆', icon: 'satchel',
     desc: u => `给每个敌人装炸药包：${V(u, 16, 22)} 伤害，引信 1。`, play: (G, u) => G.alive().forEach(e => G.charge(e, V(u, 16, 22), 1)) },
   zt_tnt: { name: '黄色炸药', type: 'power', cost: [2, 2], rar: 'r', sch: '爆', icon: 'satchel',
-    desc: u => `炸药包伤害 +${V(u, '50%', '75%')}。`, play: (G, u) => G.power('tnt', V(u, .5, .75)) },
+    desc: u => `炸药包伤害 +${V(u, '35%', '55%')}。`, play: (G, u) => G.power('tnt', V(u, .35, .55)) },
   // —— 工 ——
   zt_sandbag: { name: '沙袋', type: 'skill', cost: [1, 1], rar: 'c', sch: '工', icon: 'cover',
     desc: u => `工事 +${V(u, 8, 11)}。`, play: (G, u) => G.fort(V(u, 8, 11)) },

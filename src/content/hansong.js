@@ -86,7 +86,7 @@ export const CARDS_HS = {
   // —— 通用 ——
 
   hs_bayonet: { name: '空仓拼刺', type: 'atk', cost: [0, 0], rar: 'c', sch: '通', tgt: 'one',
-    desc: u => `造成 ${V(u, 7, 10)} 伤害；若子弹已打光，抽 1。`, play: (G, u, t) => { const e = G.ammo() === 0; G.melee(t, V(u, 7, 10)); if (e) G.draw(1); } },
+    desc: u => `造成 ${V(u, 9, 12)} 伤害；若子弹已打光，抽 1。`, play: (G, u, t) => { const e = G.ammo() === 0; G.melee(t, V(u, 9, 12)); if (e) G.draw(1); } },
   hs_spotter: { name: '观察手', type: 'skill', cost: [1, 1], rar: 'c', sch: '通', tgt: 'one',
     desc: u => `抽 ${V(u, 1, 2)}；标尺 +1；枪感 +1。`, play: (G, u, t) => { G.draw(V(u, 1, 2)); G.mark(t, 1); G.feel(1); } },
   expand: { name: '弹袋', type: 'power', cost: [1, 1], rar: 'u', sch: '通',
@@ -119,9 +119,9 @@ export const CARDS_HS = {
     desc: u => `射击 1 发，伤害等于枪感 ×${V(u, 3, 4)}；枪感清零。` },
   // —— 冲锋枪（扩充） ——
   hs_butt: { name: '枪托', type: 'atk', cost: [0, 0], rar: 'c', sch: '冲', tgt: 'one',
-    desc: u => `造成 ${V(u, 6, 9)} 伤害（不用子弹），枪感 +1。`, play: (G, u, t) => { G.melee(t, V(u, 6, 9)); G.feel(1); } },
+    desc: u => `造成 ${V(u, 8, 11)} 伤害（不用子弹），枪感 +1。`, play: (G, u, t) => { G.melee(t, V(u, 8, 11)); G.feel(1); } },
   hs_rush: { name: '突进', type: 'skill', cost: [1, 1], rar: 'c', sch: '冲',
-    desc: u => `获得 ${V(u, 8, 11)} 格挡，枪感 +2。`, play: (G, u) => { G.block(V(u, 8, 11)); G.feel(2); } },
+    desc: u => `获得 ${V(u, 10, 13)} 格挡，枪感 +2。`, play: (G, u) => { G.block(V(u, 10, 13)); G.feel(2); } },
   hs_storm: { name: '弹壳风暴', type: 'atk', cost: [1, 1], rar: 'u', sch: '冲', tgt: 'one', gun: 1,
     sh: (u, B) => ({ n: V(u, 2, 3), d: B ? B.p.feel : 0 }), desc: u => `射击 ${V(u, 2, 3)} 发，每发伤害等于枪感。` },
   hs_supp: { name: '压制射击', type: 'atk', cost: [2, 2], rar: 'u', sch: '冲', gun: 1,
@@ -145,7 +145,7 @@ export const CARDS_HS = {
     desc: (u, f) => `射击 1 发，${f(10)} 伤害，每层标尺再 +${V(u, 5, 6)}；用掉全部标尺；打倒敌人能量 +1。` },
   // —— 通用（扩充） ——
   hs_fallback: { name: '战术撤退', type: 'skill', cost: [0, 0], rar: 'c', sch: '通',
-    desc: u => `获得 ${V(u, 5, 7)} 格挡；子弹打光时再抽 2。`, play: (G, u) => { G.block(V(u, 5, 7)); if (G.ammo() === 0) G.draw(2); } },
+    desc: u => `获得 ${V(u, 7, 9)} 格挡；子弹打光时再抽 2。`, play: (G, u) => { G.block(V(u, 7, 9)); if (G.ammo() === 0) G.draw(2); } },
   hs_prep: { name: '火力准备', type: 'power', cost: [2, 1], rar: 'r', sch: '通',
     desc: () => '每回合第一张枪械牌 +4 伤害。', play: G => G.power('prep', 4) },
   // —— 缴获（不在奖励池，只从敌人或事件拿到） ——

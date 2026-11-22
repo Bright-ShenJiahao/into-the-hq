@@ -50,7 +50,7 @@ export const CARDS_TS = {
   ts_drag: { name: '拖刀', type: 'atk', cost: [1, 1], rar: 'c', sch: '守', tgt: 'one', icon: 'dadao',
     desc: u => `造成 ${V(u, 6, 8)} 伤害，获得等量格挡。`, play: (G, u, t) => { G.hit(t, V(u, 6, 8)); G.block(V(u, 6, 8)); } },
   ts_take: { name: '硬挨', type: 'skill', cost: [1, 1], rar: 'c', sch: '守', icon: 'cover',
-    desc: u => `获得 ${V(u, 11, 14)} 格挡。`, play: (G, u) => G.block(V(u, 11, 14)) },
+    desc: u => `获得 ${V(u, 9, 12)} 格挡。`, play: (G, u) => G.block(V(u, 9, 12)) },
   ts_wall: { name: '铁壁', type: 'skill', cost: [2, 2], rar: 'u', sch: '守', icon: 'cover',
     desc: u => `获得 ${V(u, 14, 18)} 格挡；下回合能量 +1。`, play: (G, u) => { G.block(V(u, 14, 18)); G.nextEnergy(1); } },
   ts_riposte: { name: '反手', type: 'power', cost: [1, 1], rar: 'u', sch: '守', icon: 'dadao',
@@ -60,7 +60,7 @@ export const CARDS_TS = {
   ts_bash: { name: '以守为攻', type: 'atk', cost: [1, 1], rar: 'u', sch: '守', tgt: 'one', icon: 'cover',
     desc: u => `造成等于当前格挡 ${V(u, '一半', '3/4')}的伤害。`, play: (G, u, t) => G.hit(t, Math.floor(G.blockN() * V(u, .5, .75))) },
   ts_redirect: { name: '借力打力', type: 'skill', cost: [2, 2], rar: 'r', sch: '守', icon: 'cover',
-    desc: u => `获得 ${V(u, 15, 20)} 格挡，反击 10。`, play: (G, u) => { G.block(V(u, 15, 20)); G.counter(10); } },
+    desc: u => `获得 ${V(u, 14, 18)} 格挡，反击 8。`, play: (G, u) => { G.block(V(u, 14, 18)); G.counter(8); } },
   ts_still: { name: '不动如山', type: 'power', cost: [3, 2], rar: 'r', sch: '守', icon: 'cover',
     desc: () => '每回合开始获得 6 格挡，反击 2。', play: G => { G.power('coat2', 6); G.power('ctr2', 2); } },
   // —— 通用 ——
