@@ -1,9 +1,9 @@
 {
   "char": "hansong",
-  "source": "fc55a7410586f49991b1e6c844cecbbffc845fa7",
+  "source": "1ecc928e012fa9caf972c83e6938c353f304ef41",
   "minutes": 55,
-  "generations": 394,
-  "elapsedSeconds": 2954.03,
+  "generations": 450,
+  "elapsedSeconds": 2954.817,
   "validationSeeds": {
     "start": 777,
     "count": 1000
@@ -1015,152 +1015,152 @@
       1776
     ],
     "chapters": [
-      0.24,
-      0.098,
-      0.093
+      0.632,
+      0.486,
+      0.486
     ],
-    "trueEnd": 0.075,
-    "trueAttempts": 75,
-    "trueWins": 75,
+    "trueEnd": 0.426,
+    "trueAttempts": 429,
+    "trueWins": 426,
     "bosses": {
       "inf+captain": {
-        "attempts": 196,
-        "wins": 84
-      },
-      "dog+kcap+dog": {
-        "attempts": 217,
-        "wins": 156
-      },
-      "kirino": {
-        "attempts": 52,
-        "wins": 43
-      },
-      "priest": {
-        "attempts": 96,
-        "wins": 93
-      },
-      "staff": {
-        "attempts": 75,
-        "wins": 75
+        "attempts": 338,
+        "wins": 264
       },
       "spy+kuga": {
-        "attempts": 68,
-        "wins": 55
+        "attempts": 275,
+        "wins": 255
+      },
+      "priest": {
+        "attempts": 486,
+        "wins": 486
+      },
+      "staff": {
+        "attempts": 429,
+        "wins": 426
+      },
+      "dog+kcap+dog": {
+        "attempts": 381,
+        "wins": 368
+      },
+      "kirino": {
+        "attempts": 241,
+        "wins": 231
       }
     },
     "chapterHp": [
-      18.304166666666667,
-      22.897959183673468,
-      54.806451612903224
+      31.54113924050633,
+      36.23868312757202,
+      65.7551440329218
     ],
-    "clearHp": 43.25806451612903,
-    "timeouts": 1,
+    "clearHp": 46.12836438923395,
+    "timeouts": 0,
     "deaths": [
       [
-        "1:elite加强:inf+sergeant+inf",
-        159
+        "1:elite加强:inf+hmg",
+        90
       ],
       [
-        "1:elite加强:inf+hmg",
-        151
+        "1:elite加强:inf+sergeant+inf",
+        82
       ],
       [
         "1:boss:inf+captain",
-        112
+        74
+      ],
+      [
+        "2:elite加强:patrol+kendo+patrol",
+        22
       ],
       [
         "1:elite加强:puppet+pcap+puppet",
-        76
+        21
       ],
       [
-        "1:boss:dog+kcap+dog",
-        61
+        "2:boss:spy+kuga",
+        20
       ],
       [
         "1:elite:inf+hmg",
-        38
+        19
       ],
       [
-        "1:elite:inf+sergeant+inf",
-        29
-      ],
-      [
-        "1:elite加强:gun+inf",
-        23
+        "1:boss:dog+kcap+dog",
+        13
       ]
     ],
     "errors": [],
     "weights": {
-      "powerEarly": 11,
-      "powerLate": 3,
-      "earlyTurns": 3,
-      "attack": 5,
-      "damage": 0.35,
-      "lethal": 24,
-      "blockNeeded": 14,
-      "blockIdle": 0.4,
-      "blockAmount": 0.4,
-      "skill": 3,
-      "zero": 4,
-      "cost": 0.4,
-      "ritual": 100,
-      "resource": 4,
-      "empty": 12,
-      "reload": 20,
-      "reloadNear": 9,
-      "lowAmmo": 2,
-      "rage": 12,
-      "rageDanger": 2,
-      "trim": 12,
-      "trimWait": -6,
-      "disrupt": 18,
-      "knifeKeep": 3,
-      "knifeLow": 2,
-      "knifeFull": 5,
-      "charge": 4,
-      "fort": 3,
-      "scry": 4,
-      "clue": 5,
-      "bloodSafe": 0.5,
-      "bloodRisk": 12,
-      "rest": 0.55,
-      "itemHp": 0.65,
-      "itemThreat": 8,
-      "tierC": 2,
-      "tierU": 3,
-      "tierR": 4,
-      "tierLoot": 2,
-      "personal": 0.5,
-      "archetype": 3,
-      "otherArch": 0.4,
-      "needBlock": 1.5,
-      "needAttack": 1.5,
-      "blockShare": 0.3,
-      "attackShare": 0.4,
-      "duplicate": 1.3,
-      "powerLimit": 3,
-      "powerPenalty": 2,
-      "skip": 1.8,
-      "deckMax": 24,
-      "deckPenalty": 0.65,
-      "routeIntel": 18,
-      "routeRest": 9,
-      "routeTreasure": 5,
-      "routeEvent": 2,
-      "routeShop": 3,
-      "routeElite": -2,
-      "foodReserve": 2,
-      "relicValue": 8,
-      "relicEnergy": 6,
-      "relicDraw": 3,
-      "relicDefense": 3,
-      "relicHidden": 5,
-      "relicWeak": 4,
-      "relicReload": 3,
-      "relicPersonal": 2
+      "powerEarly": 15.7322,
+      "powerLate": 2.1956,
+      "earlyTurns": 2.3797,
+      "attack": 4.7859,
+      "damage": 0.9643,
+      "lethal": -1.6589,
+      "blockNeeded": 12.8615,
+      "blockIdle": -0.4004,
+      "blockAmount": 1.4124,
+      "skill": 3.2426,
+      "zero": 4.6854,
+      "cost": 1.6927,
+      "ritual": 160.3515,
+      "resource": 0.1645,
+      "empty": 19.9231,
+      "reload": 15.1523,
+      "reloadNear": 3.4164,
+      "lowAmmo": 1.974,
+      "rage": 9.5412,
+      "rageDanger": 2.6035,
+      "trim": 18.0938,
+      "trimWait": -5.1517,
+      "disrupt": 4.3661,
+      "knifeKeep": 5.5031,
+      "knifeLow": 2.6005,
+      "knifeFull": 5.9935,
+      "charge": 1.9726,
+      "fort": 4.7239,
+      "scry": 2.4635,
+      "clue": 3.9869,
+      "bloodSafe": 0.2474,
+      "bloodRisk": 6.4551,
+      "rest": 0.9234,
+      "itemHp": 0.7316,
+      "itemThreat": 12.7212,
+      "tierC": 4.7655,
+      "tierU": 2.3162,
+      "tierR": 1.6457,
+      "tierLoot": 0.8255,
+      "personal": -0.958,
+      "archetype": 0.8643,
+      "otherArch": -0.2419,
+      "needBlock": 2.0243,
+      "needAttack": 2.5015,
+      "blockShare": 0.3856,
+      "attackShare": 0.718,
+      "duplicate": 1.2987,
+      "powerLimit": 2.3838,
+      "powerPenalty": 1.6109,
+      "skip": 2.1428,
+      "deckMax": 27.0037,
+      "deckPenalty": 0.6147,
+      "routeIntel": 25.9187,
+      "routeRest": 10.427,
+      "routeTreasure": 0.4283,
+      "routeEvent": 1.059,
+      "routeShop": 3.1613,
+      "routeElite": -3.4936,
+      "foodReserve": 0.4909,
+      "relicValue": 3.1833,
+      "relicEnergy": 8.3021,
+      "relicDraw": 3.108,
+      "relicDefense": 2.9664,
+      "relicHidden": 2.6951,
+      "relicWeak": 1.894,
+      "relicReload": 4.2485,
+      "relicPersonal": 3.7516
     },
-    "source": "fc55a7410586f49991b1e6c844cecbbffc845fa7",
-    "score": 0.11979999999999999
+    "source": "1ecc928e012fa9caf972c83e6938c353f304ef41",
+    "score": 0.5032
   },
   "mean": {
     "char": "hansong",
@@ -2168,152 +2168,152 @@
       1776
     ],
     "chapters": [
-      0.59,
-      0.439,
-      0.427
+      0.727,
+      0.657,
+      0.657
     ],
-    "trueEnd": 0.377,
-    "trueAttempts": 377,
-    "trueWins": 377,
+    "trueEnd": 0.582,
+    "trueAttempts": 588,
+    "trueWins": 582,
     "bosses": {
       "inf+captain": {
-        "attempts": 322,
-        "wins": 245
+        "attempts": 361,
+        "wins": 326
       },
       "spy+kuga": {
-        "attempts": 250,
-        "wins": 232
+        "attempts": 362,
+        "wins": 344
       },
       "priest": {
-        "attempts": 437,
-        "wins": 427
+        "attempts": 657,
+        "wins": 657
       },
       "staff": {
-        "attempts": 377,
-        "wins": 377
+        "attempts": 588,
+        "wins": 582
       },
       "dog+kcap+dog": {
-        "attempts": 359,
-        "wins": 345
+        "attempts": 408,
+        "wins": 401
       },
       "kirino": {
-        "attempts": 218,
-        "wins": 207
+        "attempts": 316,
+        "wins": 313
       }
     },
     "chapterHp": [
-      29.776271186440677,
-      33.59908883826879,
-      65.7072599531616
+      36.98074277854195,
+      40.51598173515982,
+      68.58447488584476
     ],
-    "clearHp": 51.86416861826698,
-    "timeouts": 3,
+    "clearHp": 44.6973886328725,
+    "timeouts": 0,
     "deaths": [
       [
-        "1:elite加强:inf+hmg",
-        100
+        "1:elite加强:inf+sergeant+inf",
+        82
       ],
       [
-        "1:elite加强:inf+sergeant+inf",
-        98
+        "1:elite加强:inf+hmg",
+        66
       ],
       [
         "1:boss:inf+captain",
-        77
+        35
       ],
       [
         "1:elite:inf+hmg",
-        24
-      ],
-      [
-        "1:elite加强:puppet+pcap+puppet",
-        23
-      ],
-      [
-        "2:elite加强:patrol+kendo+patrol",
-        19
-      ],
-      [
-        "1:elite:inf+sergeant+inf",
-        18
+        20
       ],
       [
         "2:boss:spy+kuga",
         18
+      ],
+      [
+        "2:elite加强:patrol+kendo+patrol",
+        18
+      ],
+      [
+        "1:elite加强:puppet+pcap+puppet",
+        13
+      ],
+      [
+        "1:boss:dog+kcap+dog",
+        7
       ]
     ],
     "errors": [],
     "weights": {
-      "powerEarly": 15.7322,
-      "powerLate": 2.1956,
-      "earlyTurns": 2.3797,
-      "attack": 4.7859,
-      "damage": 0.9643,
-      "lethal": -1.6589,
-      "blockNeeded": 12.8615,
-      "blockIdle": -0.4004,
-      "blockAmount": 1.4124,
-      "skill": 3.2426,
-      "zero": 4.6854,
-      "cost": 1.6927,
-      "ritual": 160.3515,
-      "resource": 0.1645,
-      "empty": 19.9231,
-      "reload": 15.1523,
-      "reloadNear": 3.4164,
-      "lowAmmo": 1.974,
-      "rage": 9.5412,
-      "rageDanger": 2.6035,
-      "trim": 18.0938,
-      "trimWait": -5.1517,
-      "disrupt": 4.3661,
-      "knifeKeep": 5.5031,
-      "knifeLow": 2.6005,
-      "knifeFull": 5.9935,
-      "charge": 1.9726,
-      "fort": 4.7239,
-      "scry": 2.4635,
-      "clue": 3.9869,
-      "bloodSafe": 0.2474,
-      "bloodRisk": 6.4551,
-      "rest": 0.9234,
-      "itemHp": 0.7316,
-      "itemThreat": 12.7212,
-      "tierC": 4.7655,
-      "tierU": 2.3162,
-      "tierR": 1.6457,
-      "tierLoot": 0.8255,
-      "personal": -0.958,
-      "archetype": 0.8643,
-      "otherArch": -0.2419,
-      "needBlock": 2.0243,
-      "needAttack": 2.5015,
-      "blockShare": 0.3856,
-      "attackShare": 0.718,
-      "duplicate": 1.2987,
-      "powerLimit": 2.3838,
-      "powerPenalty": 1.6109,
-      "skip": 2.1428,
-      "deckMax": 27.0037,
-      "deckPenalty": 0.6147,
-      "routeIntel": 25.9187,
-      "routeRest": 10.427,
-      "routeTreasure": 0.4283,
-      "routeEvent": 1.059,
-      "routeShop": 3.1613,
-      "routeElite": -3.4936,
-      "foodReserve": 0.4909,
-      "relicValue": 3.1833,
-      "relicEnergy": 8.3021,
-      "relicDraw": 3.108,
-      "relicDefense": 2.9664,
-      "relicHidden": 2.6951,
-      "relicWeak": 1.894,
-      "relicReload": 4.2485,
-      "relicPersonal": 3.7516
+      "powerEarly": 20.8326,
+      "powerLate": 2.5244,
+      "earlyTurns": 1.6812,
+      "attack": 1.7663,
+      "damage": 1.5272,
+      "lethal": -1.9549,
+      "blockNeeded": 3.3305,
+      "blockIdle": -0.7332,
+      "blockAmount": 2.0962,
+      "skill": 3.1504,
+      "zero": 4.1466,
+      "cost": 1.2653,
+      "ritual": 116.0592,
+      "resource": 0.3672,
+      "empty": 27.9221,
+      "reload": 6.4612,
+      "reloadNear": 3.2257,
+      "lowAmmo": 2.6371,
+      "rage": 11.9992,
+      "rageDanger": 5.0504,
+      "trim": 2.2135,
+      "trimWait": -9.5157,
+      "disrupt": 2.8139,
+      "knifeKeep": 1.9733,
+      "knifeLow": 3.5707,
+      "knifeFull": 3.8128,
+      "charge": 3.2187,
+      "fort": 9.5711,
+      "scry": 2.4435,
+      "clue": -1.6307,
+      "bloodSafe": 0.9023,
+      "bloodRisk": 5.7917,
+      "rest": 0.8807,
+      "itemHp": 0.4814,
+      "itemThreat": 18.3041,
+      "tierC": 3.2113,
+      "tierU": 2.5599,
+      "tierR": 1.1905,
+      "tierLoot": 1.8466,
+      "personal": -1.0078,
+      "archetype": 0.4369,
+      "otherArch": -0.0949,
+      "needBlock": 2.7431,
+      "needAttack": 1.1215,
+      "blockShare": 0.5055,
+      "attackShare": 0.7675,
+      "duplicate": 1.5402,
+      "powerLimit": 3.3691,
+      "powerPenalty": 2.8967,
+      "skip": 2.7602,
+      "deckMax": 29.6768,
+      "deckPenalty": 1.5063,
+      "routeIntel": 21.4844,
+      "routeRest": 8.5724,
+      "routeTreasure": 0.4875,
+      "routeEvent": 1.437,
+      "routeShop": 3.743,
+      "routeElite": -6.4797,
+      "foodReserve": 0.9861,
+      "relicValue": 2.2326,
+      "relicEnergy": -0.6159,
+      "relicDraw": 6.5381,
+      "relicDefense": 4.4231,
+      "relicHidden": 2.8075,
+      "relicWeak": 4.3112,
+      "relicReload": 2.0267,
+      "relicPersonal": 3.6657
     },
-    "source": "fc55a7410586f49991b1e6c844cecbbffc845fa7",
-    "score": 0.45199999999999996
+    "source": "1ecc928e012fa9caf972c83e6938c353f304ef41",
+    "score": 0.6559999999999999
   },
   "best": {
     "char": "hansong",
@@ -3321,152 +3321,152 @@
       1776
     ],
     "chapters": [
-      0.591,
-      0.438,
-      0.426
+      0.727,
+      0.657,
+      0.657
     ],
-    "trueEnd": 0.372,
-    "trueAttempts": 372,
-    "trueWins": 372,
+    "trueEnd": 0.582,
+    "trueAttempts": 588,
+    "trueWins": 582,
     "bosses": {
       "inf+captain": {
-        "attempts": 322,
-        "wins": 246
+        "attempts": 361,
+        "wins": 326
       },
       "spy+kuga": {
-        "attempts": 248,
-        "wins": 229
+        "attempts": 362,
+        "wins": 344
       },
       "priest": {
-        "attempts": 433,
-        "wins": 426
+        "attempts": 657,
+        "wins": 657
       },
       "staff": {
-        "attempts": 372,
-        "wins": 372
+        "attempts": 588,
+        "wins": 582
       },
       "dog+kcap+dog": {
-        "attempts": 359,
-        "wins": 345
+        "attempts": 408,
+        "wins": 401
       },
       "kirino": {
-        "attempts": 221,
-        "wins": 209
+        "attempts": 316,
+        "wins": 313
       }
     },
     "chapterHp": [
-      29.76311336717428,
-      33.726027397260275,
-      66.55868544600939
+      36.98074277854195,
+      40.51598173515982,
+      68.58447488584476
     ],
-    "clearHp": 52.032863849765256,
-    "timeouts": 2,
+    "clearHp": 44.6973886328725,
+    "timeouts": 0,
     "deaths": [
       [
-        "1:elite加强:inf+hmg",
-        99
+        "1:elite加强:inf+sergeant+inf",
+        82
       ],
       [
-        "1:elite加强:inf+sergeant+inf",
-        97
+        "1:elite加强:inf+hmg",
+        66
       ],
       [
         "1:boss:inf+captain",
-        76
+        35
       ],
       [
         "1:elite:inf+hmg",
-        25
-      ],
-      [
-        "1:elite加强:puppet+pcap+puppet",
-        23
-      ],
-      [
-        "1:elite:inf+sergeant+inf",
-        19
+        20
       ],
       [
         "2:boss:spy+kuga",
-        19
+        18
       ],
       [
         "2:elite加强:patrol+kendo+patrol",
-        16
+        18
+      ],
+      [
+        "1:elite加强:puppet+pcap+puppet",
+        13
+      ],
+      [
+        "1:boss:dog+kcap+dog",
+        7
       ]
     ],
     "errors": [],
     "weights": {
-      "powerEarly": 15.7319,
-      "powerLate": 2.1829,
-      "earlyTurns": 2.3815,
-      "attack": 4.7985,
-      "damage": 0.9608,
-      "lethal": -1.8737,
-      "blockNeeded": 12.8374,
-      "blockIdle": -0.4048,
-      "blockAmount": 1.4098,
-      "skill": 3.2549,
-      "zero": 4.6582,
-      "cost": 1.7047,
-      "ritual": 161.9298,
-      "resource": 0.1992,
-      "empty": 20.0036,
-      "reload": 15.2237,
-      "reloadNear": 3.4515,
-      "lowAmmo": 1.9895,
-      "rage": 9.4917,
-      "rageDanger": 2.6346,
-      "trim": 18.0824,
-      "trimWait": -5.2182,
-      "disrupt": 4.3116,
-      "knifeKeep": 5.5155,
-      "knifeLow": 2.5899,
-      "knifeFull": 6,
-      "charge": 1.9382,
-      "fort": 4.6887,
-      "scry": 2.4631,
-      "clue": 4.0435,
-      "bloodSafe": 0.2608,
-      "bloodRisk": 6.5089,
-      "rest": 0.9173,
-      "itemHp": 0.7228,
-      "itemThreat": 12.6079,
-      "tierC": 4.727,
-      "tierU": 2.2916,
-      "tierR": 1.6807,
-      "tierLoot": 0.8231,
-      "personal": -0.9556,
-      "archetype": 0.8442,
-      "otherArch": -0.2367,
-      "needBlock": 2.0388,
-      "needAttack": 2.5175,
-      "blockShare": 0.3913,
-      "attackShare": 0.712,
-      "duplicate": 1.292,
-      "powerLimit": 2.3898,
-      "powerPenalty": 1.6001,
-      "skip": 2.1544,
-      "deckMax": 26.891,
-      "deckPenalty": 0.6198,
-      "routeIntel": 26.033,
-      "routeRest": 10.4253,
-      "routeTreasure": 0.4538,
-      "routeEvent": 1.0723,
-      "routeShop": 3.1731,
-      "routeElite": -3.497,
-      "foodReserve": 0.4847,
-      "relicValue": 3.1773,
-      "relicEnergy": 8.2884,
-      "relicDraw": 3.1075,
-      "relicDefense": 2.9579,
-      "relicHidden": 2.713,
-      "relicWeak": 1.8921,
-      "relicReload": 4.2548,
-      "relicPersonal": 3.7539
+      "powerEarly": 20.8322,
+      "powerLate": 2.5244,
+      "earlyTurns": 1.6812,
+      "attack": 1.7664,
+      "damage": 1.5272,
+      "lethal": -1.9549,
+      "blockNeeded": 3.3304,
+      "blockIdle": -0.7332,
+      "blockAmount": 2.0962,
+      "skill": 3.1504,
+      "zero": 4.1465,
+      "cost": 1.2653,
+      "ritual": 116.0564,
+      "resource": 0.3672,
+      "empty": 27.9219,
+      "reload": 6.4618,
+      "reloadNear": 3.2258,
+      "lowAmmo": 2.6371,
+      "rage": 11.999,
+      "rageDanger": 5.0503,
+      "trim": 2.2138,
+      "trimWait": -9.5158,
+      "disrupt": 2.8138,
+      "knifeKeep": 1.9729,
+      "knifeLow": 3.5707,
+      "knifeFull": 3.8127,
+      "charge": 3.2187,
+      "fort": 9.571,
+      "scry": 2.4435,
+      "clue": -1.6307,
+      "bloodSafe": 0.9023,
+      "bloodRisk": 5.7918,
+      "rest": 0.8807,
+      "itemHp": 0.4814,
+      "itemThreat": 18.3042,
+      "tierC": 3.2114,
+      "tierU": 2.5599,
+      "tierR": 1.1905,
+      "tierLoot": 1.8466,
+      "personal": -1.0078,
+      "archetype": 0.4369,
+      "otherArch": -0.0949,
+      "needBlock": 2.7431,
+      "needAttack": 1.1215,
+      "blockShare": 0.5055,
+      "attackShare": 0.7675,
+      "duplicate": 1.5402,
+      "powerLimit": 3.3691,
+      "powerPenalty": 2.8967,
+      "skip": 2.7602,
+      "deckMax": 29.6762,
+      "deckPenalty": 1.5063,
+      "routeIntel": 21.4847,
+      "routeRest": 8.5722,
+      "routeTreasure": 0.4875,
+      "routeEvent": 1.437,
+      "routeShop": 3.743,
+      "routeElite": -6.4797,
+      "foodReserve": 0.9861,
+      "relicValue": 2.2327,
+      "relicEnergy": -0.6157,
+      "relicDraw": 6.5381,
+      "relicDefense": 4.4232,
+      "relicHidden": 2.8074,
+      "relicWeak": 4.3112,
+      "relicReload": 2.0265,
+      "relicPersonal": 3.6656
     },
-    "source": "fc55a7410586f49991b1e6c844cecbbffc845fa7",
-    "score": 0.45059999999999995
+    "source": "1ecc928e012fa9caf972c83e6938c353f304ef41",
+    "score": 0.6559999999999999
   },
   "after": {
     "char": "hansong",
@@ -4474,2984 +4474,3376 @@
       1776
     ],
     "chapters": [
-      0.59,
-      0.439,
-      0.427
+      0.727,
+      0.657,
+      0.657
     ],
-    "trueEnd": 0.377,
-    "trueAttempts": 377,
-    "trueWins": 377,
+    "trueEnd": 0.582,
+    "trueAttempts": 588,
+    "trueWins": 582,
     "bosses": {
       "inf+captain": {
-        "attempts": 322,
-        "wins": 245
+        "attempts": 361,
+        "wins": 326
       },
       "spy+kuga": {
-        "attempts": 250,
-        "wins": 232
+        "attempts": 362,
+        "wins": 344
       },
       "priest": {
-        "attempts": 437,
-        "wins": 427
+        "attempts": 657,
+        "wins": 657
       },
       "staff": {
-        "attempts": 377,
-        "wins": 377
+        "attempts": 588,
+        "wins": 582
       },
       "dog+kcap+dog": {
-        "attempts": 359,
-        "wins": 345
+        "attempts": 408,
+        "wins": 401
       },
       "kirino": {
-        "attempts": 218,
-        "wins": 207
+        "attempts": 316,
+        "wins": 313
       }
     },
     "chapterHp": [
-      29.776271186440677,
-      33.59908883826879,
-      65.7072599531616
+      36.98074277854195,
+      40.51598173515982,
+      68.58447488584476
     ],
-    "clearHp": 51.86416861826698,
-    "timeouts": 3,
+    "clearHp": 44.6973886328725,
+    "timeouts": 0,
     "deaths": [
       [
-        "1:elite加强:inf+hmg",
-        100
+        "1:elite加强:inf+sergeant+inf",
+        82
       ],
       [
-        "1:elite加强:inf+sergeant+inf",
-        98
+        "1:elite加强:inf+hmg",
+        66
       ],
       [
         "1:boss:inf+captain",
-        77
+        35
       ],
       [
         "1:elite:inf+hmg",
-        24
-      ],
-      [
-        "1:elite加强:puppet+pcap+puppet",
-        23
-      ],
-      [
-        "2:elite加强:patrol+kendo+patrol",
-        19
-      ],
-      [
-        "1:elite:inf+sergeant+inf",
-        18
+        20
       ],
       [
         "2:boss:spy+kuga",
         18
+      ],
+      [
+        "2:elite加强:patrol+kendo+patrol",
+        18
+      ],
+      [
+        "1:elite加强:puppet+pcap+puppet",
+        13
+      ],
+      [
+        "1:boss:dog+kcap+dog",
+        7
       ]
     ],
     "errors": [],
     "weights": {
-      "powerEarly": 15.7322,
-      "powerLate": 2.1956,
-      "earlyTurns": 2.3797,
-      "attack": 4.7859,
-      "damage": 0.9643,
-      "lethal": -1.6589,
-      "blockNeeded": 12.8615,
-      "blockIdle": -0.4004,
-      "blockAmount": 1.4124,
-      "skill": 3.2426,
-      "zero": 4.6854,
-      "cost": 1.6927,
-      "ritual": 160.3515,
-      "resource": 0.1645,
-      "empty": 19.9231,
-      "reload": 15.1523,
-      "reloadNear": 3.4164,
-      "lowAmmo": 1.974,
-      "rage": 9.5412,
-      "rageDanger": 2.6035,
-      "trim": 18.0938,
-      "trimWait": -5.1517,
-      "disrupt": 4.3661,
-      "knifeKeep": 5.5031,
-      "knifeLow": 2.6005,
-      "knifeFull": 5.9935,
-      "charge": 1.9726,
-      "fort": 4.7239,
-      "scry": 2.4635,
-      "clue": 3.9869,
-      "bloodSafe": 0.2474,
-      "bloodRisk": 6.4551,
-      "rest": 0.9234,
-      "itemHp": 0.7316,
-      "itemThreat": 12.7212,
-      "tierC": 4.7655,
-      "tierU": 2.3162,
-      "tierR": 1.6457,
-      "tierLoot": 0.8255,
-      "personal": -0.958,
-      "archetype": 0.8643,
-      "otherArch": -0.2419,
-      "needBlock": 2.0243,
-      "needAttack": 2.5015,
-      "blockShare": 0.3856,
-      "attackShare": 0.718,
-      "duplicate": 1.2987,
-      "powerLimit": 2.3838,
-      "powerPenalty": 1.6109,
-      "skip": 2.1428,
-      "deckMax": 27.0037,
-      "deckPenalty": 0.6147,
-      "routeIntel": 25.9187,
-      "routeRest": 10.427,
-      "routeTreasure": 0.4283,
-      "routeEvent": 1.059,
-      "routeShop": 3.1613,
-      "routeElite": -3.4936,
-      "foodReserve": 0.4909,
-      "relicValue": 3.1833,
-      "relicEnergy": 8.3021,
-      "relicDraw": 3.108,
-      "relicDefense": 2.9664,
-      "relicHidden": 2.6951,
-      "relicWeak": 1.894,
-      "relicReload": 4.2485,
-      "relicPersonal": 3.7516
+      "powerEarly": 20.8326,
+      "powerLate": 2.5244,
+      "earlyTurns": 1.6812,
+      "attack": 1.7663,
+      "damage": 1.5272,
+      "lethal": -1.9549,
+      "blockNeeded": 3.3305,
+      "blockIdle": -0.7332,
+      "blockAmount": 2.0962,
+      "skill": 3.1504,
+      "zero": 4.1466,
+      "cost": 1.2653,
+      "ritual": 116.0592,
+      "resource": 0.3672,
+      "empty": 27.9221,
+      "reload": 6.4612,
+      "reloadNear": 3.2257,
+      "lowAmmo": 2.6371,
+      "rage": 11.9992,
+      "rageDanger": 5.0504,
+      "trim": 2.2135,
+      "trimWait": -9.5157,
+      "disrupt": 2.8139,
+      "knifeKeep": 1.9733,
+      "knifeLow": 3.5707,
+      "knifeFull": 3.8128,
+      "charge": 3.2187,
+      "fort": 9.5711,
+      "scry": 2.4435,
+      "clue": -1.6307,
+      "bloodSafe": 0.9023,
+      "bloodRisk": 5.7917,
+      "rest": 0.8807,
+      "itemHp": 0.4814,
+      "itemThreat": 18.3041,
+      "tierC": 3.2113,
+      "tierU": 2.5599,
+      "tierR": 1.1905,
+      "tierLoot": 1.8466,
+      "personal": -1.0078,
+      "archetype": 0.4369,
+      "otherArch": -0.0949,
+      "needBlock": 2.7431,
+      "needAttack": 1.1215,
+      "blockShare": 0.5055,
+      "attackShare": 0.7675,
+      "duplicate": 1.5402,
+      "powerLimit": 3.3691,
+      "powerPenalty": 2.8967,
+      "skip": 2.7602,
+      "deckMax": 29.6768,
+      "deckPenalty": 1.5063,
+      "routeIntel": 21.4844,
+      "routeRest": 8.5724,
+      "routeTreasure": 0.4875,
+      "routeEvent": 1.437,
+      "routeShop": 3.743,
+      "routeElite": -6.4797,
+      "foodReserve": 0.9861,
+      "relicValue": 2.2326,
+      "relicEnergy": -0.6159,
+      "relicDraw": 6.5381,
+      "relicDefense": 4.4231,
+      "relicHidden": 2.8075,
+      "relicWeak": 4.3112,
+      "relicReload": 2.0267,
+      "relicPersonal": 3.6657
     },
-    "source": "fc55a7410586f49991b1e6c844cecbbffc845fa7",
-    "score": 0.45199999999999996
+    "source": "1ecc928e012fa9caf972c83e6938c353f304ef41",
+    "score": 0.6559999999999999
   },
   "weights": {
-    "powerEarly": 15.7322,
-    "powerLate": 2.1956,
-    "earlyTurns": 2.3797,
-    "attack": 4.7859,
-    "damage": 0.9643,
-    "lethal": -1.6589,
-    "blockNeeded": 12.8615,
-    "blockIdle": -0.4004,
-    "blockAmount": 1.4124,
-    "skill": 3.2426,
-    "zero": 4.6854,
-    "cost": 1.6927,
-    "ritual": 160.3515,
-    "resource": 0.1645,
-    "empty": 19.9231,
-    "reload": 15.1523,
-    "reloadNear": 3.4164,
-    "lowAmmo": 1.974,
-    "rage": 9.5412,
-    "rageDanger": 2.6035,
-    "trim": 18.0938,
-    "trimWait": -5.1517,
-    "disrupt": 4.3661,
-    "knifeKeep": 5.5031,
-    "knifeLow": 2.6005,
-    "knifeFull": 5.9935,
-    "charge": 1.9726,
-    "fort": 4.7239,
-    "scry": 2.4635,
-    "clue": 3.9869,
-    "bloodSafe": 0.2474,
-    "bloodRisk": 6.4551,
-    "rest": 0.9234,
-    "itemHp": 0.7316,
-    "itemThreat": 12.7212,
-    "tierC": 4.7655,
-    "tierU": 2.3162,
-    "tierR": 1.6457,
-    "tierLoot": 0.8255,
-    "personal": -0.958,
-    "archetype": 0.8643,
-    "otherArch": -0.2419,
-    "needBlock": 2.0243,
-    "needAttack": 2.5015,
-    "blockShare": 0.3856,
-    "attackShare": 0.718,
-    "duplicate": 1.2987,
-    "powerLimit": 2.3838,
-    "powerPenalty": 1.6109,
-    "skip": 2.1428,
-    "deckMax": 27.0037,
-    "deckPenalty": 0.6147,
-    "routeIntel": 25.9187,
-    "routeRest": 10.427,
-    "routeTreasure": 0.4283,
-    "routeEvent": 1.059,
-    "routeShop": 3.1613,
-    "routeElite": -3.4936,
-    "foodReserve": 0.4909,
-    "relicValue": 3.1833,
-    "relicEnergy": 8.3021,
-    "relicDraw": 3.108,
-    "relicDefense": 2.9664,
-    "relicHidden": 2.6951,
-    "relicWeak": 1.894,
-    "relicReload": 4.2485,
-    "relicPersonal": 3.7516
+    "powerEarly": 20.8326,
+    "powerLate": 2.5244,
+    "earlyTurns": 1.6812,
+    "attack": 1.7663,
+    "damage": 1.5272,
+    "lethal": -1.9549,
+    "blockNeeded": 3.3305,
+    "blockIdle": -0.7332,
+    "blockAmount": 2.0962,
+    "skill": 3.1504,
+    "zero": 4.1466,
+    "cost": 1.2653,
+    "ritual": 116.0592,
+    "resource": 0.3672,
+    "empty": 27.9221,
+    "reload": 6.4612,
+    "reloadNear": 3.2257,
+    "lowAmmo": 2.6371,
+    "rage": 11.9992,
+    "rageDanger": 5.0504,
+    "trim": 2.2135,
+    "trimWait": -9.5157,
+    "disrupt": 2.8139,
+    "knifeKeep": 1.9733,
+    "knifeLow": 3.5707,
+    "knifeFull": 3.8128,
+    "charge": 3.2187,
+    "fort": 9.5711,
+    "scry": 2.4435,
+    "clue": -1.6307,
+    "bloodSafe": 0.9023,
+    "bloodRisk": 5.7917,
+    "rest": 0.8807,
+    "itemHp": 0.4814,
+    "itemThreat": 18.3041,
+    "tierC": 3.2113,
+    "tierU": 2.5599,
+    "tierR": 1.1905,
+    "tierLoot": 1.8466,
+    "personal": -1.0078,
+    "archetype": 0.4369,
+    "otherArch": -0.0949,
+    "needBlock": 2.7431,
+    "needAttack": 1.1215,
+    "blockShare": 0.5055,
+    "attackShare": 0.7675,
+    "duplicate": 1.5402,
+    "powerLimit": 3.3691,
+    "powerPenalty": 2.8967,
+    "skip": 2.7602,
+    "deckMax": 29.6768,
+    "deckPenalty": 1.5063,
+    "routeIntel": 21.4844,
+    "routeRest": 8.5724,
+    "routeTreasure": 0.4875,
+    "routeEvent": 1.437,
+    "routeShop": 3.743,
+    "routeElite": -6.4797,
+    "foodReserve": 0.9861,
+    "relicValue": 2.2326,
+    "relicEnergy": -0.6159,
+    "relicDraw": 6.5381,
+    "relicDefense": 4.4231,
+    "relicHidden": 2.8075,
+    "relicWeak": 4.3112,
+    "relicReload": 2.0267,
+    "relicPersonal": 3.6657
   },
   "searchErrors": [],
   "log": [
     {
       "generation": 0,
       "seed": 10000,
-      "meanScore": 0.14500000000000002,
-      "bestScore": 0.195,
+      "meanScore": 0.5525,
+      "bestScore": 0.59,
       "errorEpisodes": 0
     },
     {
       "generation": 1,
       "seed": 10080,
-      "meanScore": 0.25,
-      "bestScore": 0.3025,
+      "meanScore": 0.5175,
+      "bestScore": 0.635,
       "errorEpisodes": 0
     },
     {
       "generation": 2,
       "seed": 10160,
-      "meanScore": 0.155,
-      "bestScore": 0.19,
+      "meanScore": 0.5050000000000001,
+      "bestScore": 0.54,
       "errorEpisodes": 0
     },
     {
       "generation": 3,
       "seed": 10240,
-      "meanScore": 0.205,
-      "bestScore": 0.2425,
+      "meanScore": 0.53,
+      "bestScore": 0.5975,
       "errorEpisodes": 0
     },
     {
       "generation": 4,
       "seed": 10320,
-      "meanScore": 0.28,
-      "bestScore": 0.31249999999999994,
+      "meanScore": 0.595,
+      "bestScore": 0.595,
       "errorEpisodes": 0
     },
     {
       "generation": 5,
       "seed": 10400,
-      "meanScore": 0.2,
-      "bestScore": 0.27249999999999996,
+      "meanScore": 0.5125,
+      "bestScore": 0.5275,
       "errorEpisodes": 0
     },
     {
       "generation": 6,
       "seed": 10480,
-      "meanScore": 0.2675,
-      "bestScore": 0.35,
+      "meanScore": 0.5549999999999999,
+      "bestScore": 0.58,
       "errorEpisodes": 0
     },
     {
       "generation": 7,
       "seed": 10560,
-      "meanScore": 0.2475,
-      "bestScore": 0.345,
+      "meanScore": 0.5275000000000001,
+      "bestScore": 0.5275000000000001,
       "errorEpisodes": 0
     },
     {
       "generation": 8,
       "seed": 10640,
-      "meanScore": 0.2225,
-      "bestScore": 0.30999999999999994,
+      "meanScore": 0.49499999999999994,
+      "bestScore": 0.49499999999999994,
       "errorEpisodes": 0
     },
     {
       "generation": 9,
       "seed": 10720,
-      "meanScore": 0.34249999999999997,
-      "bestScore": 0.3825,
+      "meanScore": 0.525,
+      "bestScore": 0.5650000000000001,
       "errorEpisodes": 0
     },
     {
       "generation": 10,
       "seed": 10800,
-      "meanScore": 0.3525,
-      "bestScore": 0.36499999999999994,
+      "meanScore": 0.5325,
+      "bestScore": 0.55,
       "errorEpisodes": 0
     },
     {
       "generation": 11,
       "seed": 10880,
-      "meanScore": 0.38,
-      "bestScore": 0.3875,
+      "meanScore": 0.43499999999999994,
+      "bestScore": 0.525,
       "errorEpisodes": 0
     },
     {
       "generation": 12,
       "seed": 10960,
-      "meanScore": 0.4125000000000001,
-      "bestScore": 0.4125000000000001,
+      "meanScore": 0.58,
+      "bestScore": 0.6199999999999999,
       "errorEpisodes": 0
     },
     {
       "generation": 13,
       "seed": 11040,
-      "meanScore": 0.32999999999999996,
-      "bestScore": 0.3375,
+      "meanScore": 0.445,
+      "bestScore": 0.4725,
       "errorEpisodes": 0
     },
     {
       "generation": 14,
       "seed": 11120,
-      "meanScore": 0.40750000000000003,
-      "bestScore": 0.425,
+      "meanScore": 0.5325000000000001,
+      "bestScore": 0.5575,
       "errorEpisodes": 0
     },
     {
       "generation": 15,
       "seed": 11200,
-      "meanScore": 0.3325,
-      "bestScore": 0.3575,
+      "meanScore": 0.5125,
+      "bestScore": 0.5525,
       "errorEpisodes": 0
     },
     {
       "generation": 16,
       "seed": 11280,
-      "meanScore": 0.3325,
-      "bestScore": 0.4225,
+      "meanScore": 0.485,
+      "bestScore": 0.5475000000000001,
       "errorEpisodes": 0
     },
     {
       "generation": 17,
       "seed": 11360,
-      "meanScore": 0.40499999999999997,
-      "bestScore": 0.42250000000000004,
+      "meanScore": 0.4600000000000001,
+      "bestScore": 0.58,
       "errorEpisodes": 0
     },
     {
       "generation": 18,
       "seed": 11440,
-      "meanScore": 0.3825,
-      "bestScore": 0.44000000000000006,
+      "meanScore": 0.625,
+      "bestScore": 0.625,
       "errorEpisodes": 0
     },
     {
       "generation": 19,
       "seed": 11520,
-      "meanScore": 0.35,
-      "bestScore": 0.385,
+      "meanScore": 0.5725,
+      "bestScore": 0.5725,
       "errorEpisodes": 0
     },
     {
       "generation": 20,
       "seed": 11600,
-      "meanScore": 0.325,
-      "bestScore": 0.35000000000000003,
+      "meanScore": 0.49499999999999994,
+      "bestScore": 0.5725,
       "errorEpisodes": 0
     },
     {
       "generation": 21,
       "seed": 11680,
-      "meanScore": 0.395,
-      "bestScore": 0.45500000000000007,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 22,
-      "seed": 11760,
-      "meanScore": 0.26999999999999996,
-      "bestScore": 0.29250000000000004,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 23,
-      "seed": 11840,
-      "meanScore": 0.34500000000000003,
-      "bestScore": 0.4425,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 24,
-      "seed": 11920,
-      "meanScore": 0.4725,
-      "bestScore": 0.4725,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 25,
-      "seed": 12000,
-      "meanScore": 0.38,
-      "bestScore": 0.39,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 26,
-      "seed": 12080,
-      "meanScore": 0.36500000000000005,
-      "bestScore": 0.39249999999999996,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 27,
-      "seed": 12160,
-      "meanScore": 0.4375,
-      "bestScore": 0.4375,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 28,
-      "seed": 12240,
-      "meanScore": 0.34500000000000003,
-      "bestScore": 0.39749999999999996,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 29,
-      "seed": 12320,
-      "meanScore": 0.4175,
-      "bestScore": 0.45999999999999996,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 30,
-      "seed": 12400,
-      "meanScore": 0.3775,
-      "bestScore": 0.44000000000000006,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 31,
-      "seed": 12480,
-      "meanScore": 0.4125,
-      "bestScore": 0.43500000000000005,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 32,
-      "seed": 12560,
-      "meanScore": 0.47250000000000003,
-      "bestScore": 0.5025,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 33,
-      "seed": 12640,
-      "meanScore": 0.4375,
-      "bestScore": 0.52,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 34,
-      "seed": 12720,
-      "meanScore": 0.40499999999999997,
-      "bestScore": 0.425,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 35,
-      "seed": 12800,
-      "meanScore": 0.3875,
-      "bestScore": 0.4425,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 36,
-      "seed": 12880,
-      "meanScore": 0.42000000000000004,
-      "bestScore": 0.47000000000000003,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 37,
-      "seed": 12960,
-      "meanScore": 0.41999999999999993,
-      "bestScore": 0.42750000000000005,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 38,
-      "seed": 13040,
-      "meanScore": 0.4074999999999999,
-      "bestScore": 0.4074999999999999,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 39,
-      "seed": 13120,
-      "meanScore": 0.3825,
-      "bestScore": 0.4175,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 40,
-      "seed": 13200,
-      "meanScore": 0.39749999999999996,
-      "bestScore": 0.39749999999999996,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 41,
-      "seed": 13280,
-      "meanScore": 0.30999999999999994,
-      "bestScore": 0.35250000000000004,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 42,
-      "seed": 13360,
-      "meanScore": 0.445,
-      "bestScore": 0.445,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 43,
-      "seed": 13440,
-      "meanScore": 0.40750000000000003,
-      "bestScore": 0.48749999999999993,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 44,
-      "seed": 13520,
-      "meanScore": 0.45499999999999996,
-      "bestScore": 0.46749999999999997,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 45,
-      "seed": 13600,
-      "meanScore": 0.395,
-      "bestScore": 0.45499999999999996,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 46,
-      "seed": 13680,
-      "meanScore": 0.35750000000000004,
-      "bestScore": 0.4025,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 47,
-      "seed": 13760,
-      "meanScore": 0.42000000000000004,
-      "bestScore": 0.45,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 48,
-      "seed": 13840,
-      "meanScore": 0.4525,
-      "bestScore": 0.48,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 49,
-      "seed": 13920,
-      "meanScore": 0.47250000000000003,
-      "bestScore": 0.5175,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 50,
-      "seed": 14000,
-      "meanScore": 0.43499999999999994,
-      "bestScore": 0.4875,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 51,
-      "seed": 14080,
-      "meanScore": 0.34500000000000003,
-      "bestScore": 0.3875,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 52,
-      "seed": 14160,
-      "meanScore": 0.38,
-      "bestScore": 0.43999999999999995,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 53,
-      "seed": 14240,
-      "meanScore": 0.45499999999999996,
-      "bestScore": 0.475,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 54,
-      "seed": 14320,
-      "meanScore": 0.43999999999999995,
-      "bestScore": 0.47750000000000004,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 55,
-      "seed": 14400,
-      "meanScore": 0.5675,
-      "bestScore": 0.5675,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 56,
-      "seed": 14480,
-      "meanScore": 0.425,
-      "bestScore": 0.4375,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 57,
-      "seed": 14560,
-      "meanScore": 0.3825,
-      "bestScore": 0.4175,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 58,
-      "seed": 14640,
-      "meanScore": 0.5375,
-      "bestScore": 0.5375,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 59,
-      "seed": 14720,
-      "meanScore": 0.47750000000000004,
-      "bestScore": 0.5349999999999999,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 60,
-      "seed": 14800,
-      "meanScore": 0.38499999999999995,
-      "bestScore": 0.38499999999999995,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 61,
-      "seed": 14880,
-      "meanScore": 0.40499999999999997,
-      "bestScore": 0.45,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 62,
-      "seed": 14960,
-      "meanScore": 0.3825,
-      "bestScore": 0.4025,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 63,
-      "seed": 15040,
-      "meanScore": 0.39249999999999996,
-      "bestScore": 0.41500000000000004,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 64,
-      "seed": 15120,
-      "meanScore": 0.47000000000000003,
-      "bestScore": 0.5025,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 65,
-      "seed": 15200,
-      "meanScore": 0.4375,
-      "bestScore": 0.445,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 66,
-      "seed": 15280,
-      "meanScore": 0.40750000000000003,
-      "bestScore": 0.43499999999999994,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 67,
-      "seed": 15360,
-      "meanScore": 0.38499999999999995,
-      "bestScore": 0.4025,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 68,
-      "seed": 15440,
-      "meanScore": 0.475,
-      "bestScore": 0.475,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 69,
-      "seed": 15520,
-      "meanScore": 0.365,
-      "bestScore": 0.40750000000000003,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 70,
-      "seed": 15600,
-      "meanScore": 0.475,
-      "bestScore": 0.49750000000000005,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 71,
-      "seed": 15680,
-      "meanScore": 0.52,
-      "bestScore": 0.5425000000000001,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 72,
-      "seed": 15760,
-      "meanScore": 0.4375,
-      "bestScore": 0.445,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 73,
-      "seed": 15840,
-      "meanScore": 0.5025,
-      "bestScore": 0.5125,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 74,
-      "seed": 15920,
-      "meanScore": 0.5,
-      "bestScore": 0.52,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 75,
-      "seed": 16000,
-      "meanScore": 0.38499999999999995,
-      "bestScore": 0.41500000000000004,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 76,
-      "seed": 16080,
-      "meanScore": 0.4175,
-      "bestScore": 0.45,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 77,
-      "seed": 16160,
-      "meanScore": 0.48250000000000004,
-      "bestScore": 0.48749999999999993,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 78,
-      "seed": 16240,
-      "meanScore": 0.3975,
-      "bestScore": 0.3975,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 79,
-      "seed": 16320,
-      "meanScore": 0.42750000000000005,
-      "bestScore": 0.42750000000000005,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 80,
-      "seed": 16400,
-      "meanScore": 0.4325,
-      "bestScore": 0.46499999999999997,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 81,
-      "seed": 16480,
-      "meanScore": 0.4025,
-      "bestScore": 0.42750000000000005,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 82,
-      "seed": 16560,
-      "meanScore": 0.4325,
-      "bestScore": 0.45499999999999996,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 83,
-      "seed": 16640,
-      "meanScore": 0.49000000000000005,
-      "bestScore": 0.49749999999999994,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 84,
-      "seed": 16720,
-      "meanScore": 0.4025,
-      "bestScore": 0.4025,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 85,
-      "seed": 16800,
-      "meanScore": 0.505,
-      "bestScore": 0.525,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 86,
-      "seed": 16880,
-      "meanScore": 0.46749999999999997,
-      "bestScore": 0.4675000000000001,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 87,
-      "seed": 16960,
-      "meanScore": 0.43,
-      "bestScore": 0.4525,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 88,
-      "seed": 17040,
-      "meanScore": 0.44749999999999995,
-      "bestScore": 0.4625,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 89,
-      "seed": 17120,
-      "meanScore": 0.5075000000000001,
-      "bestScore": 0.54,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 90,
-      "seed": 17200,
-      "meanScore": 0.3375,
-      "bestScore": 0.3375,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 91,
-      "seed": 17280,
-      "meanScore": 0.43249999999999994,
-      "bestScore": 0.45999999999999996,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 92,
-      "seed": 17360,
-      "meanScore": 0.5050000000000001,
-      "bestScore": 0.52,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 93,
-      "seed": 17440,
-      "meanScore": 0.4325,
-      "bestScore": 0.49250000000000005,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 94,
-      "seed": 17520,
-      "meanScore": 0.5825,
-      "bestScore": 0.5924999999999999,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 95,
-      "seed": 17600,
-      "meanScore": 0.515,
-      "bestScore": 0.515,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 96,
-      "seed": 17680,
-      "meanScore": 0.40499999999999997,
-      "bestScore": 0.41,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 97,
-      "seed": 17760,
-      "meanScore": 0.3975,
-      "bestScore": 0.4325,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 98,
-      "seed": 17840,
-      "meanScore": 0.43499999999999994,
-      "bestScore": 0.45499999999999996,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 99,
-      "seed": 17920,
-      "meanScore": 0.5,
-      "bestScore": 0.5225,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 100,
-      "seed": 18000,
-      "meanScore": 0.42000000000000004,
-      "bestScore": 0.4425,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 101,
-      "seed": 18080,
-      "meanScore": 0.39249999999999996,
-      "bestScore": 0.43499999999999994,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 102,
-      "seed": 18160,
-      "meanScore": 0.3875,
-      "bestScore": 0.4175,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 103,
-      "seed": 18240,
-      "meanScore": 0.54,
-      "bestScore": 0.56,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 104,
-      "seed": 18320,
-      "meanScore": 0.3725,
-      "bestScore": 0.40499999999999997,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 105,
-      "seed": 18400,
-      "meanScore": 0.4375,
-      "bestScore": 0.4725,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 106,
-      "seed": 18480,
-      "meanScore": 0.3625,
-      "bestScore": 0.42749999999999994,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 107,
-      "seed": 18560,
-      "meanScore": 0.34249999999999997,
-      "bestScore": 0.385,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 108,
-      "seed": 18640,
-      "meanScore": 0.4025,
-      "bestScore": 0.41500000000000004,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 109,
-      "seed": 18720,
-      "meanScore": 0.5175000000000001,
-      "bestScore": 0.5499999999999999,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 110,
-      "seed": 18800,
-      "meanScore": 0.48999999999999994,
-      "bestScore": 0.5025000000000001,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 111,
-      "seed": 18880,
-      "meanScore": 0.52,
-      "bestScore": 0.575,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 112,
-      "seed": 18960,
-      "meanScore": 0.41000000000000003,
-      "bestScore": 0.43,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 113,
-      "seed": 19040,
-      "meanScore": 0.46749999999999997,
-      "bestScore": 0.48250000000000004,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 114,
-      "seed": 19120,
-      "meanScore": 0.445,
-      "bestScore": 0.4925,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 115,
-      "seed": 19200,
-      "meanScore": 0.49499999999999994,
-      "bestScore": 0.49499999999999994,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 116,
-      "seed": 19280,
-      "meanScore": 0.5375,
-      "bestScore": 0.5375,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 117,
-      "seed": 19360,
-      "meanScore": 0.4175,
-      "bestScore": 0.48500000000000004,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 118,
-      "seed": 19440,
-      "meanScore": 0.36,
-      "bestScore": 0.36,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 119,
-      "seed": 19520,
-      "meanScore": 0.515,
-      "bestScore": 0.525,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 120,
-      "seed": 19600,
-      "meanScore": 0.43499999999999994,
-      "bestScore": 0.4575,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 121,
-      "seed": 19680,
-      "meanScore": 0.5325,
-      "bestScore": 0.5475000000000001,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 122,
-      "seed": 19760,
-      "meanScore": 0.425,
-      "bestScore": 0.465,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 123,
-      "seed": 19840,
-      "meanScore": 0.48,
-      "bestScore": 0.48500000000000004,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 124,
-      "seed": 19920,
-      "meanScore": 0.355,
-      "bestScore": 0.3925,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 125,
-      "seed": 20000,
-      "meanScore": 0.5650000000000001,
-      "bestScore": 0.5900000000000001,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 126,
-      "seed": 20080,
-      "meanScore": 0.545,
-      "bestScore": 0.595,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 127,
-      "seed": 20160,
-      "meanScore": 0.3775,
-      "bestScore": 0.4149999999999999,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 128,
-      "seed": 20240,
-      "meanScore": 0.42750000000000005,
-      "bestScore": 0.45,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 129,
-      "seed": 20320,
-      "meanScore": 0.4774999999999999,
-      "bestScore": 0.505,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 130,
-      "seed": 20400,
-      "meanScore": 0.40499999999999997,
-      "bestScore": 0.42750000000000005,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 131,
-      "seed": 20480,
-      "meanScore": 0.5625,
-      "bestScore": 0.575,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 132,
-      "seed": 20560,
-      "meanScore": 0.5175,
-      "bestScore": 0.5175,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 133,
-      "seed": 20640,
-      "meanScore": 0.44000000000000006,
-      "bestScore": 0.48250000000000004,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 134,
-      "seed": 20720,
-      "meanScore": 0.48,
-      "bestScore": 0.48500000000000004,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 135,
-      "seed": 20800,
-      "meanScore": 0.41000000000000003,
-      "bestScore": 0.43,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 136,
-      "seed": 20880,
-      "meanScore": 0.49749999999999994,
-      "bestScore": 0.51,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 137,
-      "seed": 20960,
-      "meanScore": 0.4425,
-      "bestScore": 0.47250000000000003,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 138,
-      "seed": 21040,
-      "meanScore": 0.3875,
-      "bestScore": 0.40499999999999997,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 139,
-      "seed": 21120,
-      "meanScore": 0.4950000000000001,
-      "bestScore": 0.51,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 140,
-      "seed": 21200,
-      "meanScore": 0.4625,
-      "bestScore": 0.49499999999999994,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 141,
-      "seed": 21280,
-      "meanScore": 0.5075000000000001,
-      "bestScore": 0.52,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 142,
-      "seed": 21360,
-      "meanScore": 0.4574999999999999,
-      "bestScore": 0.47250000000000003,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 143,
-      "seed": 21440,
-      "meanScore": 0.5175,
-      "bestScore": 0.5475000000000001,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 144,
-      "seed": 21520,
-      "meanScore": 0.43500000000000005,
-      "bestScore": 0.44749999999999995,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 145,
-      "seed": 21600,
-      "meanScore": 0.4375,
-      "bestScore": 0.45,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 146,
-      "seed": 21680,
-      "meanScore": 0.43,
-      "bestScore": 0.45499999999999996,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 147,
-      "seed": 21760,
-      "meanScore": 0.42000000000000004,
-      "bestScore": 0.4525,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 148,
-      "seed": 21840,
-      "meanScore": 0.605,
-      "bestScore": 0.605,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 149,
-      "seed": 21920,
-      "meanScore": 0.53,
-      "bestScore": 0.5424999999999999,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 150,
-      "seed": 22000,
-      "meanScore": 0.495,
-      "bestScore": 0.5,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 151,
-      "seed": 22080,
-      "meanScore": 0.4575,
-      "bestScore": 0.4575,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 152,
-      "seed": 22160,
-      "meanScore": 0.40499999999999997,
-      "bestScore": 0.41,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 153,
-      "seed": 22240,
-      "meanScore": 0.38499999999999995,
-      "bestScore": 0.3875,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 154,
-      "seed": 22320,
-      "meanScore": 0.48999999999999994,
-      "bestScore": 0.51,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 155,
-      "seed": 22400,
-      "meanScore": 0.5625,
-      "bestScore": 0.5625,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 156,
-      "seed": 22480,
-      "meanScore": 0.4125,
-      "bestScore": 0.42750000000000005,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 157,
-      "seed": 22560,
-      "meanScore": 0.38,
-      "bestScore": 0.38,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 158,
-      "seed": 22640,
-      "meanScore": 0.42750000000000005,
-      "bestScore": 0.4425,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 159,
-      "seed": 22720,
-      "meanScore": 0.4625,
-      "bestScore": 0.4625,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 160,
-      "seed": 22800,
-      "meanScore": 0.4525,
-      "bestScore": 0.465,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 161,
-      "seed": 22880,
-      "meanScore": 0.495,
-      "bestScore": 0.515,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 162,
-      "seed": 22960,
-      "meanScore": 0.375,
-      "bestScore": 0.4149999999999999,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 163,
-      "seed": 23040,
-      "meanScore": 0.4325,
-      "bestScore": 0.4525,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 164,
-      "seed": 23120,
-      "meanScore": 0.5025000000000001,
-      "bestScore": 0.5025000000000001,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 165,
-      "seed": 23200,
-      "meanScore": 0.4625,
-      "bestScore": 0.4625,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 166,
-      "seed": 23280,
-      "meanScore": 0.40249999999999997,
-      "bestScore": 0.40249999999999997,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 167,
-      "seed": 23360,
-      "meanScore": 0.43,
-      "bestScore": 0.43,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 168,
-      "seed": 23440,
-      "meanScore": 0.475,
-      "bestScore": 0.475,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 169,
-      "seed": 23520,
-      "meanScore": 0.4525,
-      "bestScore": 0.4600000000000001,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 170,
-      "seed": 23600,
-      "meanScore": 0.4325,
-      "bestScore": 0.43999999999999995,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 171,
-      "seed": 23680,
-      "meanScore": 0.4625,
-      "bestScore": 0.4625,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 172,
-      "seed": 23760,
-      "meanScore": 0.495,
-      "bestScore": 0.495,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 173,
-      "seed": 23840,
-      "meanScore": 0.48250000000000004,
-      "bestScore": 0.48250000000000004,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 174,
-      "seed": 23920,
-      "meanScore": 0.33999999999999997,
-      "bestScore": 0.36500000000000005,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 175,
-      "seed": 24000,
-      "meanScore": 0.5125,
-      "bestScore": 0.5125,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 176,
-      "seed": 24080,
-      "meanScore": 0.48500000000000004,
-      "bestScore": 0.48999999999999994,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 177,
-      "seed": 24160,
-      "meanScore": 0.5199999999999999,
-      "bestScore": 0.5225,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 178,
-      "seed": 24240,
-      "meanScore": 0.3975,
-      "bestScore": 0.4175,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 179,
-      "seed": 24320,
-      "meanScore": 0.475,
-      "bestScore": 0.475,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 180,
-      "seed": 24400,
-      "meanScore": 0.37249999999999994,
-      "bestScore": 0.39249999999999996,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 181,
-      "seed": 24480,
-      "meanScore": 0.3625,
-      "bestScore": 0.3625,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 182,
-      "seed": 24560,
-      "meanScore": 0.45,
-      "bestScore": 0.4625,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 183,
-      "seed": 24640,
-      "meanScore": 0.51,
-      "bestScore": 0.51,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 184,
-      "seed": 24720,
-      "meanScore": 0.41,
-      "bestScore": 0.41,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 185,
-      "seed": 24800,
-      "meanScore": 0.46749999999999997,
-      "bestScore": 0.46749999999999997,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 186,
-      "seed": 24880,
-      "meanScore": 0.45999999999999996,
-      "bestScore": 0.48,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 187,
-      "seed": 24960,
-      "meanScore": 0.4525,
-      "bestScore": 0.46499999999999997,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 188,
-      "seed": 25040,
-      "meanScore": 0.5499999999999999,
-      "bestScore": 0.5499999999999999,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 189,
-      "seed": 25120,
-      "meanScore": 0.51,
-      "bestScore": 0.5149999999999999,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 190,
-      "seed": 25200,
-      "meanScore": 0.3875,
-      "bestScore": 0.4,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 191,
-      "seed": 25280,
-      "meanScore": 0.45500000000000007,
-      "bestScore": 0.45500000000000007,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 192,
-      "seed": 25360,
-      "meanScore": 0.515,
-      "bestScore": 0.515,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 193,
-      "seed": 25440,
-      "meanScore": 0.3825,
-      "bestScore": 0.3825,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 194,
-      "seed": 25520,
-      "meanScore": 0.4375,
-      "bestScore": 0.4375,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 195,
-      "seed": 25600,
-      "meanScore": 0.5349999999999999,
-      "bestScore": 0.5425,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 196,
-      "seed": 25680,
-      "meanScore": 0.43499999999999994,
-      "bestScore": 0.43499999999999994,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 197,
-      "seed": 25760,
-      "meanScore": 0.42000000000000004,
-      "bestScore": 0.42000000000000004,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 198,
-      "seed": 25840,
-      "meanScore": 0.47000000000000003,
-      "bestScore": 0.4925,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 199,
-      "seed": 25920,
-      "meanScore": 0.4050000000000001,
-      "bestScore": 0.4050000000000001,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 200,
-      "seed": 26000,
-      "meanScore": 0.4,
-      "bestScore": 0.4,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 201,
-      "seed": 26080,
-      "meanScore": 0.46499999999999997,
-      "bestScore": 0.46499999999999997,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 202,
-      "seed": 26160,
-      "meanScore": 0.535,
-      "bestScore": 0.535,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 203,
-      "seed": 26240,
-      "meanScore": 0.48250000000000004,
-      "bestScore": 0.48250000000000004,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 204,
-      "seed": 26320,
-      "meanScore": 0.42250000000000004,
-      "bestScore": 0.42250000000000004,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 205,
-      "seed": 26400,
-      "meanScore": 0.4774999999999999,
-      "bestScore": 0.4774999999999999,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 206,
-      "seed": 26480,
-      "meanScore": 0.5425,
-      "bestScore": 0.5525,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 207,
-      "seed": 26560,
-      "meanScore": 0.425,
-      "bestScore": 0.43499999999999994,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 208,
-      "seed": 26640,
-      "meanScore": 0.46499999999999997,
-      "bestScore": 0.46499999999999997,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 209,
-      "seed": 26720,
-      "meanScore": 0.4225,
-      "bestScore": 0.4225,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 210,
-      "seed": 26800,
-      "meanScore": 0.5175000000000001,
-      "bestScore": 0.5175000000000001,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 211,
-      "seed": 26880,
-      "meanScore": 0.4125,
-      "bestScore": 0.4125,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 212,
-      "seed": 26960,
-      "meanScore": 0.5025,
-      "bestScore": 0.5025,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 213,
-      "seed": 27040,
       "meanScore": 0.58,
       "bestScore": 0.58,
       "errorEpisodes": 0
     },
     {
-      "generation": 214,
-      "seed": 27120,
-      "meanScore": 0.4375,
-      "bestScore": 0.445,
+      "generation": 22,
+      "seed": 11760,
+      "meanScore": 0.5075000000000001,
+      "bestScore": 0.5525,
       "errorEpisodes": 0
     },
     {
-      "generation": 215,
-      "seed": 27200,
-      "meanScore": 0.545,
-      "bestScore": 0.545,
+      "generation": 23,
+      "seed": 11840,
+      "meanScore": 0.6725,
+      "bestScore": 0.6925,
       "errorEpisodes": 0
     },
     {
-      "generation": 216,
-      "seed": 27280,
-      "meanScore": 0.5375,
-      "bestScore": 0.5375,
+      "generation": 24,
+      "seed": 11920,
+      "meanScore": 0.6875,
+      "bestScore": 0.6875,
       "errorEpisodes": 0
     },
     {
-      "generation": 217,
-      "seed": 27360,
-      "meanScore": 0.43499999999999994,
-      "bestScore": 0.45,
+      "generation": 25,
+      "seed": 12000,
+      "meanScore": 0.6224999999999999,
+      "bestScore": 0.6224999999999999,
       "errorEpisodes": 0
     },
     {
-      "generation": 218,
-      "seed": 27440,
-      "meanScore": 0.37499999999999994,
-      "bestScore": 0.37499999999999994,
+      "generation": 26,
+      "seed": 12080,
+      "meanScore": 0.6024999999999999,
+      "bestScore": 0.635,
       "errorEpisodes": 0
     },
     {
-      "generation": 219,
-      "seed": 27520,
-      "meanScore": 0.46749999999999997,
-      "bestScore": 0.46749999999999997,
+      "generation": 27,
+      "seed": 12160,
+      "meanScore": 0.5325,
+      "bestScore": 0.605,
       "errorEpisodes": 0
     },
     {
-      "generation": 220,
-      "seed": 27600,
-      "meanScore": 0.43499999999999994,
-      "bestScore": 0.43499999999999994,
+      "generation": 28,
+      "seed": 12240,
+      "meanScore": 0.6225,
+      "bestScore": 0.6225,
       "errorEpisodes": 0
     },
     {
-      "generation": 221,
-      "seed": 27680,
-      "meanScore": 0.44000000000000006,
-      "bestScore": 0.44000000000000006,
+      "generation": 29,
+      "seed": 12320,
+      "meanScore": 0.6675,
+      "bestScore": 0.6875000000000001,
       "errorEpisodes": 0
     },
     {
-      "generation": 222,
-      "seed": 27760,
-      "meanScore": 0.39249999999999996,
-      "bestScore": 0.39249999999999996,
+      "generation": 30,
+      "seed": 12400,
+      "meanScore": 0.5425,
+      "bestScore": 0.5525,
       "errorEpisodes": 0
     },
     {
-      "generation": 223,
-      "seed": 27840,
-      "meanScore": 0.47750000000000004,
-      "bestScore": 0.47750000000000004,
+      "generation": 31,
+      "seed": 12480,
+      "meanScore": 0.6625,
+      "bestScore": 0.6625,
       "errorEpisodes": 0
     },
     {
-      "generation": 224,
-      "seed": 27920,
-      "meanScore": 0.42750000000000005,
-      "bestScore": 0.42750000000000005,
+      "generation": 32,
+      "seed": 12560,
+      "meanScore": 0.6525,
+      "bestScore": 0.675,
       "errorEpisodes": 0
     },
     {
-      "generation": 225,
-      "seed": 28000,
-      "meanScore": 0.4575,
-      "bestScore": 0.4575,
+      "generation": 33,
+      "seed": 12640,
+      "meanScore": 0.6799999999999999,
+      "bestScore": 0.6925000000000001,
       "errorEpisodes": 0
     },
     {
-      "generation": 226,
-      "seed": 28080,
-      "meanScore": 0.48,
-      "bestScore": 0.48,
+      "generation": 34,
+      "seed": 12720,
+      "meanScore": 0.5775,
+      "bestScore": 0.6075,
       "errorEpisodes": 0
     },
     {
-      "generation": 227,
-      "seed": 28160,
-      "meanScore": 0.49749999999999994,
-      "bestScore": 0.49749999999999994,
+      "generation": 35,
+      "seed": 12800,
+      "meanScore": 0.6224999999999999,
+      "bestScore": 0.6224999999999999,
       "errorEpisodes": 0
     },
     {
-      "generation": 228,
-      "seed": 28240,
-      "meanScore": 0.45249999999999996,
-      "bestScore": 0.45249999999999996,
+      "generation": 36,
+      "seed": 12880,
+      "meanScore": 0.67,
+      "bestScore": 0.67,
       "errorEpisodes": 0
     },
     {
-      "generation": 229,
-      "seed": 28320,
-      "meanScore": 0.5,
-      "bestScore": 0.5,
+      "generation": 37,
+      "seed": 12960,
+      "meanScore": 0.56,
+      "bestScore": 0.575,
       "errorEpisodes": 0
     },
     {
-      "generation": 230,
-      "seed": 28400,
+      "generation": 38,
+      "seed": 13040,
+      "meanScore": 0.7699999999999999,
+      "bestScore": 0.7699999999999999,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 39,
+      "seed": 13120,
+      "meanScore": 0.6375,
+      "bestScore": 0.6375,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 40,
+      "seed": 13200,
+      "meanScore": 0.62,
+      "bestScore": 0.6200000000000001,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 41,
+      "seed": 13280,
+      "meanScore": 0.5774999999999999,
+      "bestScore": 0.6025,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 42,
+      "seed": 13360,
+      "meanScore": 0.645,
+      "bestScore": 0.645,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 43,
+      "seed": 13440,
+      "meanScore": 0.6475,
+      "bestScore": 0.6475,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 44,
+      "seed": 13520,
+      "meanScore": 0.605,
+      "bestScore": 0.64,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 45,
+      "seed": 13600,
+      "meanScore": 0.63,
+      "bestScore": 0.6525000000000001,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 46,
+      "seed": 13680,
+      "meanScore": 0.6325,
+      "bestScore": 0.6825,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 47,
+      "seed": 13760,
+      "meanScore": 0.725,
+      "bestScore": 0.735,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 48,
+      "seed": 13840,
+      "meanScore": 0.6125,
+      "bestScore": 0.6925,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 49,
+      "seed": 13920,
+      "meanScore": 0.7575,
+      "bestScore": 0.7575,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 50,
+      "seed": 14000,
+      "meanScore": 0.6799999999999999,
+      "bestScore": 0.7025,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 51,
+      "seed": 14080,
+      "meanScore": 0.5950000000000001,
+      "bestScore": 0.6425,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 52,
+      "seed": 14160,
+      "meanScore": 0.615,
+      "bestScore": 0.6525,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 53,
+      "seed": 14240,
+      "meanScore": 0.6875,
+      "bestScore": 0.69,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 54,
+      "seed": 14320,
+      "meanScore": 0.685,
+      "bestScore": 0.7375,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 55,
+      "seed": 14400,
+      "meanScore": 0.6849999999999999,
+      "bestScore": 0.7200000000000001,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 56,
+      "seed": 14480,
+      "meanScore": 0.72,
+      "bestScore": 0.7375,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 57,
+      "seed": 14560,
+      "meanScore": 0.7175,
+      "bestScore": 0.7175,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 58,
+      "seed": 14640,
+      "meanScore": 0.7,
+      "bestScore": 0.7225,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 59,
+      "seed": 14720,
+      "meanScore": 0.71,
+      "bestScore": 0.7625,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 60,
+      "seed": 14800,
+      "meanScore": 0.5650000000000001,
+      "bestScore": 0.5799999999999998,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 61,
+      "seed": 14880,
+      "meanScore": 0.635,
+      "bestScore": 0.6375,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 62,
+      "seed": 14960,
+      "meanScore": 0.6199999999999999,
+      "bestScore": 0.6375,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 63,
+      "seed": 15040,
+      "meanScore": 0.71,
+      "bestScore": 0.7174999999999999,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 64,
+      "seed": 15120,
+      "meanScore": 0.6224999999999999,
+      "bestScore": 0.6950000000000001,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 65,
+      "seed": 15200,
+      "meanScore": 0.6074999999999999,
+      "bestScore": 0.6475,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 66,
+      "seed": 15280,
+      "meanScore": 0.53,
+      "bestScore": 0.6599999999999999,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 67,
+      "seed": 15360,
+      "meanScore": 0.6125,
+      "bestScore": 0.6125,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 68,
+      "seed": 15440,
+      "meanScore": 0.6725000000000001,
+      "bestScore": 0.6849999999999999,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 69,
+      "seed": 15520,
+      "meanScore": 0.6425,
+      "bestScore": 0.6925000000000001,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 70,
+      "seed": 15600,
+      "meanScore": 0.6375,
+      "bestScore": 0.65,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 71,
+      "seed": 15680,
+      "meanScore": 0.6849999999999999,
+      "bestScore": 0.735,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 72,
+      "seed": 15760,
+      "meanScore": 0.565,
+      "bestScore": 0.6025,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 73,
+      "seed": 15840,
+      "meanScore": 0.675,
+      "bestScore": 0.7,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 74,
+      "seed": 15920,
+      "meanScore": 0.675,
+      "bestScore": 0.675,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 75,
+      "seed": 16000,
+      "meanScore": 0.58,
+      "bestScore": 0.6125,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 76,
+      "seed": 16080,
+      "meanScore": 0.6325,
+      "bestScore": 0.6599999999999999,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 77,
+      "seed": 16160,
+      "meanScore": 0.655,
+      "bestScore": 0.655,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 78,
+      "seed": 16240,
+      "meanScore": 0.6299999999999999,
+      "bestScore": 0.66,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 79,
+      "seed": 16320,
+      "meanScore": 0.6024999999999999,
+      "bestScore": 0.66,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 80,
+      "seed": 16400,
+      "meanScore": 0.7175,
+      "bestScore": 0.76,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 81,
+      "seed": 16480,
+      "meanScore": 0.6249999999999999,
+      "bestScore": 0.66,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 82,
+      "seed": 16560,
+      "meanScore": 0.5774999999999999,
+      "bestScore": 0.6224999999999999,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 83,
+      "seed": 16640,
+      "meanScore": 0.68,
+      "bestScore": 0.725,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 84,
+      "seed": 16720,
+      "meanScore": 0.6175,
+      "bestScore": 0.6675,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 85,
+      "seed": 16800,
+      "meanScore": 0.6825000000000001,
+      "bestScore": 0.725,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 86,
+      "seed": 16880,
+      "meanScore": 0.735,
+      "bestScore": 0.76,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 87,
+      "seed": 16960,
+      "meanScore": 0.6125,
+      "bestScore": 0.6325000000000001,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 88,
+      "seed": 17040,
+      "meanScore": 0.6275000000000001,
+      "bestScore": 0.6575,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 89,
+      "seed": 17120,
+      "meanScore": 0.7525,
+      "bestScore": 0.765,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 90,
+      "seed": 17200,
+      "meanScore": 0.555,
+      "bestScore": 0.6275,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 91,
+      "seed": 17280,
+      "meanScore": 0.6725000000000001,
+      "bestScore": 0.6849999999999999,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 92,
+      "seed": 17360,
+      "meanScore": 0.6125,
+      "bestScore": 0.6799999999999999,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 93,
+      "seed": 17440,
+      "meanScore": 0.65,
+      "bestScore": 0.6725000000000001,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 94,
+      "seed": 17520,
+      "meanScore": 0.7024999999999999,
+      "bestScore": 0.76,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 95,
+      "seed": 17600,
+      "meanScore": 0.6399999999999999,
+      "bestScore": 0.6399999999999999,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 96,
+      "seed": 17680,
+      "meanScore": 0.595,
+      "bestScore": 0.61,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 97,
+      "seed": 17760,
+      "meanScore": 0.705,
+      "bestScore": 0.705,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 98,
+      "seed": 17840,
+      "meanScore": 0.6624999999999999,
+      "bestScore": 0.6649999999999999,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 99,
+      "seed": 17920,
+      "meanScore": 0.6875,
+      "bestScore": 0.6875,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 100,
+      "seed": 18000,
+      "meanScore": 0.6525000000000001,
+      "bestScore": 0.6924999999999999,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 101,
+      "seed": 18080,
+      "meanScore": 0.6375,
+      "bestScore": 0.6475000000000001,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 102,
+      "seed": 18160,
+      "meanScore": 0.6275000000000001,
+      "bestScore": 0.63,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 103,
+      "seed": 18240,
+      "meanScore": 0.6900000000000001,
+      "bestScore": 0.6900000000000001,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 104,
+      "seed": 18320,
+      "meanScore": 0.57,
+      "bestScore": 0.5725,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 105,
+      "seed": 18400,
+      "meanScore": 0.6575,
+      "bestScore": 0.68,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 106,
+      "seed": 18480,
+      "meanScore": 0.6674999999999999,
+      "bestScore": 0.6775,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 107,
+      "seed": 18560,
+      "meanScore": 0.6200000000000001,
+      "bestScore": 0.655,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 108,
+      "seed": 18640,
+      "meanScore": 0.6125,
+      "bestScore": 0.7150000000000001,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 109,
+      "seed": 18720,
+      "meanScore": 0.6824999999999999,
+      "bestScore": 0.7425,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 110,
+      "seed": 18800,
+      "meanScore": 0.6300000000000001,
+      "bestScore": 0.655,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 111,
+      "seed": 18880,
+      "meanScore": 0.7274999999999999,
+      "bestScore": 0.7274999999999999,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 112,
+      "seed": 18960,
+      "meanScore": 0.56,
+      "bestScore": 0.5625,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 113,
+      "seed": 19040,
+      "meanScore": 0.6475,
+      "bestScore": 0.6575,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 114,
+      "seed": 19120,
+      "meanScore": 0.7375,
+      "bestScore": 0.7375,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 115,
+      "seed": 19200,
+      "meanScore": 0.6475,
+      "bestScore": 0.6624999999999999,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 116,
+      "seed": 19280,
+      "meanScore": 0.6624999999999999,
+      "bestScore": 0.6900000000000001,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 117,
+      "seed": 19360,
+      "meanScore": 0.6675,
+      "bestScore": 0.6675,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 118,
+      "seed": 19440,
+      "meanScore": 0.6425,
+      "bestScore": 0.6425,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 119,
+      "seed": 19520,
+      "meanScore": 0.6525000000000001,
+      "bestScore": 0.6649999999999999,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 120,
+      "seed": 19600,
+      "meanScore": 0.6525,
+      "bestScore": 0.665,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 121,
+      "seed": 19680,
+      "meanScore": 0.7425,
+      "bestScore": 0.7425,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 122,
+      "seed": 19760,
+      "meanScore": 0.5974999999999999,
+      "bestScore": 0.61,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 123,
+      "seed": 19840,
+      "meanScore": 0.68,
+      "bestScore": 0.6825,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 124,
+      "seed": 19920,
+      "meanScore": 0.6050000000000001,
+      "bestScore": 0.63,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 125,
+      "seed": 20000,
+      "meanScore": 0.7825,
+      "bestScore": 0.7825,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 126,
+      "seed": 20080,
+      "meanScore": 0.7,
+      "bestScore": 0.71,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 127,
+      "seed": 20160,
+      "meanScore": 0.5925,
+      "bestScore": 0.615,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 128,
+      "seed": 20240,
+      "meanScore": 0.62,
+      "bestScore": 0.62,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 129,
+      "seed": 20320,
+      "meanScore": 0.7425,
+      "bestScore": 0.7625,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 130,
+      "seed": 20400,
       "meanScore": 0.5875,
       "bestScore": 0.5875,
       "errorEpisodes": 0
     },
     {
-      "generation": 231,
-      "seed": 28480,
-      "meanScore": 0.34750000000000003,
-      "bestScore": 0.34750000000000003,
+      "generation": 131,
+      "seed": 20480,
+      "meanScore": 0.655,
+      "bestScore": 0.6675,
       "errorEpisodes": 0
     },
     {
-      "generation": 232,
-      "seed": 28560,
-      "meanScore": 0.41500000000000004,
-      "bestScore": 0.42250000000000004,
+      "generation": 132,
+      "seed": 20560,
+      "meanScore": 0.67,
+      "bestScore": 0.67,
       "errorEpisodes": 0
     },
     {
-      "generation": 233,
-      "seed": 28640,
-      "meanScore": 0.47250000000000003,
-      "bestScore": 0.48,
+      "generation": 133,
+      "seed": 20640,
+      "meanScore": 0.6300000000000001,
+      "bestScore": 0.6375,
       "errorEpisodes": 0
     },
     {
-      "generation": 234,
-      "seed": 28720,
-      "meanScore": 0.45,
-      "bestScore": 0.4525,
+      "generation": 134,
+      "seed": 20720,
+      "meanScore": 0.615,
+      "bestScore": 0.6599999999999999,
       "errorEpisodes": 0
     },
     {
-      "generation": 235,
-      "seed": 28800,
-      "meanScore": 0.5,
-      "bestScore": 0.5,
+      "generation": 135,
+      "seed": 20800,
+      "meanScore": 0.6449999999999999,
+      "bestScore": 0.6449999999999999,
       "errorEpisodes": 0
     },
     {
-      "generation": 236,
-      "seed": 28880,
-      "meanScore": 0.53,
-      "bestScore": 0.53,
+      "generation": 136,
+      "seed": 20880,
+      "meanScore": 0.6825,
+      "bestScore": 0.725,
       "errorEpisodes": 0
     },
     {
-      "generation": 237,
-      "seed": 28960,
-      "meanScore": 0.44499999999999995,
-      "bestScore": 0.44499999999999995,
+      "generation": 137,
+      "seed": 20960,
+      "meanScore": 0.6475,
+      "bestScore": 0.65,
       "errorEpisodes": 0
     },
     {
-      "generation": 238,
-      "seed": 29040,
-      "meanScore": 0.48500000000000004,
-      "bestScore": 0.505,
+      "generation": 138,
+      "seed": 21040,
+      "meanScore": 0.68,
+      "bestScore": 0.68,
       "errorEpisodes": 0
     },
     {
-      "generation": 239,
-      "seed": 29120,
-      "meanScore": 0.365,
-      "bestScore": 0.365,
+      "generation": 139,
+      "seed": 21120,
+      "meanScore": 0.7,
+      "bestScore": 0.7,
       "errorEpisodes": 0
     },
     {
-      "generation": 240,
-      "seed": 29200,
-      "meanScore": 0.425,
-      "bestScore": 0.425,
+      "generation": 140,
+      "seed": 21200,
+      "meanScore": 0.655,
+      "bestScore": 0.6649999999999999,
       "errorEpisodes": 0
     },
     {
-      "generation": 241,
-      "seed": 29280,
-      "meanScore": 0.4625,
-      "bestScore": 0.4625,
+      "generation": 141,
+      "seed": 21280,
+      "meanScore": 0.6950000000000001,
+      "bestScore": 0.71,
       "errorEpisodes": 0
     },
     {
-      "generation": 242,
-      "seed": 29360,
-      "meanScore": 0.3725,
-      "bestScore": 0.3725,
+      "generation": 142,
+      "seed": 21360,
+      "meanScore": 0.7024999999999999,
+      "bestScore": 0.7125,
       "errorEpisodes": 0
     },
     {
-      "generation": 243,
-      "seed": 29440,
-      "meanScore": 0.48749999999999993,
-      "bestScore": 0.48749999999999993,
+      "generation": 143,
+      "seed": 21440,
+      "meanScore": 0.7424999999999999,
+      "bestScore": 0.7525000000000001,
       "errorEpisodes": 0
     },
     {
-      "generation": 244,
-      "seed": 29520,
-      "meanScore": 0.575,
-      "bestScore": 0.575,
+      "generation": 144,
+      "seed": 21520,
+      "meanScore": 0.6025,
+      "bestScore": 0.6025,
       "errorEpisodes": 0
     },
     {
-      "generation": 245,
-      "seed": 29600,
-      "meanScore": 0.4375,
-      "bestScore": 0.4375,
+      "generation": 145,
+      "seed": 21600,
+      "meanScore": 0.6775,
+      "bestScore": 0.6900000000000001,
       "errorEpisodes": 0
     },
     {
-      "generation": 246,
-      "seed": 29680,
-      "meanScore": 0.3725,
-      "bestScore": 0.3725,
+      "generation": 146,
+      "seed": 21680,
+      "meanScore": 0.58,
+      "bestScore": 0.5825,
       "errorEpisodes": 0
     },
     {
-      "generation": 247,
-      "seed": 29760,
-      "meanScore": 0.39,
-      "bestScore": 0.39,
+      "generation": 147,
+      "seed": 21760,
+      "meanScore": 0.635,
+      "bestScore": 0.635,
       "errorEpisodes": 0
     },
     {
-      "generation": 248,
-      "seed": 29840,
-      "meanScore": 0.475,
-      "bestScore": 0.475,
+      "generation": 148,
+      "seed": 21840,
+      "meanScore": 0.7100000000000001,
+      "bestScore": 0.715,
       "errorEpisodes": 0
     },
     {
-      "generation": 249,
-      "seed": 29920,
-      "meanScore": 0.5175,
-      "bestScore": 0.5175,
+      "generation": 149,
+      "seed": 21920,
+      "meanScore": 0.7100000000000001,
+      "bestScore": 0.7125,
       "errorEpisodes": 0
     },
     {
-      "generation": 250,
-      "seed": 30000,
-      "meanScore": 0.4325,
-      "bestScore": 0.4325,
+      "generation": 150,
+      "seed": 22000,
+      "meanScore": 0.6625,
+      "bestScore": 0.6625,
       "errorEpisodes": 0
     },
     {
-      "generation": 251,
-      "seed": 30080,
-      "meanScore": 0.4175,
-      "bestScore": 0.41999999999999993,
+      "generation": 151,
+      "seed": 22080,
+      "meanScore": 0.6449999999999999,
+      "bestScore": 0.655,
       "errorEpisodes": 0
     },
     {
-      "generation": 252,
-      "seed": 30160,
-      "meanScore": 0.43,
-      "bestScore": 0.43,
+      "generation": 152,
+      "seed": 22160,
+      "meanScore": 0.6399999999999999,
+      "bestScore": 0.6399999999999999,
       "errorEpisodes": 0
     },
     {
-      "generation": 253,
-      "seed": 30240,
-      "meanScore": 0.4425,
-      "bestScore": 0.4425,
+      "generation": 153,
+      "seed": 22240,
+      "meanScore": 0.6475,
+      "bestScore": 0.6475,
       "errorEpisodes": 0
     },
     {
-      "generation": 254,
-      "seed": 30320,
-      "meanScore": 0.475,
-      "bestScore": 0.475,
+      "generation": 154,
+      "seed": 22320,
+      "meanScore": 0.6375,
+      "bestScore": 0.6375,
       "errorEpisodes": 0
     },
     {
-      "generation": 255,
-      "seed": 30400,
-      "meanScore": 0.5225,
-      "bestScore": 0.5225,
+      "generation": 155,
+      "seed": 22400,
+      "meanScore": 0.675,
+      "bestScore": 0.675,
       "errorEpisodes": 0
     },
     {
-      "generation": 256,
-      "seed": 30480,
-      "meanScore": 0.4125,
-      "bestScore": 0.4125,
+      "generation": 156,
+      "seed": 22480,
+      "meanScore": 0.7150000000000001,
+      "bestScore": 0.7175,
       "errorEpisodes": 0
     },
     {
-      "generation": 257,
-      "seed": 30560,
-      "meanScore": 0.41000000000000003,
-      "bestScore": 0.41000000000000003,
+      "generation": 157,
+      "seed": 22560,
+      "meanScore": 0.6675,
+      "bestScore": 0.6675,
       "errorEpisodes": 0
     },
     {
-      "generation": 258,
-      "seed": 30640,
-      "meanScore": 0.4725,
-      "bestScore": 0.4725,
+      "generation": 158,
+      "seed": 22640,
+      "meanScore": 0.5475,
+      "bestScore": 0.5475,
       "errorEpisodes": 0
     },
     {
-      "generation": 259,
-      "seed": 30720,
-      "meanScore": 0.33999999999999997,
-      "bestScore": 0.33999999999999997,
+      "generation": 159,
+      "seed": 22720,
+      "meanScore": 0.7025,
+      "bestScore": 0.7025,
       "errorEpisodes": 0
     },
     {
-      "generation": 260,
-      "seed": 30800,
-      "meanScore": 0.3625,
-      "bestScore": 0.3625,
+      "generation": 160,
+      "seed": 22800,
+      "meanScore": 0.6975,
+      "bestScore": 0.6975,
       "errorEpisodes": 0
     },
     {
-      "generation": 261,
-      "seed": 30880,
-      "meanScore": 0.4175,
-      "bestScore": 0.4175,
+      "generation": 161,
+      "seed": 22880,
+      "meanScore": 0.6799999999999999,
+      "bestScore": 0.6799999999999999,
       "errorEpisodes": 0
     },
     {
-      "generation": 262,
-      "seed": 30960,
-      "meanScore": 0.515,
-      "bestScore": 0.515,
+      "generation": 162,
+      "seed": 22960,
+      "meanScore": 0.6475,
+      "bestScore": 0.6475,
       "errorEpisodes": 0
     },
     {
-      "generation": 263,
-      "seed": 31040,
-      "meanScore": 0.48,
-      "bestScore": 0.48,
+      "generation": 163,
+      "seed": 23040,
+      "meanScore": 0.5824999999999999,
+      "bestScore": 0.585,
       "errorEpisodes": 0
     },
     {
-      "generation": 264,
-      "seed": 31120,
-      "meanScore": 0.4725,
-      "bestScore": 0.4725,
+      "generation": 164,
+      "seed": 23120,
+      "meanScore": 0.6075000000000002,
+      "bestScore": 0.6075000000000002,
       "errorEpisodes": 0
     },
     {
-      "generation": 265,
-      "seed": 31200,
-      "meanScore": 0.39249999999999996,
-      "bestScore": 0.39249999999999996,
+      "generation": 165,
+      "seed": 23200,
+      "meanScore": 0.6375,
+      "bestScore": 0.6375,
       "errorEpisodes": 0
     },
     {
-      "generation": 266,
-      "seed": 31280,
-      "meanScore": 0.4525,
-      "bestScore": 0.4525,
+      "generation": 166,
+      "seed": 23280,
+      "meanScore": 0.7,
+      "bestScore": 0.7,
       "errorEpisodes": 0
     },
     {
-      "generation": 267,
-      "seed": 31360,
-      "meanScore": 0.51,
-      "bestScore": 0.51,
+      "generation": 167,
+      "seed": 23360,
+      "meanScore": 0.6699999999999999,
+      "bestScore": 0.6699999999999999,
       "errorEpisodes": 0
     },
     {
-      "generation": 268,
-      "seed": 31440,
-      "meanScore": 0.47000000000000003,
-      "bestScore": 0.47000000000000003,
+      "generation": 168,
+      "seed": 23440,
+      "meanScore": 0.6525,
+      "bestScore": 0.6525,
       "errorEpisodes": 0
     },
     {
-      "generation": 269,
-      "seed": 31520,
-      "meanScore": 0.48250000000000004,
-      "bestScore": 0.48250000000000004,
+      "generation": 169,
+      "seed": 23520,
+      "meanScore": 0.6,
+      "bestScore": 0.6100000000000001,
       "errorEpisodes": 0
     },
     {
-      "generation": 270,
-      "seed": 31600,
-      "meanScore": 0.4725,
-      "bestScore": 0.475,
+      "generation": 170,
+      "seed": 23600,
+      "meanScore": 0.6900000000000001,
+      "bestScore": 0.6900000000000001,
       "errorEpisodes": 0
     },
     {
-      "generation": 271,
-      "seed": 31680,
-      "meanScore": 0.48749999999999993,
-      "bestScore": 0.48749999999999993,
+      "generation": 171,
+      "seed": 23680,
+      "meanScore": 0.6499999999999999,
+      "bestScore": 0.6499999999999999,
       "errorEpisodes": 0
     },
     {
-      "generation": 272,
-      "seed": 31760,
-      "meanScore": 0.475,
-      "bestScore": 0.475,
+      "generation": 172,
+      "seed": 23760,
+      "meanScore": 0.7,
+      "bestScore": 0.7,
       "errorEpisodes": 0
     },
     {
-      "generation": 273,
-      "seed": 31840,
-      "meanScore": 0.5075000000000001,
-      "bestScore": 0.5075000000000001,
+      "generation": 173,
+      "seed": 23840,
+      "meanScore": 0.6425,
+      "bestScore": 0.6425,
       "errorEpisodes": 0
     },
     {
-      "generation": 274,
-      "seed": 31920,
-      "meanScore": 0.4025,
-      "bestScore": 0.4025,
+      "generation": 174,
+      "seed": 23920,
+      "meanScore": 0.6074999999999999,
+      "bestScore": 0.6074999999999999,
       "errorEpisodes": 0
     },
     {
-      "generation": 275,
-      "seed": 32000,
-      "meanScore": 0.5075000000000001,
-      "bestScore": 0.5075000000000001,
+      "generation": 175,
+      "seed": 24000,
+      "meanScore": 0.725,
+      "bestScore": 0.725,
       "errorEpisodes": 0
     },
     {
-      "generation": 276,
-      "seed": 32080,
-      "meanScore": 0.5075000000000001,
-      "bestScore": 0.5075000000000001,
+      "generation": 176,
+      "seed": 24080,
+      "meanScore": 0.6875,
+      "bestScore": 0.6875,
       "errorEpisodes": 0
     },
     {
-      "generation": 277,
-      "seed": 32160,
-      "meanScore": 0.38,
-      "bestScore": 0.38,
+      "generation": 177,
+      "seed": 24160,
+      "meanScore": 0.705,
+      "bestScore": 0.705,
       "errorEpisodes": 0
     },
     {
-      "generation": 278,
-      "seed": 32240,
-      "meanScore": 0.5250000000000001,
-      "bestScore": 0.5250000000000001,
+      "generation": 178,
+      "seed": 24240,
+      "meanScore": 0.615,
+      "bestScore": 0.615,
       "errorEpisodes": 0
     },
     {
-      "generation": 279,
-      "seed": 32320,
-      "meanScore": 0.42749999999999994,
-      "bestScore": 0.42749999999999994,
+      "generation": 179,
+      "seed": 24320,
+      "meanScore": 0.7125,
+      "bestScore": 0.7125,
       "errorEpisodes": 0
     },
     {
-      "generation": 280,
-      "seed": 32400,
-      "meanScore": 0.43500000000000005,
-      "bestScore": 0.43500000000000005,
+      "generation": 180,
+      "seed": 24400,
+      "meanScore": 0.6024999999999999,
+      "bestScore": 0.6024999999999999,
       "errorEpisodes": 0
     },
     {
-      "generation": 281,
-      "seed": 32480,
-      "meanScore": 0.4175,
-      "bestScore": 0.4175,
+      "generation": 181,
+      "seed": 24480,
+      "meanScore": 0.49000000000000005,
+      "bestScore": 0.49000000000000005,
       "errorEpisodes": 0
     },
     {
-      "generation": 282,
-      "seed": 32560,
-      "meanScore": 0.45,
-      "bestScore": 0.45,
+      "generation": 182,
+      "seed": 24560,
+      "meanScore": 0.715,
+      "bestScore": 0.715,
       "errorEpisodes": 0
     },
     {
-      "generation": 283,
-      "seed": 32640,
-      "meanScore": 0.52,
-      "bestScore": 0.52,
+      "generation": 183,
+      "seed": 24640,
+      "meanScore": 0.6775,
+      "bestScore": 0.6775,
       "errorEpisodes": 0
     },
     {
-      "generation": 284,
-      "seed": 32720,
-      "meanScore": 0.4175,
-      "bestScore": 0.4175,
+      "generation": 184,
+      "seed": 24720,
+      "meanScore": 0.6224999999999999,
+      "bestScore": 0.6224999999999999,
       "errorEpisodes": 0
     },
     {
-      "generation": 285,
-      "seed": 32800,
-      "meanScore": 0.5275000000000001,
-      "bestScore": 0.5275000000000001,
+      "generation": 185,
+      "seed": 24800,
+      "meanScore": 0.6074999999999999,
+      "bestScore": 0.6175,
       "errorEpisodes": 0
     },
     {
-      "generation": 286,
-      "seed": 32880,
-      "meanScore": 0.46749999999999997,
-      "bestScore": 0.46749999999999997,
+      "generation": 186,
+      "seed": 24880,
+      "meanScore": 0.72,
+      "bestScore": 0.72,
       "errorEpisodes": 0
     },
     {
-      "generation": 287,
-      "seed": 32960,
-      "meanScore": 0.40499999999999997,
-      "bestScore": 0.40499999999999997,
+      "generation": 187,
+      "seed": 24960,
+      "meanScore": 0.6925,
+      "bestScore": 0.6925,
       "errorEpisodes": 0
     },
     {
-      "generation": 288,
-      "seed": 33040,
-      "meanScore": 0.4625,
-      "bestScore": 0.4625,
+      "generation": 188,
+      "seed": 25040,
+      "meanScore": 0.725,
+      "bestScore": 0.725,
       "errorEpisodes": 0
     },
     {
-      "generation": 289,
-      "seed": 33120,
-      "meanScore": 0.3625,
-      "bestScore": 0.3625,
+      "generation": 189,
+      "seed": 25120,
+      "meanScore": 0.645,
+      "bestScore": 0.645,
       "errorEpisodes": 0
     },
     {
-      "generation": 290,
-      "seed": 33200,
-      "meanScore": 0.4525,
-      "bestScore": 0.4525,
+      "generation": 190,
+      "seed": 25200,
+      "meanScore": 0.6075,
+      "bestScore": 0.6075,
       "errorEpisodes": 0
     },
     {
-      "generation": 291,
-      "seed": 33280,
-      "meanScore": 0.5175000000000001,
-      "bestScore": 0.5175000000000001,
+      "generation": 191,
+      "seed": 25280,
+      "meanScore": 0.6575,
+      "bestScore": 0.6575,
       "errorEpisodes": 0
     },
     {
-      "generation": 292,
-      "seed": 33360,
-      "meanScore": 0.44000000000000006,
-      "bestScore": 0.44000000000000006,
+      "generation": 192,
+      "seed": 25360,
+      "meanScore": 0.7125,
+      "bestScore": 0.7125,
       "errorEpisodes": 0
     },
     {
-      "generation": 293,
-      "seed": 33440,
-      "meanScore": 0.475,
-      "bestScore": 0.475,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 294,
-      "seed": 33520,
-      "meanScore": 0.4175,
-      "bestScore": 0.4175,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 295,
-      "seed": 33600,
-      "meanScore": 0.43,
-      "bestScore": 0.43,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 296,
-      "seed": 33680,
-      "meanScore": 0.38,
-      "bestScore": 0.38,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 297,
-      "seed": 33760,
-      "meanScore": 0.5025000000000001,
-      "bestScore": 0.5025000000000001,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 298,
-      "seed": 33840,
-      "meanScore": 0.45499999999999996,
-      "bestScore": 0.45499999999999996,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 299,
-      "seed": 33920,
-      "meanScore": 0.4925,
-      "bestScore": 0.4925,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 300,
-      "seed": 34000,
-      "meanScore": 0.42250000000000004,
-      "bestScore": 0.42250000000000004,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 301,
-      "seed": 34080,
-      "meanScore": 0.39749999999999996,
-      "bestScore": 0.39749999999999996,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 302,
-      "seed": 34160,
-      "meanScore": 0.53,
-      "bestScore": 0.53,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 303,
-      "seed": 34240,
-      "meanScore": 0.37499999999999994,
-      "bestScore": 0.37499999999999994,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 304,
-      "seed": 34320,
-      "meanScore": 0.51,
-      "bestScore": 0.51,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 305,
-      "seed": 34400,
-      "meanScore": 0.45,
-      "bestScore": 0.45,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 306,
-      "seed": 34480,
-      "meanScore": 0.5375,
-      "bestScore": 0.5375,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 307,
-      "seed": 34560,
-      "meanScore": 0.485,
-      "bestScore": 0.485,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 308,
-      "seed": 34640,
-      "meanScore": 0.49499999999999994,
-      "bestScore": 0.49499999999999994,
-      "errorEpisodes": 0
-    },
-    {
-      "generation": 309,
-      "seed": 34720,
+      "generation": 193,
+      "seed": 25440,
       "meanScore": 0.525,
       "bestScore": 0.525,
       "errorEpisodes": 0
     },
     {
-      "generation": 310,
-      "seed": 34800,
-      "meanScore": 0.40750000000000003,
-      "bestScore": 0.40750000000000003,
+      "generation": 194,
+      "seed": 25520,
+      "meanScore": 0.5775,
+      "bestScore": 0.5775,
       "errorEpisodes": 0
     },
     {
-      "generation": 311,
-      "seed": 34880,
-      "meanScore": 0.4575,
-      "bestScore": 0.4575,
+      "generation": 195,
+      "seed": 25600,
+      "meanScore": 0.7474999999999999,
+      "bestScore": 0.7474999999999999,
       "errorEpisodes": 0
     },
     {
-      "generation": 312,
-      "seed": 34960,
+      "generation": 196,
+      "seed": 25680,
+      "meanScore": 0.6175,
+      "bestScore": 0.6175,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 197,
+      "seed": 25760,
+      "meanScore": 0.6675,
+      "bestScore": 0.6675,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 198,
+      "seed": 25840,
+      "meanScore": 0.6950000000000001,
+      "bestScore": 0.6950000000000001,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 199,
+      "seed": 25920,
+      "meanScore": 0.62,
+      "bestScore": 0.62,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 200,
+      "seed": 26000,
+      "meanScore": 0.66,
+      "bestScore": 0.66,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 201,
+      "seed": 26080,
+      "meanScore": 0.6624999999999999,
+      "bestScore": 0.6624999999999999,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 202,
+      "seed": 26160,
+      "meanScore": 0.7275,
+      "bestScore": 0.7275,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 203,
+      "seed": 26240,
+      "meanScore": 0.63,
+      "bestScore": 0.63,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 204,
+      "seed": 26320,
+      "meanScore": 0.6025,
+      "bestScore": 0.6050000000000001,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 205,
+      "seed": 26400,
+      "meanScore": 0.7249999999999999,
+      "bestScore": 0.7249999999999999,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 206,
+      "seed": 26480,
+      "meanScore": 0.6950000000000001,
+      "bestScore": 0.6950000000000001,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 207,
+      "seed": 26560,
+      "meanScore": 0.665,
+      "bestScore": 0.665,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 208,
+      "seed": 26640,
+      "meanScore": 0.6824999999999999,
+      "bestScore": 0.6824999999999999,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 209,
+      "seed": 26720,
       "meanScore": 0.5625,
       "bestScore": 0.5625,
       "errorEpisodes": 0
     },
     {
-      "generation": 313,
-      "seed": 35040,
-      "meanScore": 0.54,
-      "bestScore": 0.54,
+      "generation": 210,
+      "seed": 26800,
+      "meanScore": 0.6649999999999999,
+      "bestScore": 0.6649999999999999,
       "errorEpisodes": 0
     },
     {
-      "generation": 314,
-      "seed": 35120,
-      "meanScore": 0.40750000000000003,
-      "bestScore": 0.40750000000000003,
+      "generation": 211,
+      "seed": 26880,
+      "meanScore": 0.6275,
+      "bestScore": 0.6275,
       "errorEpisodes": 0
     },
     {
-      "generation": 315,
-      "seed": 35200,
-      "meanScore": 0.5275000000000001,
-      "bestScore": 0.5275000000000001,
+      "generation": 212,
+      "seed": 26960,
+      "meanScore": 0.74,
+      "bestScore": 0.74,
       "errorEpisodes": 0
     },
     {
-      "generation": 316,
-      "seed": 35280,
-      "meanScore": 0.52,
-      "bestScore": 0.52,
+      "generation": 213,
+      "seed": 27040,
+      "meanScore": 0.7224999999999999,
+      "bestScore": 0.7224999999999999,
       "errorEpisodes": 0
     },
     {
-      "generation": 317,
-      "seed": 35360,
-      "meanScore": 0.48250000000000004,
-      "bestScore": 0.48250000000000004,
+      "generation": 214,
+      "seed": 27120,
+      "meanScore": 0.755,
+      "bestScore": 0.755,
       "errorEpisodes": 0
     },
     {
-      "generation": 318,
-      "seed": 35440,
-      "meanScore": 0.5075,
-      "bestScore": 0.5075,
+      "generation": 215,
+      "seed": 27200,
+      "meanScore": 0.7275,
+      "bestScore": 0.7275,
       "errorEpisodes": 0
     },
     {
-      "generation": 319,
-      "seed": 35520,
+      "generation": 216,
+      "seed": 27280,
+      "meanScore": 0.7425,
+      "bestScore": 0.7425,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 217,
+      "seed": 27360,
+      "meanScore": 0.6449999999999999,
+      "bestScore": 0.6449999999999999,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 218,
+      "seed": 27440,
+      "meanScore": 0.5650000000000001,
+      "bestScore": 0.5650000000000001,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 219,
+      "seed": 27520,
+      "meanScore": 0.6525,
+      "bestScore": 0.6525,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 220,
+      "seed": 27600,
+      "meanScore": 0.635,
+      "bestScore": 0.635,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 221,
+      "seed": 27680,
+      "meanScore": 0.6825,
+      "bestScore": 0.6825,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 222,
+      "seed": 27760,
+      "meanScore": 0.5650000000000001,
+      "bestScore": 0.5650000000000001,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 223,
+      "seed": 27840,
+      "meanScore": 0.675,
+      "bestScore": 0.675,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 224,
+      "seed": 27920,
+      "meanScore": 0.5625,
+      "bestScore": 0.5625,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 225,
+      "seed": 28000,
+      "meanScore": 0.6875,
+      "bestScore": 0.6875,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 226,
+      "seed": 28080,
+      "meanScore": 0.6375,
+      "bestScore": 0.6375,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 227,
+      "seed": 28160,
+      "meanScore": 0.7424999999999999,
+      "bestScore": 0.7424999999999999,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 228,
+      "seed": 28240,
+      "meanScore": 0.6125,
+      "bestScore": 0.6125,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 229,
+      "seed": 28320,
+      "meanScore": 0.625,
+      "bestScore": 0.625,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 230,
+      "seed": 28400,
+      "meanScore": 0.75,
+      "bestScore": 0.75,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 231,
+      "seed": 28480,
+      "meanScore": 0.55,
+      "bestScore": 0.55,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 232,
+      "seed": 28560,
+      "meanScore": 0.6525000000000001,
+      "bestScore": 0.6525000000000001,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 233,
+      "seed": 28640,
+      "meanScore": 0.7,
+      "bestScore": 0.7,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 234,
+      "seed": 28720,
+      "meanScore": 0.655,
+      "bestScore": 0.655,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 235,
+      "seed": 28800,
+      "meanScore": 0.6849999999999999,
+      "bestScore": 0.6849999999999999,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 236,
+      "seed": 28880,
+      "meanScore": 0.6775,
+      "bestScore": 0.6775,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 237,
+      "seed": 28960,
+      "meanScore": 0.6725,
+      "bestScore": 0.6725,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 238,
+      "seed": 29040,
+      "meanScore": 0.725,
+      "bestScore": 0.725,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 239,
+      "seed": 29120,
+      "meanScore": 0.625,
+      "bestScore": 0.625,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 240,
+      "seed": 29200,
+      "meanScore": 0.6849999999999999,
+      "bestScore": 0.6849999999999999,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 241,
+      "seed": 29280,
+      "meanScore": 0.71,
+      "bestScore": 0.71,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 242,
+      "seed": 29360,
+      "meanScore": 0.6025,
+      "bestScore": 0.6025,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 243,
+      "seed": 29440,
+      "meanScore": 0.6674999999999999,
+      "bestScore": 0.6674999999999999,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 244,
+      "seed": 29520,
+      "meanScore": 0.74,
+      "bestScore": 0.74,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 245,
+      "seed": 29600,
+      "meanScore": 0.65,
+      "bestScore": 0.65,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 246,
+      "seed": 29680,
+      "meanScore": 0.6475,
+      "bestScore": 0.6475,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 247,
+      "seed": 29760,
+      "meanScore": 0.635,
+      "bestScore": 0.635,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 248,
+      "seed": 29840,
+      "meanScore": 0.6575,
+      "bestScore": 0.6575,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 249,
+      "seed": 29920,
+      "meanScore": 0.6875,
+      "bestScore": 0.6875,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 250,
+      "seed": 30000,
+      "meanScore": 0.68,
+      "bestScore": 0.68,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 251,
+      "seed": 30080,
+      "meanScore": 0.655,
+      "bestScore": 0.655,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 252,
+      "seed": 30160,
+      "meanScore": 0.6375,
+      "bestScore": 0.6375,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 253,
+      "seed": 30240,
+      "meanScore": 0.6675,
+      "bestScore": 0.6675,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 254,
+      "seed": 30320,
+      "meanScore": 0.6775,
+      "bestScore": 0.6775,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 255,
+      "seed": 30400,
+      "meanScore": 0.6050000000000001,
+      "bestScore": 0.6050000000000001,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 256,
+      "seed": 30480,
+      "meanScore": 0.615,
+      "bestScore": 0.615,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 257,
+      "seed": 30560,
+      "meanScore": 0.6125,
+      "bestScore": 0.6125,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 258,
+      "seed": 30640,
+      "meanScore": 0.695,
+      "bestScore": 0.695,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 259,
+      "seed": 30720,
+      "meanScore": 0.6875,
+      "bestScore": 0.6875,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 260,
+      "seed": 30800,
+      "meanScore": 0.575,
+      "bestScore": 0.575,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 261,
+      "seed": 30880,
+      "meanScore": 0.5999999999999999,
+      "bestScore": 0.5999999999999999,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 262,
+      "seed": 30960,
+      "meanScore": 0.77,
+      "bestScore": 0.77,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 263,
+      "seed": 31040,
+      "meanScore": 0.6424999999999998,
+      "bestScore": 0.6424999999999998,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 264,
+      "seed": 31120,
+      "meanScore": 0.6449999999999999,
+      "bestScore": 0.6449999999999999,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 265,
+      "seed": 31200,
+      "meanScore": 0.635,
+      "bestScore": 0.635,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 266,
+      "seed": 31280,
+      "meanScore": 0.6525000000000001,
+      "bestScore": 0.6525000000000001,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 267,
+      "seed": 31360,
+      "meanScore": 0.6625,
+      "bestScore": 0.6625,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 268,
+      "seed": 31440,
+      "meanScore": 0.6699999999999999,
+      "bestScore": 0.6699999999999999,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 269,
+      "seed": 31520,
+      "meanScore": 0.6225,
+      "bestScore": 0.6225,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 270,
+      "seed": 31600,
+      "meanScore": 0.6475,
+      "bestScore": 0.6475,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 271,
+      "seed": 31680,
+      "meanScore": 0.725,
+      "bestScore": 0.725,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 272,
+      "seed": 31760,
+      "meanScore": 0.6725000000000001,
+      "bestScore": 0.6725000000000001,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 273,
+      "seed": 31840,
+      "meanScore": 0.725,
+      "bestScore": 0.725,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 274,
+      "seed": 31920,
+      "meanScore": 0.6075000000000002,
+      "bestScore": 0.6075000000000002,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 275,
+      "seed": 32000,
+      "meanScore": 0.7,
+      "bestScore": 0.7,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 276,
+      "seed": 32080,
+      "meanScore": 0.6275,
+      "bestScore": 0.6275,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 277,
+      "seed": 32160,
       "meanScore": 0.51,
       "bestScore": 0.51,
       "errorEpisodes": 0
     },
     {
+      "generation": 278,
+      "seed": 32240,
+      "meanScore": 0.7375,
+      "bestScore": 0.7375,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 279,
+      "seed": 32320,
+      "meanScore": 0.65,
+      "bestScore": 0.65,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 280,
+      "seed": 32400,
+      "meanScore": 0.6725,
+      "bestScore": 0.6725,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 281,
+      "seed": 32480,
+      "meanScore": 0.5725,
+      "bestScore": 0.5725,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 282,
+      "seed": 32560,
+      "meanScore": 0.6325,
+      "bestScore": 0.6325,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 283,
+      "seed": 32640,
+      "meanScore": 0.6125,
+      "bestScore": 0.6125,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 284,
+      "seed": 32720,
+      "meanScore": 0.6475000000000001,
+      "bestScore": 0.6475000000000001,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 285,
+      "seed": 32800,
+      "meanScore": 0.7325,
+      "bestScore": 0.7325,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 286,
+      "seed": 32880,
+      "meanScore": 0.6100000000000001,
+      "bestScore": 0.6100000000000001,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 287,
+      "seed": 32960,
+      "meanScore": 0.7,
+      "bestScore": 0.7,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 288,
+      "seed": 33040,
+      "meanScore": 0.6700000000000002,
+      "bestScore": 0.6700000000000002,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 289,
+      "seed": 33120,
+      "meanScore": 0.61,
+      "bestScore": 0.61,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 290,
+      "seed": 33200,
+      "meanScore": 0.6175,
+      "bestScore": 0.6175,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 291,
+      "seed": 33280,
+      "meanScore": 0.6950000000000001,
+      "bestScore": 0.6950000000000001,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 292,
+      "seed": 33360,
+      "meanScore": 0.625,
+      "bestScore": 0.625,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 293,
+      "seed": 33440,
+      "meanScore": 0.7625,
+      "bestScore": 0.7625,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 294,
+      "seed": 33520,
+      "meanScore": 0.7474999999999999,
+      "bestScore": 0.7474999999999999,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 295,
+      "seed": 33600,
+      "meanScore": 0.5525,
+      "bestScore": 0.5525,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 296,
+      "seed": 33680,
+      "meanScore": 0.6100000000000001,
+      "bestScore": 0.6100000000000001,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 297,
+      "seed": 33760,
+      "meanScore": 0.6900000000000001,
+      "bestScore": 0.6900000000000001,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 298,
+      "seed": 33840,
+      "meanScore": 0.6024999999999999,
+      "bestScore": 0.6024999999999999,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 299,
+      "seed": 33920,
+      "meanScore": 0.6775,
+      "bestScore": 0.6775,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 300,
+      "seed": 34000,
+      "meanScore": 0.6799999999999999,
+      "bestScore": 0.6799999999999999,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 301,
+      "seed": 34080,
+      "meanScore": 0.5850000000000001,
+      "bestScore": 0.5850000000000001,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 302,
+      "seed": 34160,
+      "meanScore": 0.6475,
+      "bestScore": 0.6475,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 303,
+      "seed": 34240,
+      "meanScore": 0.6175,
+      "bestScore": 0.6175,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 304,
+      "seed": 34320,
+      "meanScore": 0.6824999999999999,
+      "bestScore": 0.6824999999999999,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 305,
+      "seed": 34400,
+      "meanScore": 0.6399999999999999,
+      "bestScore": 0.6399999999999999,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 306,
+      "seed": 34480,
+      "meanScore": 0.6424999999999998,
+      "bestScore": 0.6424999999999998,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 307,
+      "seed": 34560,
+      "meanScore": 0.74,
+      "bestScore": 0.74,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 308,
+      "seed": 34640,
+      "meanScore": 0.6725,
+      "bestScore": 0.6725,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 309,
+      "seed": 34720,
+      "meanScore": 0.655,
+      "bestScore": 0.655,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 310,
+      "seed": 34800,
+      "meanScore": 0.5824999999999999,
+      "bestScore": 0.5824999999999999,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 311,
+      "seed": 34880,
+      "meanScore": 0.6300000000000001,
+      "bestScore": 0.6300000000000001,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 312,
+      "seed": 34960,
+      "meanScore": 0.7275,
+      "bestScore": 0.7275,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 313,
+      "seed": 35040,
+      "meanScore": 0.6775,
+      "bestScore": 0.6775,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 314,
+      "seed": 35120,
+      "meanScore": 0.75,
+      "bestScore": 0.75,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 315,
+      "seed": 35200,
+      "meanScore": 0.7125,
+      "bestScore": 0.7125,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 316,
+      "seed": 35280,
+      "meanScore": 0.7175,
+      "bestScore": 0.7175,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 317,
+      "seed": 35360,
+      "meanScore": 0.6325000000000001,
+      "bestScore": 0.6325000000000001,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 318,
+      "seed": 35440,
+      "meanScore": 0.7425,
+      "bestScore": 0.7425,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 319,
+      "seed": 35520,
+      "meanScore": 0.76,
+      "bestScore": 0.76,
+      "errorEpisodes": 0
+    },
+    {
       "generation": 320,
       "seed": 35600,
-      "meanScore": 0.5275,
-      "bestScore": 0.5275,
+      "meanScore": 0.7300000000000001,
+      "bestScore": 0.7300000000000001,
       "errorEpisodes": 0
     },
     {
       "generation": 321,
       "seed": 35680,
-      "meanScore": 0.4125,
-      "bestScore": 0.4125,
+      "meanScore": 0.65,
+      "bestScore": 0.65,
       "errorEpisodes": 0
     },
     {
       "generation": 322,
       "seed": 35760,
-      "meanScore": 0.475,
-      "bestScore": 0.475,
+      "meanScore": 0.6475,
+      "bestScore": 0.6475,
       "errorEpisodes": 0
     },
     {
       "generation": 323,
       "seed": 35840,
-      "meanScore": 0.42000000000000004,
-      "bestScore": 0.42000000000000004,
+      "meanScore": 0.6625,
+      "bestScore": 0.6625,
       "errorEpisodes": 0
     },
     {
       "generation": 324,
       "seed": 35920,
-      "meanScore": 0.45499999999999996,
-      "bestScore": 0.45499999999999996,
+      "meanScore": 0.7350000000000001,
+      "bestScore": 0.7350000000000001,
       "errorEpisodes": 0
     },
     {
       "generation": 325,
       "seed": 36000,
-      "meanScore": 0.4425,
-      "bestScore": 0.4425,
+      "meanScore": 0.63,
+      "bestScore": 0.63,
       "errorEpisodes": 0
     },
     {
       "generation": 326,
       "seed": 36080,
-      "meanScore": 0.5125,
-      "bestScore": 0.5125,
+      "meanScore": 0.595,
+      "bestScore": 0.595,
       "errorEpisodes": 0
     },
     {
       "generation": 327,
       "seed": 36160,
-      "meanScore": 0.45,
-      "bestScore": 0.45,
+      "meanScore": 0.6399999999999999,
+      "bestScore": 0.6399999999999999,
       "errorEpisodes": 0
     },
     {
       "generation": 328,
       "seed": 36240,
-      "meanScore": 0.45,
-      "bestScore": 0.45,
+      "meanScore": 0.5999999999999999,
+      "bestScore": 0.5999999999999999,
       "errorEpisodes": 0
     },
     {
       "generation": 329,
       "seed": 36320,
-      "meanScore": 0.48749999999999993,
-      "bestScore": 0.48749999999999993,
+      "meanScore": 0.665,
+      "bestScore": 0.665,
       "errorEpisodes": 0
     },
     {
       "generation": 330,
       "seed": 36400,
-      "meanScore": 0.4149999999999999,
-      "bestScore": 0.4149999999999999,
+      "meanScore": 0.575,
+      "bestScore": 0.575,
       "errorEpisodes": 0
     },
     {
       "generation": 331,
       "seed": 36480,
-      "meanScore": 0.495,
-      "bestScore": 0.495,
+      "meanScore": 0.8,
+      "bestScore": 0.8,
       "errorEpisodes": 0
     },
     {
       "generation": 332,
       "seed": 36560,
-      "meanScore": 0.5225000000000001,
-      "bestScore": 0.5225000000000001,
+      "meanScore": 0.755,
+      "bestScore": 0.755,
       "errorEpisodes": 0
     },
     {
       "generation": 333,
       "seed": 36640,
-      "meanScore": 0.48249999999999993,
-      "bestScore": 0.48249999999999993,
+      "meanScore": 0.695,
+      "bestScore": 0.695,
       "errorEpisodes": 0
     },
     {
       "generation": 334,
       "seed": 36720,
-      "meanScore": 0.5375,
-      "bestScore": 0.5375,
+      "meanScore": 0.7424999999999999,
+      "bestScore": 0.7424999999999999,
       "errorEpisodes": 0
     },
     {
       "generation": 335,
       "seed": 36800,
-      "meanScore": 0.43249999999999994,
-      "bestScore": 0.43249999999999994,
+      "meanScore": 0.6775,
+      "bestScore": 0.6775,
       "errorEpisodes": 0
     },
     {
       "generation": 336,
       "seed": 36880,
-      "meanScore": 0.47000000000000003,
-      "bestScore": 0.47000000000000003,
+      "meanScore": 0.6599999999999999,
+      "bestScore": 0.6599999999999999,
       "errorEpisodes": 0
     },
     {
       "generation": 337,
       "seed": 36960,
-      "meanScore": 0.29500000000000004,
-      "bestScore": 0.29500000000000004,
+      "meanScore": 0.57,
+      "bestScore": 0.57,
       "errorEpisodes": 0
     },
     {
       "generation": 338,
       "seed": 37040,
-      "meanScore": 0.40499999999999997,
-      "bestScore": 0.40499999999999997,
+      "meanScore": 0.615,
+      "bestScore": 0.615,
       "errorEpisodes": 0
     },
     {
       "generation": 339,
       "seed": 37120,
-      "meanScore": 0.47000000000000003,
-      "bestScore": 0.47000000000000003,
+      "meanScore": 0.605,
+      "bestScore": 0.605,
       "errorEpisodes": 0
     },
     {
       "generation": 340,
       "seed": 37200,
-      "meanScore": 0.41,
-      "bestScore": 0.41,
+      "meanScore": 0.6325,
+      "bestScore": 0.6325,
       "errorEpisodes": 0
     },
     {
       "generation": 341,
       "seed": 37280,
-      "meanScore": 0.36000000000000004,
-      "bestScore": 0.36000000000000004,
+      "meanScore": 0.6599999999999999,
+      "bestScore": 0.6599999999999999,
       "errorEpisodes": 0
     },
     {
       "generation": 342,
       "seed": 37360,
-      "meanScore": 0.42000000000000004,
-      "bestScore": 0.42000000000000004,
+      "meanScore": 0.6575,
+      "bestScore": 0.6575,
       "errorEpisodes": 0
     },
     {
       "generation": 343,
       "seed": 37440,
-      "meanScore": 0.425,
-      "bestScore": 0.425,
+      "meanScore": 0.62,
+      "bestScore": 0.62,
       "errorEpisodes": 0
     },
     {
       "generation": 344,
       "seed": 37520,
-      "meanScore": 0.45499999999999996,
-      "bestScore": 0.45499999999999996,
+      "meanScore": 0.6950000000000001,
+      "bestScore": 0.6950000000000001,
       "errorEpisodes": 0
     },
     {
       "generation": 345,
       "seed": 37600,
-      "meanScore": 0.355,
-      "bestScore": 0.355,
+      "meanScore": 0.5725,
+      "bestScore": 0.5725,
       "errorEpisodes": 0
     },
     {
       "generation": 346,
       "seed": 37680,
-      "meanScore": 0.465,
-      "bestScore": 0.465,
+      "meanScore": 0.6449999999999999,
+      "bestScore": 0.6449999999999999,
       "errorEpisodes": 0
     },
     {
       "generation": 347,
       "seed": 37760,
-      "meanScore": 0.47000000000000003,
-      "bestScore": 0.47000000000000003,
+      "meanScore": 0.6174999999999999,
+      "bestScore": 0.6174999999999999,
       "errorEpisodes": 0
     },
     {
       "generation": 348,
       "seed": 37840,
-      "meanScore": 0.4125,
-      "bestScore": 0.4125,
+      "meanScore": 0.645,
+      "bestScore": 0.645,
       "errorEpisodes": 0
     },
     {
       "generation": 349,
       "seed": 37920,
-      "meanScore": 0.39,
-      "bestScore": 0.39,
+      "meanScore": 0.5875,
+      "bestScore": 0.5875,
       "errorEpisodes": 0
     },
     {
       "generation": 350,
       "seed": 38000,
-      "meanScore": 0.485,
-      "bestScore": 0.485,
+      "meanScore": 0.735,
+      "bestScore": 0.735,
       "errorEpisodes": 0
     },
     {
       "generation": 351,
       "seed": 38080,
-      "meanScore": 0.48999999999999994,
-      "bestScore": 0.48999999999999994,
+      "meanScore": 0.6649999999999999,
+      "bestScore": 0.6649999999999999,
       "errorEpisodes": 0
     },
     {
       "generation": 352,
       "seed": 38160,
-      "meanScore": 0.4025,
-      "bestScore": 0.4025,
+      "meanScore": 0.5525,
+      "bestScore": 0.5525,
       "errorEpisodes": 0
     },
     {
       "generation": 353,
       "seed": 38240,
-      "meanScore": 0.485,
-      "bestScore": 0.485,
+      "meanScore": 0.6950000000000001,
+      "bestScore": 0.6950000000000001,
       "errorEpisodes": 0
     },
     {
       "generation": 354,
       "seed": 38320,
-      "meanScore": 0.48250000000000004,
-      "bestScore": 0.48250000000000004,
+      "meanScore": 0.68,
+      "bestScore": 0.68,
       "errorEpisodes": 0
     },
     {
       "generation": 355,
       "seed": 38400,
-      "meanScore": 0.4175000000000001,
-      "bestScore": 0.4175000000000001,
+      "meanScore": 0.585,
+      "bestScore": 0.585,
       "errorEpisodes": 0
     },
     {
       "generation": 356,
       "seed": 38480,
-      "meanScore": 0.4575,
-      "bestScore": 0.4575,
+      "meanScore": 0.6975,
+      "bestScore": 0.6975,
       "errorEpisodes": 0
     },
     {
       "generation": 357,
       "seed": 38560,
-      "meanScore": 0.49750000000000005,
-      "bestScore": 0.49750000000000005,
+      "meanScore": 0.6575,
+      "bestScore": 0.6575,
       "errorEpisodes": 0
     },
     {
       "generation": 358,
       "seed": 38640,
-      "meanScore": 0.2975,
-      "bestScore": 0.2975,
+      "meanScore": 0.5874999999999999,
+      "bestScore": 0.5874999999999999,
       "errorEpisodes": 0
     },
     {
       "generation": 359,
       "seed": 38720,
-      "meanScore": 0.46749999999999997,
-      "bestScore": 0.46749999999999997,
+      "meanScore": 0.7249999999999999,
+      "bestScore": 0.7249999999999999,
       "errorEpisodes": 0
     },
     {
       "generation": 360,
       "seed": 38800,
-      "meanScore": 0.5025000000000001,
-      "bestScore": 0.5025000000000001,
+      "meanScore": 0.665,
+      "bestScore": 0.665,
       "errorEpisodes": 0
     },
     {
       "generation": 361,
       "seed": 38880,
-      "meanScore": 0.445,
-      "bestScore": 0.445,
+      "meanScore": 0.5974999999999999,
+      "bestScore": 0.5974999999999999,
       "errorEpisodes": 0
     },
     {
       "generation": 362,
       "seed": 38960,
-      "meanScore": 0.5349999999999999,
-      "bestScore": 0.5349999999999999,
+      "meanScore": 0.6775,
+      "bestScore": 0.6775,
       "errorEpisodes": 0
     },
     {
       "generation": 363,
       "seed": 39040,
-      "meanScore": 0.4774999999999999,
-      "bestScore": 0.4774999999999999,
+      "meanScore": 0.6925,
+      "bestScore": 0.6925,
       "errorEpisodes": 0
     },
     {
       "generation": 364,
       "seed": 39120,
-      "meanScore": 0.4774999999999999,
-      "bestScore": 0.4774999999999999,
+      "meanScore": 0.6499999999999999,
+      "bestScore": 0.6499999999999999,
       "errorEpisodes": 0
     },
     {
       "generation": 365,
       "seed": 39200,
-      "meanScore": 0.4225,
-      "bestScore": 0.4225,
+      "meanScore": 0.6250000000000001,
+      "bestScore": 0.6250000000000001,
       "errorEpisodes": 0
     },
     {
       "generation": 366,
       "seed": 39280,
-      "meanScore": 0.485,
-      "bestScore": 0.485,
+      "meanScore": 0.71,
+      "bestScore": 0.71,
       "errorEpisodes": 0
     },
     {
       "generation": 367,
       "seed": 39360,
-      "meanScore": 0.4725,
-      "bestScore": 0.4725,
+      "meanScore": 0.6200000000000001,
+      "bestScore": 0.6200000000000001,
       "errorEpisodes": 0
     },
     {
       "generation": 368,
       "seed": 39440,
-      "meanScore": 0.40499999999999997,
-      "bestScore": 0.40499999999999997,
+      "meanScore": 0.67,
+      "bestScore": 0.67,
       "errorEpisodes": 0
     },
     {
       "generation": 369,
       "seed": 39520,
-      "meanScore": 0.41500000000000004,
-      "bestScore": 0.41500000000000004,
+      "meanScore": 0.5825,
+      "bestScore": 0.5825,
       "errorEpisodes": 0
     },
     {
       "generation": 370,
       "seed": 39600,
-      "meanScore": 0.40750000000000003,
-      "bestScore": 0.40750000000000003,
+      "meanScore": 0.625,
+      "bestScore": 0.625,
       "errorEpisodes": 0
     },
     {
       "generation": 371,
       "seed": 39680,
-      "meanScore": 0.41000000000000003,
-      "bestScore": 0.41000000000000003,
+      "meanScore": 0.6250000000000001,
+      "bestScore": 0.6250000000000001,
       "errorEpisodes": 0
     },
     {
       "generation": 372,
       "seed": 39760,
-      "meanScore": 0.43499999999999994,
-      "bestScore": 0.43499999999999994,
+      "meanScore": 0.6950000000000001,
+      "bestScore": 0.6950000000000001,
       "errorEpisodes": 0
     },
     {
       "generation": 373,
       "seed": 39840,
-      "meanScore": 0.5,
-      "bestScore": 0.5,
+      "meanScore": 0.6824999999999999,
+      "bestScore": 0.6824999999999999,
       "errorEpisodes": 0
     },
     {
       "generation": 374,
       "seed": 39920,
-      "meanScore": 0.3675,
-      "bestScore": 0.3675,
+      "meanScore": 0.6425,
+      "bestScore": 0.6425,
       "errorEpisodes": 0
     },
     {
       "generation": 375,
       "seed": 40000,
-      "meanScore": 0.4774999999999999,
-      "bestScore": 0.4774999999999999,
+      "meanScore": 0.6775,
+      "bestScore": 0.6775,
       "errorEpisodes": 0
     },
     {
       "generation": 376,
       "seed": 40080,
-      "meanScore": 0.48999999999999994,
-      "bestScore": 0.48999999999999994,
+      "meanScore": 0.675,
+      "bestScore": 0.675,
       "errorEpisodes": 0
     },
     {
       "generation": 377,
       "seed": 40160,
-      "meanScore": 0.48500000000000004,
-      "bestScore": 0.48500000000000004,
+      "meanScore": 0.6075,
+      "bestScore": 0.6075,
       "errorEpisodes": 0
     },
     {
       "generation": 378,
       "seed": 40240,
-      "meanScore": 0.525,
-      "bestScore": 0.525,
+      "meanScore": 0.755,
+      "bestScore": 0.755,
       "errorEpisodes": 0
     },
     {
       "generation": 379,
       "seed": 40320,
-      "meanScore": 0.4525,
-      "bestScore": 0.4525,
+      "meanScore": 0.55,
+      "bestScore": 0.55,
       "errorEpisodes": 0
     },
     {
       "generation": 380,
       "seed": 40400,
-      "meanScore": 0.4575,
-      "bestScore": 0.4575,
+      "meanScore": 0.7050000000000001,
+      "bestScore": 0.7050000000000001,
       "errorEpisodes": 0
     },
     {
       "generation": 381,
       "seed": 40480,
-      "meanScore": 0.41500000000000004,
-      "bestScore": 0.41500000000000004,
+      "meanScore": 0.6074999999999999,
+      "bestScore": 0.6074999999999999,
       "errorEpisodes": 0
     },
     {
       "generation": 382,
       "seed": 40560,
-      "meanScore": 0.4575,
-      "bestScore": 0.4575,
+      "meanScore": 0.7275,
+      "bestScore": 0.7275,
       "errorEpisodes": 0
     },
     {
       "generation": 383,
       "seed": 40640,
-      "meanScore": 0.4125,
-      "bestScore": 0.4125,
+      "meanScore": 0.7125,
+      "bestScore": 0.7125,
       "errorEpisodes": 0
     },
     {
       "generation": 384,
       "seed": 40720,
-      "meanScore": 0.35750000000000004,
-      "bestScore": 0.35750000000000004,
+      "meanScore": 0.65,
+      "bestScore": 0.65,
       "errorEpisodes": 0
     },
     {
       "generation": 385,
       "seed": 40800,
-      "meanScore": 0.5175,
-      "bestScore": 0.5175,
+      "meanScore": 0.7949999999999999,
+      "bestScore": 0.7949999999999999,
       "errorEpisodes": 0
     },
     {
       "generation": 386,
       "seed": 40880,
-      "meanScore": 0.4725,
-      "bestScore": 0.4725,
+      "meanScore": 0.7275,
+      "bestScore": 0.7275,
       "errorEpisodes": 0
     },
     {
       "generation": 387,
       "seed": 40960,
-      "meanScore": 0.5225,
-      "bestScore": 0.5225,
+      "meanScore": 0.7125000000000001,
+      "bestScore": 0.7125000000000001,
       "errorEpisodes": 0
     },
     {
       "generation": 388,
       "seed": 41040,
-      "meanScore": 0.3925,
-      "bestScore": 0.3925,
+      "meanScore": 0.625,
+      "bestScore": 0.625,
       "errorEpisodes": 0
     },
     {
       "generation": 389,
       "seed": 41120,
-      "meanScore": 0.42750000000000005,
-      "bestScore": 0.42750000000000005,
+      "meanScore": 0.7125,
+      "bestScore": 0.7125,
       "errorEpisodes": 0
     },
     {
       "generation": 390,
       "seed": 41200,
-      "meanScore": 0.5575,
-      "bestScore": 0.5575,
+      "meanScore": 0.6725000000000001,
+      "bestScore": 0.6725000000000001,
       "errorEpisodes": 0
     },
     {
       "generation": 391,
       "seed": 41280,
-      "meanScore": 0.40249999999999997,
-      "bestScore": 0.40249999999999997,
+      "meanScore": 0.6025,
+      "bestScore": 0.6025,
       "errorEpisodes": 0
     },
     {
       "generation": 392,
       "seed": 41360,
-      "meanScore": 0.47250000000000003,
-      "bestScore": 0.47250000000000003,
+      "meanScore": 0.65,
+      "bestScore": 0.65,
       "errorEpisodes": 0
     },
     {
       "generation": 393,
       "seed": 41440,
-      "meanScore": 0.42000000000000004,
-      "bestScore": 0.42000000000000004,
+      "meanScore": 0.6175,
+      "bestScore": 0.6175,
       "errorEpisodes": 0
     },
     {
       "generation": 394,
+      "seed": 41520,
+      "meanScore": 0.7,
+      "bestScore": 0.7,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 395,
+      "seed": 41600,
+      "meanScore": 0.7675,
+      "bestScore": 0.7675,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 396,
+      "seed": 41680,
+      "meanScore": 0.66,
+      "bestScore": 0.66,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 397,
+      "seed": 41760,
+      "meanScore": 0.6475,
+      "bestScore": 0.6475,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 398,
+      "seed": 41840,
+      "meanScore": 0.7450000000000001,
+      "bestScore": 0.7450000000000001,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 399,
+      "seed": 41920,
+      "meanScore": 0.7,
+      "bestScore": 0.7,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 400,
+      "seed": 42000,
+      "meanScore": 0.665,
+      "bestScore": 0.665,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 401,
+      "seed": 42080,
+      "meanScore": 0.725,
+      "bestScore": 0.725,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 402,
+      "seed": 42160,
+      "meanScore": 0.58,
+      "bestScore": 0.58,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 403,
+      "seed": 42240,
+      "meanScore": 0.6675,
+      "bestScore": 0.6675,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 404,
+      "seed": 42320,
+      "meanScore": 0.69,
+      "bestScore": 0.69,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 405,
+      "seed": 42400,
+      "meanScore": 0.61,
+      "bestScore": 0.61,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 406,
+      "seed": 42480,
+      "meanScore": 0.71,
+      "bestScore": 0.71,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 407,
+      "seed": 42560,
+      "meanScore": 0.7325,
+      "bestScore": 0.7325,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 408,
+      "seed": 42640,
+      "meanScore": 0.7699999999999999,
+      "bestScore": 0.7699999999999999,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 409,
+      "seed": 42720,
+      "meanScore": 0.6025,
+      "bestScore": 0.6025,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 410,
+      "seed": 42800,
+      "meanScore": 0.6174999999999999,
+      "bestScore": 0.6174999999999999,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 411,
+      "seed": 42880,
+      "meanScore": 0.77,
+      "bestScore": 0.77,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 412,
+      "seed": 42960,
+      "meanScore": 0.6449999999999999,
+      "bestScore": 0.6449999999999999,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 413,
+      "seed": 43040,
+      "meanScore": 0.6449999999999999,
+      "bestScore": 0.6449999999999999,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 414,
+      "seed": 43120,
+      "meanScore": 0.5525,
+      "bestScore": 0.5525,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 415,
+      "seed": 43200,
+      "meanScore": 0.5974999999999999,
+      "bestScore": 0.5974999999999999,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 416,
+      "seed": 43280,
+      "meanScore": 0.6375,
+      "bestScore": 0.6375,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 417,
+      "seed": 43360,
+      "meanScore": 0.655,
+      "bestScore": 0.655,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 418,
+      "seed": 43440,
+      "meanScore": 0.6175,
+      "bestScore": 0.6175,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 419,
+      "seed": 43520,
+      "meanScore": 0.6125,
+      "bestScore": 0.6125,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 420,
+      "seed": 43600,
+      "meanScore": 0.6674999999999999,
+      "bestScore": 0.6674999999999999,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 421,
+      "seed": 43680,
+      "meanScore": 0.6875,
+      "bestScore": 0.6875,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 422,
+      "seed": 43760,
+      "meanScore": 0.6449999999999999,
+      "bestScore": 0.6449999999999999,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 423,
+      "seed": 43840,
+      "meanScore": 0.73,
+      "bestScore": 0.73,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 424,
+      "seed": 43920,
+      "meanScore": 0.6475,
+      "bestScore": 0.6475,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 425,
+      "seed": 44000,
+      "meanScore": 0.6375,
+      "bestScore": 0.6375,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 426,
+      "seed": 44080,
+      "meanScore": 0.5775,
+      "bestScore": 0.5775,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 427,
+      "seed": 44160,
+      "meanScore": 0.6375,
+      "bestScore": 0.6375,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 428,
+      "seed": 44240,
+      "meanScore": 0.6275,
+      "bestScore": 0.6275,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 429,
+      "seed": 44320,
+      "meanScore": 0.6199999999999999,
+      "bestScore": 0.6199999999999999,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 430,
+      "seed": 44400,
+      "meanScore": 0.67,
+      "bestScore": 0.67,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 431,
+      "seed": 44480,
+      "meanScore": 0.65,
+      "bestScore": 0.65,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 432,
+      "seed": 44560,
+      "meanScore": 0.7525000000000001,
+      "bestScore": 0.7525000000000001,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 433,
+      "seed": 44640,
+      "meanScore": 0.67,
+      "bestScore": 0.67,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 434,
+      "seed": 44720,
+      "meanScore": 0.5625,
+      "bestScore": 0.5625,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 435,
+      "seed": 44800,
+      "meanScore": 0.6975,
+      "bestScore": 0.6975,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 436,
+      "seed": 44880,
+      "meanScore": 0.6425000000000001,
+      "bestScore": 0.6425000000000001,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 437,
+      "seed": 44960,
+      "meanScore": 0.6475000000000001,
+      "bestScore": 0.6475000000000001,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 438,
+      "seed": 45040,
+      "meanScore": 0.7075,
+      "bestScore": 0.7075,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 439,
+      "seed": 45120,
+      "meanScore": 0.6799999999999999,
+      "bestScore": 0.6799999999999999,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 440,
+      "seed": 45200,
+      "meanScore": 0.6825,
+      "bestScore": 0.6825,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 441,
+      "seed": 45280,
+      "meanScore": 0.6625,
+      "bestScore": 0.6625,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 442,
+      "seed": 45360,
+      "meanScore": 0.6649999999999999,
+      "bestScore": 0.6649999999999999,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 443,
+      "seed": 45440,
+      "meanScore": 0.6575,
+      "bestScore": 0.6575,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 444,
+      "seed": 45520,
+      "meanScore": 0.61,
+      "bestScore": 0.61,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 445,
+      "seed": 45600,
+      "meanScore": 0.6125,
+      "bestScore": 0.6125,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 446,
+      "seed": 45680,
+      "meanScore": 0.6399999999999999,
+      "bestScore": 0.6399999999999999,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 447,
+      "seed": 45760,
+      "meanScore": 0.6825,
+      "bestScore": 0.6825,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 448,
+      "seed": 45840,
+      "meanScore": 0.6575,
+      "bestScore": 0.6575,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 449,
+      "seed": 45920,
+      "meanScore": 0.5900000000000001,
+      "bestScore": 0.5900000000000001,
+      "errorEpisodes": 0
+    },
+    {
+      "generation": 450,
       "interrupted": "评估达到时间预算"
     }
   ]
